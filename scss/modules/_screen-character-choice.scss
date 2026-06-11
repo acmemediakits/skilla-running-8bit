@@ -1,0 +1,103 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/type" as t;
+@use "../components/mixins" as *;
+
+
+#game-root:has(.screen[data-screen="character-choice"] ){
+  background: fn.color(panel) !important;
+}
+.screen[data-screen="character-choice"] {
+  // Role: character-choice; presentation: screen
+  // Headline: Ready
+  background: fn.color(panel) !important;
+  .screen {
+   /* &__panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+    }*/
+    &__title {
+      @include jsmii-style-h2;
+      color: fn.color(skillaBlue);
+      text-shadow: none;
+      text-align: center;
+      max-height: fit-content;
+    }
+    &__body {
+      & > ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        & > li {
+          text-align: center;
+          width: 100%;
+          &:first-child {
+            margin-bottom: 12px;
+          }
+          button {
+            position: relative;
+            background: transparent;
+            border: none;
+            span {
+              position: relative;
+              width: 40vw;
+              height: 40vw;
+              @include mobile {
+                max-width: 200px;
+                max-height: 200px;
+              }
+              @include desktop {
+                max-width: 160px;
+                max-height: 160px;
+              }
+              background-color: fn.color(text);
+              overflow: visible;
+              min-height: fit-content;
+              @include jsmii-8bit-frame(fn.color(text), fn.color(text), fn.color(shadow), normal, 1px, true);
+              & > img {
+                position: absolute;
+                inset: 0;
+                width: 90%;
+                height: 90%;
+                object-fit: contain;
+              }
+            }
+            &.selected:after {
+              content: '';
+              position: absolute;
+              inset: 0 0 0 85%;
+              margin: auto;
+              display: block;
+              width: 100%;
+              max-height: 60px;
+              background: url(../assets/presentation/selection-arrow.png) no-repeat left center/ contain;
+              @include mobile {
+                left: 90%;
+              }
+            }
+          }
+          span {
+            display: block;
+            @include t.font(body);
+            color: fn.color(black);
+            padding: 8px 0;
+            margin: auto;
+            @include mobile {
+              max-width: 280px;
+            }
+          }
+        }
+      }
+    }
+
+    &__actions {
+      max-height: fit-content;
+      margin-top: 0;
+    }
+  }
+}

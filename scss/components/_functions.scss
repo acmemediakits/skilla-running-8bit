@@ -1,0 +1,51 @@
+@use "sass:map";
+@use "sass:meta";
+@use "vars" as v;
+
+@function _token($map, $key, $fallback: null) {
+  @if map.has-key($map, $key) {
+    @return map.get($map, $key);
+  }
+
+  @return $fallback;
+}
+
+@function responsive-value($value, $device: mobile) {
+  @if meta.type-of($value) == "map" and map.has-key($value, $device) {
+    @return map.get($value, $device);
+  }
+
+  @return $value;
+}
+
+@function color($key, $fallback: null) {
+  @return _token(v.$colors, $key, $fallback);
+}
+
+@function space($key, $fallback: 0) {
+  @return _token(v.$spacing, $key, $fallback);
+}
+
+@function radius($key, $fallback: 0) {
+  @return _token(v.$radii, $key, $fallback);
+}
+
+@function z($key, $fallback: 1) {
+  @return _token(v.$z-indexes, $key, $fallback);
+}
+
+@function layout($key, $device: mobile, $fallback: null) {
+  @return responsive-value(_token(v.$website-layout, $key, $fallback), $device);
+}
+
+@function font-style($key, $fallback: null) {
+  @return _token(v.$layoutFontStyles, $key, $fallback);
+}
+
+@function hud-asset($key) {
+  @return _token(v.$hud-assets, $key);
+}
+
+@function asset-url($file) {
+  @return url("#{v.$asset-path}/#{$file}");
+}

@@ -1,0 +1,1810 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap");
+:root {
+  --jsmii-theme-primary: #ea447b;
+  --jsmii-theme-secondary: #00abf8;
+  --jsmii-theme-accent: #00abf8;
+  --jsmii-theme-text: #ffffff;
+  --jsmii-theme-background-from: #0000d2;
+  --jsmii-theme-background-to: #ade5ff;
+  --jsmii-theme-shadow: #05080d;
+  --jsmii-theme-color-hud: #ffffff;
+  --jsmii-theme-font-base: "Avenir Next", system-ui, sans-serif;
+  --jsmii-theme-font-h1: "Avenir Next", system-ui, sans-serif;
+  --jsmii-theme-font-h2: "Avenir Next", system-ui, sans-serif;
+  --jsmii-theme-font-h3: "Avenir Next", system-ui, sans-serif;
+  --jsmii-theme-font-body: "Avenir Next", system-ui, sans-serif;
+  --jsmii-theme-font-cta: "Avenir Next", system-ui, sans-serif;
+  --jsmii-theme-font-hud: "Avenir Next", system-ui, sans-serif;
+  --jsmii-theme-font-size: 18px;
+}
+
+.screen[data-screen=welcome] .screen__panel, .screen__title {
+  font-family: "Press Start 2P", system-ui, sans-serif;
+  font-size: 42px;
+  font-weight: 900;
+  color: #ffffff;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 #00abf8;
+  box-shadow: none;
+}
+
+.screen[data-screen=thankyou] .screen__panel, .screen__body {
+  font-family: "DM Sans", "SFMono-Regular", Consolas, monospace;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: #ffffff;
+  text-transform: none;
+  text-shadow: none;
+  box-shadow: none;
+}
+@media (min-width: 992px) {
+  .screen[data-screen=thankyou] .screen__panel, .screen__body {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+}
+
+#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1] .screen__panel, #screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1] .screen__panel, #screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1] .screen__panel, .screen__hud-item, .screen__eyebrow {
+  font-family: "Press Start 2P", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.18;
+  letter-spacing: 0;
+  color: #0A164D;
+  text-transform: uppercase;
+  text-shadow: none;
+  padding: 8px;
+  border-radius: 0;
+  box-shadow: none;
+}
+@media (min-width: 992px) {
+  #screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1] .screen__panel, #screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1] .screen__panel, #screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1] .screen__panel, .screen__hud-item, .screen__eyebrow {
+    font-size: 12px;
+    line-height: 1.18;
+  }
+}
+
+#screen-mount > .screen .screen__panel button.screen__sound-toggle, #screen-mount > .screen .screen__actions .button--primary, .screen__actions .button, .screen__actions .button--primary, .screen[data-screen=life-zero] .screen__panel .screen__actions .button--primary, .screen.life-lost .screen__panel .screen__actions .button--primary, .screen[data-screen=life-lost] .screen__panel .screen__actions .button--primary, .screen[data-screen=life-lost-level-2] .screen__panel .screen__actions .button--primary {
+  font-family: "Silkscreen", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.18;
+  letter-spacing: 0;
+  color: #ffffff;
+  text-transform: uppercase;
+  padding: 14px 28px;
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+}
+@media (min-width: 992px) {
+  #screen-mount > .screen .screen__panel button.screen__sound-toggle, #screen-mount > .screen .screen__actions .button--primary, .screen__actions .button, .screen__actions .button--primary, .screen[data-screen=life-zero] .screen__panel .screen__actions .button--primary, .screen.life-lost .screen__panel .screen__actions .button--primary, .screen[data-screen=life-lost] .screen__panel .screen__actions .button--primary, .screen[data-screen=life-lost-level-2] .screen__panel .screen__actions .button--primary {
+    font-size: 15px;
+    line-height: 1.18;
+  }
+}
+#screen-mount > .screen .screen__panel button.screen__sound-toggle::before, #screen-mount > .screen .screen__actions .button--primary::before, .screen__actions .button::before, .screen__actions .button--primary::before, .screen[data-screen=life-zero] .screen__panel .screen__actions .button--primary::before, .screen.life-lost .screen__panel .screen__actions .button--primary::before, .screen[data-screen=life-lost] .screen__panel .screen__actions .button--primary::before, .screen[data-screen=life-lost-level-2] .screen__panel .screen__actions .button--primary::before, #screen-mount > .screen .screen__panel button.screen__sound-toggle::after, #screen-mount > .screen .screen__actions .button--primary::after, .screen__actions .button::after, .screen__actions .button--primary::after, .screen[data-screen=life-zero] .screen__panel .screen__actions .button--primary::after, .screen.life-lost .screen__panel .screen__actions .button--primary::after, .screen[data-screen=life-lost] .screen__panel .screen__actions .button--primary::after, .screen[data-screen=life-lost-level-2] .screen__panel .screen__actions .button--primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+#screen-mount > .screen .screen__panel button.screen__sound-toggle::before, #screen-mount > .screen .screen__actions .button--primary::before, .screen__actions .button::before, .screen__actions .button--primary::before, .screen[data-screen=life-zero] .screen__panel .screen__actions .button--primary::before, .screen.life-lost .screen__panel .screen__actions .button--primary::before, .screen[data-screen=life-lost] .screen__panel .screen__actions .button--primary::before, .screen[data-screen=life-lost-level-2] .screen__panel .screen__actions .button--primary::before {
+  z-index: -2;
+  clip-path: polygon(8px 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%, 8px 100%);
+  background: #05080d;
+  transform: translate(4px, 4px);
+}
+#screen-mount > .screen .screen__panel button.screen__sound-toggle::after, #screen-mount > .screen .screen__actions .button--primary::after, .screen__actions .button::after, .screen__actions .button--primary::after, .screen[data-screen=life-zero] .screen__panel .screen__actions .button--primary::after, .screen.life-lost .screen__panel .screen__actions .button--primary::after, .screen[data-screen=life-lost] .screen__panel .screen__actions .button--primary::after, .screen[data-screen=life-lost-level-2] .screen__panel .screen__actions .button--primary::after {
+  z-index: -1;
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, calc(100% - 8px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%, 8px 100%, 8px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px), 0 8px, 4px 8px, 4px 4px, 8px 4px);
+  box-sizing: border-box;
+  border: 1px solid #ea447b;
+  background: #ea447b;
+}
+
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table div.submitButtonWrapper button, #screen-mount > .screen .screen__actions .button--secondary, .screen__actions .button:nth-child(even), .screen__actions .button--secondary, .screen[data-screen=life-zero] .screen__panel .screen__actions .button--secondary, .screen.life-lost .screen__panel .screen__actions .button--secondary, .screen[data-screen=life-lost] .screen__panel .screen__actions .button--secondary, .screen[data-screen=life-lost-level-2] .screen__panel .screen__actions .button--secondary {
+  font-family: "Silkscreen", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.18;
+  letter-spacing: 0;
+  color: #ffffff;
+  text-transform: uppercase;
+  padding: 14px 28px;
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+}
+@media (min-width: 992px) {
+  body:has(.screen--lead-generation) .screen--lead-generation #blockCta table div.submitButtonWrapper button, #screen-mount > .screen .screen__actions .button--secondary, .screen__actions .button:nth-child(even), .screen__actions .button--secondary, .screen[data-screen=life-zero] .screen__panel .screen__actions .button--secondary, .screen.life-lost .screen__panel .screen__actions .button--secondary, .screen[data-screen=life-lost] .screen__panel .screen__actions .button--secondary, .screen[data-screen=life-lost-level-2] .screen__panel .screen__actions .button--secondary {
+    font-size: 15px;
+    line-height: 1.18;
+  }
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table div.submitButtonWrapper button::before, #screen-mount > .screen .screen__actions .button--secondary::before, .screen__actions .button:nth-child(even)::before, .screen__actions .button--secondary::before, .screen[data-screen=life-zero] .screen__panel .screen__actions .button--secondary::before, .screen.life-lost .screen__panel .screen__actions .button--secondary::before, .screen[data-screen=life-lost] .screen__panel .screen__actions .button--secondary::before, .screen[data-screen=life-lost-level-2] .screen__panel .screen__actions .button--secondary::before, body:has(.screen--lead-generation) .screen--lead-generation #blockCta table div.submitButtonWrapper button::after, #screen-mount > .screen .screen__actions .button--secondary::after, .screen__actions .button:nth-child(even)::after, .screen__actions .button--secondary::after, .screen[data-screen=life-zero] .screen__panel .screen__actions .button--secondary::after, .screen.life-lost .screen__panel .screen__actions .button--secondary::after, .screen[data-screen=life-lost] .screen__panel .screen__actions .button--secondary::after, .screen[data-screen=life-lost-level-2] .screen__panel .screen__actions .button--secondary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table div.submitButtonWrapper button::before, #screen-mount > .screen .screen__actions .button--secondary::before, .screen__actions .button:nth-child(even)::before, .screen__actions .button--secondary::before, .screen[data-screen=life-zero] .screen__panel .screen__actions .button--secondary::before, .screen.life-lost .screen__panel .screen__actions .button--secondary::before, .screen[data-screen=life-lost] .screen__panel .screen__actions .button--secondary::before, .screen[data-screen=life-lost-level-2] .screen__panel .screen__actions .button--secondary::before {
+  z-index: -2;
+  clip-path: polygon(8px 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%, 8px 100%);
+  background: #05080d;
+  transform: translate(4px, 4px);
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table div.submitButtonWrapper button::after, #screen-mount > .screen .screen__actions .button--secondary::after, .screen__actions .button:nth-child(even)::after, .screen__actions .button--secondary::after, .screen[data-screen=life-zero] .screen__panel .screen__actions .button--secondary::after, .screen.life-lost .screen__panel .screen__actions .button--secondary::after, .screen[data-screen=life-lost] .screen__panel .screen__actions .button--secondary::after, .screen[data-screen=life-lost-level-2] .screen__panel .screen__actions .button--secondary::after {
+  z-index: -1;
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, calc(100% - 8px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%, 8px 100%, 8px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px), 0 8px, 4px 8px, 4px 4px, 8px 4px);
+  box-sizing: border-box;
+  border: 1px solid #00abf8;
+  background: #00abf8;
+}
+
+.screen[data-screen=game-end] .screen__panel, .screen--game-end .screen__panel,
+.screen--game-over .screen__panel {
+  font-family: "DM Mono", system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #0000d2;
+  text-transform: none;
+  text-shadow: none;
+  padding: 18px;
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+}
+.screen[data-screen=game-end] .screen__panel::before, .screen--game-end .screen__panel::before,
+.screen--game-over .screen__panel::before, .screen[data-screen=game-end] .screen__panel::after, .screen--game-end .screen__panel::after,
+.screen--game-over .screen__panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.screen[data-screen=game-end] .screen__panel::before, .screen--game-end .screen__panel::before,
+.screen--game-over .screen__panel::before {
+  z-index: -2;
+  clip-path: polygon(8px 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%, 8px 100%);
+  background: #05080d;
+  transform: translate(4px, 4px);
+}
+.screen[data-screen=game-end] .screen__panel::after, .screen--game-end .screen__panel::after,
+.screen--game-over .screen__panel::after {
+  z-index: -1;
+  clip-path: polygon(0 16px, 4px 16px, 4px 10px, 10px 10px, 10px 4px, 16px 4px, 16px 0, calc(100% - 16px) 0, calc(100% - 16px) 4px, calc(100% - 10px) 4px, calc(100% - 10px) 10px, calc(100% - 4px) 10px, calc(100% - 4px) 16px, 100% 16px, 100% calc(100% - 16px), calc(100% - 4px) calc(100% - 16px), calc(100% - 4px) calc(100% - 10px), calc(100% - 10px) calc(100% - 10px), calc(100% - 10px) calc(100% - 4px), calc(100% - 16px) calc(100% - 4px), calc(100% - 16px) 100%, 16px 100%, 16px calc(100% - 4px), 10px calc(100% - 4px), 10px calc(100% - 10px), 4px calc(100% - 10px), 4px calc(100% - 16px), 0 calc(100% - 16px));
+  box-sizing: border-box;
+  border: 1px solid #ffffff;
+  background: #ffffff;
+}
+
+.screen__form {
+  font-family: "DM Sans", "SFMono-Regular", Consolas, monospace;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: #000000;
+  text-transform: none;
+  text-shadow: none;
+}
+@media (min-width: 992px) {
+  .screen__form {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+}
+
+.screen[data-screen=life-zero] .screen__panel, .screen.life-lost .screen__panel, .screen[data-screen=life-lost] .screen__panel, .screen[data-screen=life-lost-level-2] .screen__panel {
+  width: 420px;
+  max-width: 340px;
+  height: 576px;
+  min-height: unset !important;
+  max-height: 680px;
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+  align-items: center;
+  padding: 32px !important;
+}
+@media (min-width: 390px) {
+  .screen[data-screen=life-zero] .screen__panel, .screen.life-lost .screen__panel, .screen[data-screen=life-lost] .screen__panel, .screen[data-screen=life-lost-level-2] .screen__panel {
+    max-width: 360px;
+  }
+}
+@media (min-width: 992px) {
+  .screen[data-screen=life-zero] .screen__panel, .screen.life-lost .screen__panel, .screen[data-screen=life-lost] .screen__panel, .screen[data-screen=life-lost-level-2] .screen__panel {
+    max-height: 680px;
+  }
+}
+.screen[data-screen=life-zero] .screen__panel::before, .screen.life-lost .screen__panel::before, .screen[data-screen=life-lost] .screen__panel::before, .screen[data-screen=life-lost-level-2] .screen__panel::before, .screen[data-screen=life-zero] .screen__panel::after, .screen.life-lost .screen__panel::after, .screen[data-screen=life-lost] .screen__panel::after, .screen[data-screen=life-lost-level-2] .screen__panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.screen[data-screen=life-zero] .screen__panel::before, .screen.life-lost .screen__panel::before, .screen[data-screen=life-lost] .screen__panel::before, .screen[data-screen=life-lost-level-2] .screen__panel::before {
+  z-index: -2;
+  clip-path: polygon(8px 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%, 8px 100%);
+  background: #05080d;
+  transform: translate(4px, 4px);
+}
+.screen[data-screen=life-zero] .screen__panel::after, .screen.life-lost .screen__panel::after, .screen[data-screen=life-lost] .screen__panel::after, .screen[data-screen=life-lost-level-2] .screen__panel::after {
+  z-index: -1;
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, calc(100% - 8px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%, 8px 100%, 8px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px), 0 8px, 4px 8px, 4px 4px, 8px 4px);
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  background: #0A164D;
+}
+.screen[data-screen=life-zero] .screen__panel .screen__eyebrow, .screen.life-lost .screen__panel .screen__eyebrow, .screen[data-screen=life-lost] .screen__panel .screen__eyebrow, .screen[data-screen=life-lost-level-2] .screen__panel .screen__eyebrow, .screen[data-screen=life-zero] .screen__panel .screen__title, .screen.life-lost .screen__panel .screen__title, .screen[data-screen=life-lost] .screen__panel .screen__title, .screen[data-screen=life-lost-level-2] .screen__panel .screen__title {
+  font-family: "Press Start 2P", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.2em;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 2px 2px #05080d;
+  text-align: center;
+}
+@media (min-width: 992px) {
+  .screen[data-screen=life-zero] .screen__panel .screen__eyebrow, .screen.life-lost .screen__panel .screen__eyebrow, .screen[data-screen=life-lost] .screen__panel .screen__eyebrow, .screen[data-screen=life-lost-level-2] .screen__panel .screen__eyebrow, .screen[data-screen=life-zero] .screen__panel .screen__title, .screen.life-lost .screen__panel .screen__title, .screen[data-screen=life-lost] .screen__panel .screen__title, .screen[data-screen=life-lost-level-2] .screen__panel .screen__title {
+    font-size: 28px;
+    line-height: 1.2em;
+  }
+}
+.screen[data-screen=life-zero] .screen__panel .screen__body .character-idle, .screen.life-lost .screen__panel .screen__body .character-idle, .screen[data-screen=life-lost] .screen__panel .screen__body .character-idle, .screen[data-screen=life-lost-level-2] .screen__panel .screen__body .character-idle {
+  width: 180px;
+  display: block;
+  margin: 0 auto;
+}
+.screen[data-screen=life-zero] .screen__panel .screen__body .character-idle:before, .screen.life-lost .screen__panel .screen__body .character-idle:before, .screen[data-screen=life-lost] .screen__panel .screen__body .character-idle:before, .screen[data-screen=life-lost-level-2] .screen__panel .screen__body .character-idle:before {
+  content: "";
+  display: block;
+  padding: 50%;
+  overflow: hidden;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+.screen[data-screen=life-zero] .screen__panel .screen__body .character-alieno:before, .screen.life-lost .screen__panel .screen__body .character-alieno:before, .screen[data-screen=life-lost] .screen__panel .screen__body .character-alieno:before, .screen[data-screen=life-lost-level-2] .screen__panel .screen__body .character-alieno:before {
+  background-image: url("../assets/presentation/character-alieno-idle.gif");
+}
+.screen[data-screen=life-zero] .screen__panel .screen__body .character-robot:before, .screen.life-lost .screen__panel .screen__body .character-robot:before, .screen[data-screen=life-lost] .screen__panel .screen__body .character-robot:before, .screen[data-screen=life-lost-level-2] .screen__panel .screen__body .character-robot:before {
+  background-image: url("../assets/presentation/character-robot-idle.gif");
+}
+.screen[data-screen=life-zero] .screen__panel .screen__actions, .screen.life-lost .screen__panel .screen__actions, .screen[data-screen=life-lost] .screen__panel .screen__actions, .screen[data-screen=life-lost-level-2] .screen__panel .screen__actions {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  row-gap: 24px;
+}
+.screen[data-screen=life-zero] .screen__panel .screen__sound-toggle, .screen.life-lost .screen__panel .screen__sound-toggle, .screen[data-screen=life-lost] .screen__panel .screen__sound-toggle, .screen[data-screen=life-lost-level-2] .screen__panel .screen__sound-toggle {
+  display: none;
+}
+
+body:has(.screen--lead-generation) .screen--lead-generation, .screen--level-complete {
+  background: #DCDCDC !important;
+  flex-direction: column;
+  justify-content: center;
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__panel, .screen--level-complete .screen__panel {
+  flex: 1 0 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__panel > *, .screen--level-complete .screen__panel > * {
+  flex: 0 0 36%;
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__panel > p:empty, .screen--level-complete .screen__panel > p:empty, body:has(.screen--lead-generation) .screen--lead-generation .screen__panel > h1:empty, .screen--level-complete .screen__panel > h1:empty {
+  display: none;
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__title, .screen--level-complete .screen__title {
+  font-family: "Press Start 2P", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.2em;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #0000d2;
+  text-shadow: none;
+  text-align: center;
+}
+@media (min-width: 992px) {
+  body:has(.screen--lead-generation) .screen--lead-generation .screen__title, .screen--level-complete .screen__title {
+    font-size: 28px;
+    line-height: 1.2em;
+  }
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__body, .screen--level-complete .screen__body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: 12px;
+}
+@media (min-width: 390px) {
+  body:has(.screen--lead-generation) .screen--lead-generation .screen__body, .screen--level-complete .screen__body {
+    gap: 24px;
+  }
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__card, .screen--level-complete .screen__card {
+  width: 100%;
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+  font-family: "DM Sans", "SFMono-Regular", Consolas, monospace;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: #000000;
+  text-align: center;
+  padding: 8px 16px;
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__card::before, .screen--level-complete .screen__card::before, body:has(.screen--lead-generation) .screen--lead-generation .screen__card::after, .screen--level-complete .screen__card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__card::before, .screen--level-complete .screen__card::before {
+  z-index: -2;
+  clip-path: polygon(8px 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%, 8px 100%);
+  background: #05080d;
+  transform: translate(4px, 4px);
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__card::after, .screen--level-complete .screen__card::after {
+  z-index: -1;
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, calc(100% - 8px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%, 8px 100%, 8px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px), 0 8px, 4px 8px, 4px 4px, 8px 4px);
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  background: #ffffff;
+}
+@media (min-width: 992px) {
+  body:has(.screen--lead-generation) .screen--lead-generation .screen__card, .screen--level-complete .screen__card {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+}
+@media (min-width: 390px) {
+  body:has(.screen--lead-generation) .screen--lead-generation .screen__card, .screen--level-complete .screen__card {
+    padding: 16px;
+  }
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__card .text-primary, .screen--level-complete .screen__card .text-primary {
+  color: #ea447b;
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__list, .screen--level-complete .screen__list {
+  margin: 0;
+  list-style-type: none;
+  color: #000000;
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__list > li, .screen--level-complete .screen__list > li {
+  position: relative;
+  margin-bottom: 12px;
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__list > li:before, .screen--level-complete .screen__list > li:before {
+  content: "";
+  position: absolute;
+  display: block;
+  inset: 4px auto auto -36px;
+  padding: 8px;
+  background: url(../assets/presentation/list-arrow.png) no-repeat center/contain;
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__list > li:last-of-type, .screen--level-complete .screen__list > li:last-of-type {
+  margin-bottom: 0;
+}
+
+body:has(.screen--lead-generation) .screen--lead-generation .screen__eyebrow, .screen--level-complete[data-screen=all-levels-complete] .screen__eyebrow, .screen[data-screen=welcome] .screen__eyebrow {
+  padding-top: 64px;
+  position: relative;
+  display: block !important;
+  max-height: fit-content;
+  width: 100%;
+}
+@media (min-width: 992px) {
+  body:has(.screen--lead-generation) .screen--lead-generation .screen__eyebrow, .screen--level-complete[data-screen=all-levels-complete] .screen__eyebrow, .screen[data-screen=welcome] .screen__eyebrow {
+    width: 300px;
+    padding-top: 100px;
+  }
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__eyebrow:before, .screen--level-complete[data-screen=all-levels-complete] .screen__eyebrow:before, .screen[data-screen=welcome] .screen__eyebrow:before {
+  position: absolute;
+  content: "";
+  inset: 0;
+  margin: auto;
+  display: block;
+  width: 100%;
+  background: url(../assets/presentation/logo.svg) no-repeat center/contain;
+}
+
+.jsmii-website-sandbox {
+  min-height: 100%;
+  background: #0000d2;
+  color: #ffffff;
+  font-family: "DM Sans", "SFMono-Regular", Consolas, monospace;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+@media (min-width: 992px) {
+  .jsmii-website-sandbox {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+}
+
+.game-root {
+  min-height: 100vh;
+  background: #0000d2;
+  color: #ffffff;
+  display: flex;
+}
+@supports (min-height: 100svh) {
+  .game-root {
+    min-height: 100svh;
+  }
+}
+
+.screen-mount,
+.presentation-layer,
+.game-layer,
+.hud-layer {
+  color: inherit;
+}
+
+#game-root.game-root {
+  width: 100vw;
+}
+
+.screen {
+  color: #ffffff;
+  font-family: "DM Sans", "SFMono-Regular", Consolas, monospace;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  padding: 0 !important;
+}
+@media (min-width: 992px) {
+  .screen {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+}
+
+.screen__panel {
+  width: min(100%, 620px);
+  padding: 40px 28px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+@media (min-width: 992px) {
+  .screen__panel {
+    width: 100%;
+    padding: 56px;
+  }
+}
+
+.screen__eyebrow {
+  margin: 0 0 12px;
+}
+
+.screen__title {
+  margin: 0 0 16px;
+}
+
+.screen__body {
+  max-width: 52ch;
+  margin: 0 0 24px;
+}
+
+.screen--no-header .screen__game-header,
+.screen--no-footer .screen__game-footer {
+  display: none;
+}
+
+.runner-result-overlay {
+  background: transparent;
+  width: 100%;
+}
+@media (min-width: 992px) {
+  .runner-result-overlay {
+    inset: 0;
+    margin: auto;
+    overflow: clip;
+    max-width: 1024px;
+    max-height: fit-content;
+  }
+}
+.runner-result-overlay .screen.is-active {
+  align-items: center;
+}
+
+aside#loading-overlay {
+  background: transparent;
+}
+aside#loading-overlay .loading-overlay__panel {
+  background: transparent;
+  border: none;
+}
+aside#loading-overlay .loading-overlay__eyebrow {
+  font-family: "Press Start 2P", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.2em;
+  letter-spacing: 0;
+}
+@media (min-width: 992px) {
+  aside#loading-overlay .loading-overlay__eyebrow {
+    font-size: 28px;
+    line-height: 1.2em;
+  }
+}
+aside#loading-overlay .loading-overlay__title {
+  font-family: "Press Start 2P", system-ui, sans-serif;
+  font-weight: 900;
+  font-size: 26px;
+  line-height: 1.18;
+  letter-spacing: 0;
+}
+@media (min-width: 992px) {
+  aside#loading-overlay .loading-overlay__title {
+    font-size: 47px;
+    line-height: 1.18;
+  }
+}
+aside#loading-overlay .loading-overlay__message {
+  font-family: "Silkscreen", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.18;
+  letter-spacing: 0;
+  opacity: 0;
+}
+@media (min-width: 992px) {
+  aside#loading-overlay .loading-overlay__message {
+    font-size: 18px;
+    line-height: 1.18;
+  }
+}
+
+.designed {
+  display: none;
+  position: absolute;
+  inset: auto 2px 2px auto;
+  font-family: "Silkscreen", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.18;
+  letter-spacing: 0;
+  color: #FFFFFF;
+}
+@media (min-width: 992px) {
+  .designed {
+    font-size: 18px;
+    line-height: 1.18;
+  }
+}
+.designed > a {
+  color: #ea447b;
+}
+
+.screen__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 24px;
+}
+@media (min-width: 992px) {
+  .screen__actions {
+    gap: 16px;
+  }
+}
+
+.screen__actions .button {
+  appearance: none;
+  cursor: pointer;
+}
+
+.screen__actions .button--secondary-alt:after {
+  background-color: #0000d2 !important;
+  border: #0000d2 !important;
+}
+.screen__actions .button--secondary-light {
+  color: #0000d2 !important;
+}
+.screen__actions .button--secondary-light:after {
+  background-color: #FFFFFF !important;
+  border: #FFFFFF !important;
+}
+
+#presentation-layer.is-modal.is-visible {
+  background: none !important;
+  backdrop-filter: none !important;
+}
+
+#screen-mount {
+  display: block;
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  margin: auto;
+  overflow: hidden;
+}
+@supports (min-height: 100svh) {
+  #screen-mount {
+    min-height: 100svh;
+  }
+}
+@media (min-width: 992px) {
+  #screen-mount {
+    max-width: 1024px;
+    padding-top: 655.36px;
+    min-height: unset;
+  }
+}
+#screen-mount > .screen {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  min-height: 100%;
+  background-color: #00abf8;
+  background-image: url(../assets/presentation/bgr-mobile.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center bottom;
+}
+@media (min-width: 992px) {
+  #screen-mount > .screen {
+    background-position: right bottom;
+    background-image: url(../assets/presentation/bgr-desktop.png);
+  }
+}
+#screen-mount > .screen.screen--panel {
+  flex-direction: column;
+  justify-content: center;
+}
+#screen-mount > .screen.screen--panel .screen__panel {
+  flex: 1 0 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+}
+@media (min-width: 992px) {
+  #screen-mount > .screen.screen--panel .screen__panel {
+    justify-content: space-between;
+  }
+}
+#screen-mount > .screen.screen--panel .screen__panel > * {
+  flex: 0 0 36%;
+}
+#screen-mount > .screen.screen--panel .screen__panel > p:empty, #screen-mount > .screen.screen--panel .screen__panel > h1:empty {
+  display: none;
+}
+#screen-mount > .screen .screen__panel {
+  position: relative;
+}
+#screen-mount > .screen .screen__panel button.screen__sound-toggle {
+  position: absolute;
+  inset: 16px 16px auto auto;
+  display: block;
+  z-index: 900;
+  font-size: 0;
+  line-height: 0;
+  padding: 8px 10px !important;
+}
+#screen-mount > .screen .screen__panel button.screen__sound-toggle > span {
+  display: block;
+  padding: 12px;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+#screen-mount > .screen .screen__panel button.screen__sound-toggle.sound-on span {
+  background-image: url(../assets/presentation/sound-on.png);
+}
+#screen-mount > .screen .screen__panel button.screen__sound-toggle.sound-off span {
+  background-image: url(../assets/presentation/sound-off.png);
+}
+#screen-mount > .screen .screen__actions {
+  margin: 0;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  row-gap: 24px;
+}
+#screen-mount > .screen .screen__actions h3 {
+  text-align: center;
+  font-family: "Silkscreen", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.18;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #0000d2;
+}
+@media (min-width: 992px) {
+  #screen-mount > .screen .screen__actions h3 {
+    font-size: 18px;
+    line-height: 1.18;
+  }
+}
+#screen-mount > .screen.screen--game-level {
+  background: none;
+}
+
+#game-root:has(.screen[data-screen=game-rules]) {
+  background: linear-gradient(to bottom, #3CB0E1, #3CB0E1 50%, #0B174E 50%, #0B174E);
+}
+@media (min-width: 992px) {
+  #game-root:has(.screen[data-screen=game-rules]):before {
+    background: linear-gradient(to bottom, #3CB0E1, #0B174E);
+  }
+}
+
+.screen--game-rules .screen__panel {
+  justify-content: flex-start !important;
+}
+@media (min-width: 992px) {
+  .screen--game-rules .screen__panel {
+    align-items: center;
+  }
+}
+.screen--game-rules .screen__panel > * {
+  max-height: fit-content !important;
+}
+.screen--game-rules .screen__body {
+  margin-top: 10%;
+}
+@media (min-width: 992px) {
+  .screen--game-rules .screen__body {
+    margin-top: 10%;
+  }
+}
+.screen--game-rules .screen__card {
+  width: 100%;
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+  font-family: "DM Sans", "SFMono-Regular", Consolas, monospace;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: #000000;
+  text-align: center;
+  padding: 16px;
+}
+.screen--game-rules .screen__card::before, .screen--game-rules .screen__card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.screen--game-rules .screen__card::before {
+  z-index: -2;
+  clip-path: polygon(8px 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%, 8px 100%);
+  background: #05080d;
+  transform: translate(4px, 4px);
+}
+.screen--game-rules .screen__card::after {
+  z-index: -1;
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, calc(100% - 8px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%, 8px 100%, 8px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px), 0 8px, 4px 8px, 4px 4px, 8px 4px);
+  box-sizing: border-box;
+  border: 1px solid #ffffff;
+  background: #ffffff;
+}
+@media (min-width: 992px) {
+  .screen--game-rules .screen__card {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+}
+@media (min-width: 390px) {
+  .screen--game-rules .screen__card {
+    padding: 16px;
+  }
+}
+.screen--game-rules .screen__card.text-primary {
+  color: #ea447b;
+}
+
+.selective-display .is-mobile {
+  display: block;
+}
+@media (min-width: 992px) {
+  .selective-display .is-mobile {
+    display: none;
+  }
+}
+.selective-display .is-desktop {
+  display: none;
+}
+@media (min-width: 992px) {
+  .selective-display .is-desktop {
+    display: block;
+  }
+}
+
+.screen__game-header {
+  position: relative;
+  z-index: 10;
+  color: #ffffff;
+}
+
+.screen__game-footer {
+  position: relative;
+  z-index: 10;
+  color: #ffffff;
+}
+
+.screen__game-header,
+.screen__game-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 10fr) minmax(0, 1fr);
+  gap: 8px;
+  padding: 12px;
+}
+@media (min-width: 992px) {
+  .screen__game-header,
+  .screen__game-footer {
+    gap: 14px;
+    padding: 22px 28px;
+  }
+}
+
+.screen__hud-area {
+  display: inline-flex;
+  min-width: 0;
+  gap: 8px;
+}
+@media (min-width: 992px) {
+  .screen__hud-area {
+    gap: 12px;
+  }
+}
+
+.screen__hud-area--row {
+  flex-flow: row wrap;
+  align-items: center;
+}
+
+.screen__hud-area--column {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.screen__hud-area--center {
+  justify-content: center;
+  text-align: center;
+}
+
+.screen__hud-area--right {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.screen__hud-area--right.screen__hud-area--column {
+  align-items: flex-end;
+}
+
+.screen__hud-area--center.screen__hud-area--column {
+  align-items: center;
+}
+
+.screen__hud-item--lives {
+  position: relative;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+.screen__hud-item--lives .screen__hud-lives {
+  display: inline-flex;
+  gap: 6px;
+  width: max-content;
+  height: 24px;
+}
+.screen__hud-item--lives .screen__hud-life {
+  display: block;
+  width: 24px;
+  height: 24px;
+  background: url("../assets/hud/foundation/lives-empty.png") center/contain no-repeat;
+  image-rendering: pixelated;
+}
+.screen__hud-item--lives .screen__hud-life[data-state=filled] {
+  background-image: url("../assets/hud/foundation/lives-full.png");
+}
+.screen__hud-item--lives .screen__hud-text {
+  overflow: hidden;
+  color: transparent;
+  font-size: 0;
+  line-height: 0;
+  text-indent: -999rem;
+  white-space: nowrap;
+}
+@media (min-width: 992px) {
+  .screen__hud-item--lives .screen__hud-lives {
+    gap: 8px;
+    height: 31px;
+  }
+  .screen__hud-item--lives .screen__hud-life {
+    width: 31px;
+    height: 31px;
+  }
+}
+
+.screen__hud-item--time {
+  position: relative;
+  display: inline-block;
+  width: 180px;
+  height: 30px;
+  max-width: 70vw;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: url("../assets/hud/foundation/timeline-empty.png") center/100% 100% no-repeat;
+  box-shadow: none;
+  image-rendering: pixelated;
+  overflow: visible;
+}
+.screen__hud-item--time::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 78%;
+  background: url("../assets/hud/foundation/timeline-full.png") left center/auto 100% no-repeat;
+  pointer-events: none;
+}
+.screen__hud-item--time .screen__hud-timeline {
+  display: none;
+}
+.screen__hud-item--time .screen__hud-time-value {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  color: #0000d2;
+  font-family: "Press Start 2P", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.18;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+@media (min-width: 992px) {
+  .screen__hud-item--time .screen__hud-time-value {
+    font-size: 12px;
+    line-height: 1.18;
+  }
+}
+@media (min-width: 992px) {
+  .screen__hud-item--time {
+    width: 260px;
+    height: 43px;
+  }
+}
+
+.screen__field {
+  display: grid;
+  gap: 8px;
+  margin-block: 12px;
+}
+
+.screen__field input {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 2px solid currentColor;
+  background: color-mix(in srgb, #ffffff, transparent 8%);
+  color: #0000d2;
+}
+
+.runner-mount {
+  background: color-mix(in srgb, #ade5ff, transparent 18%);
+}
+
+#game-root {
+  position: relative;
+  overflow: clip;
+}
+@media (min-width: 992px) {
+  #game-root:before {
+    display: block;
+    position: absolute;
+    content: "";
+    inset: 0;
+    width: 100vw;
+    height: 64vw;
+    margin: auto 0;
+  }
+}
+#game-root:has(.screen[data-screen=level-1]) {
+  background: linear-gradient(to bottom, #3CB0E1, #3CB0E1 50%, #0B174E 50%, #0B174E);
+}
+@media (min-width: 992px) {
+  #game-root:has(.screen[data-screen=level-1]):before {
+    background: linear-gradient(to bottom, #3CB0E1, #0B174E);
+  }
+}
+#game-root:has(.screen[data-screen=level-2]) {
+  background: linear-gradient(to bottom, #FBC786, #FBC786 50%, #3E2F36 50%, #3E2F36);
+}
+@media (min-width: 992px) {
+  #game-root:has(.screen[data-screen=level-2]):before {
+    background: linear-gradient(to bottom, #FBC786, #3E2F36);
+  }
+}
+#game-root:has(.screen[data-screen=level-3]) {
+  background: linear-gradient(to bottom, #1D3E40, #1D3E40 50%, #0B174E 50%, #0B174E);
+}
+@media (min-width: 992px) {
+  #game-root:has(.screen[data-screen=level-3]):before {
+    background: linear-gradient(to bottom, #1D3E40, #0B174E);
+  }
+}
+
+#screen-mount:has(.screen[data-screen=level-1]), #screen-mount:has(.screen[data-screen=level-2]), #screen-mount:has(.screen[data-screen=level-3]) {
+  /* .screen[data-screen="level-1"] {
+     // Role: game-level; presentation: screen
+     // Headline: Level
+     .screen {
+
+     }
+
+     .screen__game-header {
+       position: absolute;
+       inset: 0 0 auto;
+       display: flex;
+       justify-content: center;
+       align-items: flex-start;
+       width: 100%;
+       padding: calc(env(safe-area-inset-top, 0px) + 8px) 12px 0;
+       pointer-events: none;
+     }
+
+     .screen__hud-area--header-left,
+     .screen__hud-area--header-right {
+       display: none;
+     }
+
+     .screen__hud-area--header-center {
+       display: inline-flex;
+       flex-direction: row;
+       align-items: flex-start;
+       justify-content: center;
+       width: auto;
+       max-width: 100%;
+       gap: 8px;
+     }
+
+     @include desktop {
+       .screen__game-header {
+         padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
+       }
+
+       .screen__hud-area--header-center {
+         gap: 12px;
+       }
+     }
+
+     .screen {
+       &__panel {
+         display: flex;
+         flex-direction: column;
+         justify-content: space-between;
+         min-height: 100%;
+       }
+     }
+   }*/
+}
+@media (min-width: 992px) {
+  #screen-mount:has(.screen[data-screen=level-1]), #screen-mount:has(.screen[data-screen=level-2]), #screen-mount:has(.screen[data-screen=level-3]) {
+    padding-top: 655.36px;
+    overflow: clip;
+    -ms-overflow-style: none; /* IE/Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  #screen-mount:has(.screen[data-screen=level-1])::-webkit-scrollbar, #screen-mount:has(.screen[data-screen=level-2])::-webkit-scrollbar, #screen-mount:has(.screen[data-screen=level-3])::-webkit-scrollbar {
+    display: none;
+  }
+}
+#screen-mount:has(.screen[data-screen=level-1]) .screen--game-level, #screen-mount:has(.screen[data-screen=level-2]) .screen--game-level, #screen-mount:has(.screen[data-screen=level-3]) .screen--game-level {
+  padding: 0;
+  overflow: clip;
+}
+#screen-mount:has(.screen[data-screen=level-1]) .screen--game-level:before, #screen-mount:has(.screen[data-screen=level-1]) .screen--game-level:after, #screen-mount:has(.screen[data-screen=level-2]) .screen--game-level:before, #screen-mount:has(.screen[data-screen=level-2]) .screen--game-level:after, #screen-mount:has(.screen[data-screen=level-3]) .screen--game-level:before, #screen-mount:has(.screen[data-screen=level-3]) .screen--game-level:after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  image-rendering: pixelated;
+  z-index: 40;
+  opacity: 0;
+}
+@media (min-width: 992px) {
+  #screen-mount:has(.screen[data-screen=level-1]) .screen--game-level:before, #screen-mount:has(.screen[data-screen=level-1]) .screen--game-level:after, #screen-mount:has(.screen[data-screen=level-2]) .screen--game-level:before, #screen-mount:has(.screen[data-screen=level-2]) .screen--game-level:after, #screen-mount:has(.screen[data-screen=level-3]) .screen--game-level:before, #screen-mount:has(.screen[data-screen=level-3]) .screen--game-level:after {
+    position: fixed;
+    inset: 0;
+  }
+}
+#screen-mount:has(.screen[data-screen=level-1]) .screen--game-level:before, #screen-mount:has(.screen[data-screen=level-2]) .screen--game-level:before, #screen-mount:has(.screen[data-screen=level-3]) .screen--game-level:before {
+  inset: 0;
+  background: #0000d2;
+}
+#screen-mount:has(.screen[data-screen=level-1]) .screen--game-level:after, #screen-mount:has(.screen[data-screen=level-2]) .screen--game-level:after, #screen-mount:has(.screen[data-screen=level-3]) .screen--game-level:after {
+  display: block;
+  inset: 0;
+  max-width: 128px;
+  padding: 64px;
+  margin: auto;
+  background: url(../assets/presentation/preload.gif) no-repeat center/contain;
+  /*top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin-top: -32px;
+  margin-left: -32px;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  animation: jsmii-preload-8bit-loop 900ms steps(1) infinite;*/
+}
+#screen-mount:has(.screen[data-screen=level-1]) .screen--game-level.preload:before, #screen-mount:has(.screen[data-screen=level-1]) .screen--game-level.preload:after, #screen-mount:has(.screen[data-screen=level-2]) .screen--game-level.preload:before, #screen-mount:has(.screen[data-screen=level-2]) .screen--game-level.preload:after, #screen-mount:has(.screen[data-screen=level-3]) .screen--game-level.preload:before, #screen-mount:has(.screen[data-screen=level-3]) .screen--game-level.preload:after {
+  opacity: 1;
+}
+#screen-mount:has(.screen[data-screen=level-1]) .screen__game-header, #screen-mount:has(.screen[data-screen=level-2]) .screen__game-header, #screen-mount:has(.screen[data-screen=level-3]) .screen__game-header {
+  display: none;
+  position: absolute;
+  inset: 0 0 auto;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  padding: calc(env(safe-area-inset-top, 0px) + 8px) 12px 0;
+  pointer-events: none;
+}
+#screen-mount:has(.screen[data-screen=level-1]) .screen__hud-area--header-left, #screen-mount:has(.screen[data-screen=level-1]) .screen__hud-area--header-right, #screen-mount:has(.screen[data-screen=level-2]) .screen__hud-area--header-left, #screen-mount:has(.screen[data-screen=level-2]) .screen__hud-area--header-right, #screen-mount:has(.screen[data-screen=level-3]) .screen__hud-area--header-left, #screen-mount:has(.screen[data-screen=level-3]) .screen__hud-area--header-right {
+  display: none;
+}
+#screen-mount:has(.screen[data-screen=level-1]) .screen__hud-area--header-center, #screen-mount:has(.screen[data-screen=level-2]) .screen__hud-area--header-center, #screen-mount:has(.screen[data-screen=level-3]) .screen__hud-area--header-center {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  width: auto;
+  max-width: 100%;
+  gap: 8px;
+}
+#screen-mount:has(.screen[data-screen=level-1]) .screen__panel, #screen-mount:has(.screen[data-screen=level-2]) .screen__panel, #screen-mount:has(.screen[data-screen=level-3]) .screen__panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100%;
+}
+@media (min-width: 992px) {
+  #screen-mount:has(.screen[data-screen=level-1]) .screen__game-header, #screen-mount:has(.screen[data-screen=level-2]) .screen__game-header, #screen-mount:has(.screen[data-screen=level-3]) .screen__game-header {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
+  }
+  #screen-mount:has(.screen[data-screen=level-1]) .screen__hud-area--header-center, #screen-mount:has(.screen[data-screen=level-2]) .screen__hud-area--header-center, #screen-mount:has(.screen[data-screen=level-3]) .screen__hud-area--header-center {
+    gap: 12px;
+  }
+}
+#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas], #screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas], #screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] {
+  /*.screen__game-header {
+    display: none;
+  }*/
+}
+#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-mount,
+#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export-set,
+#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export, #screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-mount,
+#screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export-set,
+#screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export, #screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-mount,
+#screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export-set,
+#screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export {
+  overflow: clip;
+  overscroll-behavior: none;
+  scrollbar-width: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage,
+#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .tester-preview__stage, #screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage,
+#screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .tester-preview__stage, #screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage,
+#screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .tester-preview__stage {
+  touch-action: none;
+}
+#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-mount::-webkit-scrollbar,
+#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export-set::-webkit-scrollbar,
+#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export::-webkit-scrollbar, #screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-mount::-webkit-scrollbar,
+#screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export-set::-webkit-scrollbar,
+#screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export::-webkit-scrollbar, #screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-mount::-webkit-scrollbar,
+#screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export-set::-webkit-scrollbar,
+#screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export::-webkit-scrollbar {
+  display: none;
+}
+#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export--mobile,
+#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage--mobile, #screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export--mobile,
+#screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage--mobile, #screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export--mobile,
+#screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage--mobile {
+  width: min(100%, 390px);
+}
+@supports (width: 1svh) {
+  #screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage--mobile, #screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage--mobile, #screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage--mobile {
+    width: min(100%, 56.28svh, 390px);
+  }
+}
+@keyframes jsmii-preload-8bit-loop {
+  0% {
+    transform: translate(0, 0);
+  }
+  12.5% {
+    transform: translate(16px, 0);
+  }
+  25% {
+    transform: translate(32px, 0);
+  }
+  37.5% {
+    transform: translate(48px, 0);
+  }
+  50% {
+    transform: translate(48px, 16px);
+  }
+  62.5% {
+    transform: translate(48px, 32px);
+  }
+  75% {
+    transform: translate(32px, 32px);
+  }
+  87.5% {
+    transform: translate(16px, 32px);
+  }
+  100% {
+    transform: translate(0, 32px);
+  }
+}
+.screen[data-screen=welcome] .screen__panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between !important;
+  height: 100%;
+}
+@media (min-width: 992px) {
+  .screen[data-screen=welcome] .screen__panel {
+    max-height: 680px;
+  }
+}
+.screen[data-screen=welcome] .screen__eyebrow {
+  /*padding-top: 64px;
+  position: relative;
+  display: block !important;
+  max-height: fit-content;
+  &:before {
+    position: absolute;
+    content: '';
+    inset: 0;
+    margin: auto;
+    display: block;
+    width: 100%;
+    background: url(../assets/presentation/logo.svg) no-repeat center/contain;
+  }*/
+}
+.screen[data-screen=welcome] .screen__actions {
+  margin: 0;
+  justify-content: center;
+  max-height: fit-content;
+}
+
+#game-root:has(.screen[data-screen=info]) {
+  background: #DCDCDC !important;
+}
+
+.screen[data-screen=info] {
+  background: #DCDCDC !important;
+  flex-direction: column;
+  justify-content: center;
+}
+.screen[data-screen=info] .screen__panel {
+  flex: 1 0 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+.screen[data-screen=info] .screen__panel > * {
+  flex: 0 0 36%;
+}
+.screen[data-screen=info] .screen__panel > p:empty, .screen[data-screen=info] .screen__panel > h1:empty {
+  display: none;
+}
+.screen[data-screen=info] .screen__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: 12px;
+}
+@media (min-width: 390px) {
+  .screen[data-screen=info] .screen__body {
+    gap: 24px;
+  }
+}
+.screen[data-screen=info] .screen__card {
+  width: 100%;
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+  font-family: "DM Sans", "SFMono-Regular", Consolas, monospace;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: #000000;
+  text-align: center;
+  padding: 8px 16px;
+}
+.screen[data-screen=info] .screen__card::before, .screen[data-screen=info] .screen__card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.screen[data-screen=info] .screen__card::before {
+  z-index: -2;
+  clip-path: polygon(8px 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%, 8px 100%);
+  background: #05080d;
+  transform: translate(4px, 4px);
+}
+.screen[data-screen=info] .screen__card::after {
+  z-index: -1;
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, calc(100% - 8px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%, 8px 100%, 8px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px), 0 8px, 4px 8px, 4px 4px, 8px 4px);
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  background: #ffffff;
+}
+@media (min-width: 992px) {
+  .screen[data-screen=info] .screen__card {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+}
+@media (min-width: 390px) {
+  .screen[data-screen=info] .screen__card {
+    padding: 16px;
+  }
+}
+.screen[data-screen=info] .screen__card .text-primary {
+  color: #ea447b;
+}
+#game-root:has(.screen[data-screen=character-choice]) {
+  background: #DCDCDC !important;
+}
+
+.screen[data-screen=character-choice] {
+  background: #DCDCDC !important;
+}
+.screen[data-screen=character-choice] .screen {
+  /* &__panel {
+     display: flex;
+     flex-direction: column;
+     justify-content: space-between;
+     align-items: center;
+   }*/
+}
+.screen[data-screen=character-choice] .screen__title {
+  font-family: "Press Start 2P", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.2em;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #0000d2;
+  text-shadow: none;
+  text-align: center;
+  max-height: fit-content;
+}
+@media (min-width: 992px) {
+  .screen[data-screen=character-choice] .screen__title {
+    font-size: 28px;
+    line-height: 1.2em;
+  }
+}
+.screen[data-screen=character-choice] .screen__body > ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.screen[data-screen=character-choice] .screen__body > ul > li {
+  text-align: center;
+  width: 100%;
+}
+.screen[data-screen=character-choice] .screen__body > ul > li:first-child {
+  margin-bottom: 12px;
+}
+.screen[data-screen=character-choice] .screen__body > ul > li button {
+  position: relative;
+  background: transparent;
+  border: none;
+}
+.screen[data-screen=character-choice] .screen__body > ul > li button span {
+  position: relative;
+  width: 40vw;
+  height: 40vw;
+  background-color: #ffffff;
+  overflow: visible;
+  min-height: fit-content;
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+}
+@media (min-width: 390px) {
+  .screen[data-screen=character-choice] .screen__body > ul > li button span {
+    max-width: 200px;
+    max-height: 200px;
+  }
+}
+@media (min-width: 992px) {
+  .screen[data-screen=character-choice] .screen__body > ul > li button span {
+    max-width: 160px;
+    max-height: 160px;
+  }
+}
+.screen[data-screen=character-choice] .screen__body > ul > li button span::before, .screen[data-screen=character-choice] .screen__body > ul > li button span::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.screen[data-screen=character-choice] .screen__body > ul > li button span::before {
+  z-index: -2;
+  clip-path: polygon(8px 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%, 8px 100%);
+  background: #05080d;
+  transform: translate(4px, 4px);
+}
+.screen[data-screen=character-choice] .screen__body > ul > li button span::after {
+  z-index: -1;
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, calc(100% - 8px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%, 8px 100%, 8px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px), 0 8px, 4px 8px, 4px 4px, 8px 4px);
+  box-sizing: border-box;
+  border: 1px solid #ffffff;
+  background: #ffffff;
+}
+.screen[data-screen=character-choice] .screen__body > ul > li button span > img {
+  position: absolute;
+  inset: 0;
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+}
+.screen[data-screen=character-choice] .screen__body > ul > li button.selected:after {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 85%;
+  margin: auto;
+  display: block;
+  width: 100%;
+  max-height: 60px;
+  background: url(../assets/presentation/selection-arrow.png) no-repeat left center/contain;
+}
+@media (min-width: 390px) {
+  .screen[data-screen=character-choice] .screen__body > ul > li button.selected:after {
+    left: 90%;
+  }
+}
+.screen[data-screen=character-choice] .screen__body > ul > li span {
+  display: block;
+  font-family: "DM Sans", "SFMono-Regular", Consolas, monospace;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: #000000;
+  padding: 8px 0;
+  margin: auto;
+}
+@media (min-width: 992px) {
+  .screen[data-screen=character-choice] .screen__body > ul > li span {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+}
+@media (min-width: 390px) {
+  .screen[data-screen=character-choice] .screen__body > ul > li span {
+    max-width: 280px;
+  }
+}
+.screen[data-screen=character-choice] .screen__actions {
+  max-height: fit-content;
+  margin-top: 0;
+}
+
+.screen.life-lost, .screen[data-screen=life-lost], .screen[data-screen=life-lost-level-2] {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  min-height: 90%;
+  justify-content: center;
+}
+.screen[data-screen=life-zero] {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  min-height: 90%;
+  justify-content: center;
+}
+
+#game-root:has(.screen--level-complete) {
+  background: #DCDCDC !important;
+}
+
+.screen--level-complete .screen__title {
+  max-height: fit-content;
+}
+.screen--level-complete .screen__panel {
+  margin-bottom: 0;
+  flex: 1 0 auto;
+}
+.screen--level-complete .screen__card {
+  padding: 16px;
+  margin-bottom: 24px;
+}
+.screen--level-complete .screen__actions {
+  max-height: fit-content;
+}
+.screen--level-complete[data-screen=all-levels-complete] .screen__panel > * {
+  flex: 0 0 auto !important;
+}
+.screen--level-complete[data-screen=all-levels-complete] .screen__body {
+  text-align: center;
+  color: #000000;
+  font-family: "DM Sans", "SFMono-Regular", Consolas, monospace;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+@media (min-width: 992px) {
+  .screen--level-complete[data-screen=all-levels-complete] .screen__body {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+}
+.screen--level-complete[data-screen=all-levels-complete] .screen__body.payoff {
+  color: #0000d2;
+  font-family: "Silkscreen", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.18;
+  letter-spacing: 0;
+}
+@media (min-width: 992px) {
+  .screen--level-complete[data-screen=all-levels-complete] .screen__body.payoff {
+    font-size: 18px;
+    line-height: 1.18;
+  }
+}
+body:has(.screen--lead-generation) #game-root {
+  position: static;
+  background: #DCDCDC !important;
+  min-height: fit-content !important;
+  overflow: hidden;
+}
+body:has(.screen--lead-generation) #game-root > #screen-mount {
+  position: static;
+  max-height: unset;
+  overflow: hidden;
+  min-height: fit-content;
+  padding-top: 0 !important;
+}
+body:has(.screen--lead-generation) .screen--lead-generation {
+  position: static !important;
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__panel {
+  position: static !important;
+  justify-content: flex-start !important;
+  gap: 24px;
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__panel > * {
+  max-height: fit-content;
+}
+body:has(.screen--lead-generation) .screen--lead-generation .screen__body {
+  display: none;
+  font-family: "DM Sans", "SFMono-Regular", Consolas, monospace;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: #000000;
+}
+@media (min-width: 992px) {
+  body:has(.screen--lead-generation) .screen--lead-generation .screen__body {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table {
+  max-width: 80vw !important;
+}
+@media (min-width: 992px) {
+  body:has(.screen--lead-generation) .screen--lead-generation #blockCta table {
+    max-width: 600px !important;
+  }
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table th.inner {
+  padding: 0 !important;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table th:has(.containerWrapper h3),
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table th:has(.columnContainer textarea) {
+  padding: 0 !important;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table th:has(.containerWrapper h3) h3,
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table th:has(.columnContainer textarea) h3 {
+  text-align: left !important;
+  font-family: "DM Sans", "SFMono-Regular", Consolas, monospace;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+@media (min-width: 992px) {
+  body:has(.screen--lead-generation) .screen--lead-generation #blockCta table th:has(.containerWrapper h3) h3,
+  body:has(.screen--lead-generation) .screen--lead-generation #blockCta table th:has(.columnContainer textarea) h3 {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 8px 0;
+  gap: 16px;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer {
+  flex: 1 0 80vw;
+  max-width: 80vw;
+  min-height: fit-content;
+  text-align: left;
+}
+@media (min-width: 992px) {
+  body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer {
+    max-width: 600px;
+  }
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer tr {
+  display: table-row;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer label {
+  padding-bottom: 8px;
+  background: transparent;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer label span {
+  background-color: transparent !important;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer select,
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer textarea,
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer input {
+  width: 100%;
+  padding: 1ch 1ch;
+  border-radius: 8px;
+  font-family: "DM Sans", "SFMono-Regular", Consolas, monospace;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  border: none;
+  margin-top: 8px;
+}
+@media (min-width: 992px) {
+  body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer select,
+  body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer textarea,
+  body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer input {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer .twoOptionFormFieldBlock {
+  text-align: left;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer .twoOptionFormFieldBlock .radiobuttons > div {
+  display: flex;
+  align-items: center;
+  margin-top: 12px;
+  gap: 12px;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer .twoOptionFormFieldBlock .radiobuttons > div label {
+  padding-bottom: 0;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer .twoOptionFormFieldBlock .radiobuttons > div input {
+  max-width: 12px;
+  margin: 0;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer .twooption_checkbox > div {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer .twooption_checkbox > div input {
+  max-width: 12px;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer .twooption_checkbox > div label {
+  font-weight: 600;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table div.submitButtonWrapper {
+  display: flex;
+  justify-content: center;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table div.submitButtonWrapper button {
+  background-color: transparent !important;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table div.submitButtonWrapper button:after {
+  background-color: #0000d2;
+  border-color: #0000d2;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta #scroll-to-cta {
+  display: none !important;
+}
+
+/*# sourceMappingURL=main.css.map */

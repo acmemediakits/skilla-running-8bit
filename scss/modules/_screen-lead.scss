@@ -1,0 +1,174 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/type" as t;
+@use "../components/mixins" as *;
+
+
+body:has(.screen--lead-generation) {
+  #game-root {
+    position: static;
+    background: fn.color(panel) !important;
+    min-height: fit-content !important;
+    overflow: hidden;
+
+    & > #screen-mount {
+      position: static;
+      max-height: unset;
+      overflow: hidden;
+      min-height: fit-content;
+
+      padding-top: 0 !important;
+    }
+  }
+
+  .screen--lead-generation {
+    position: static !important;
+    // Role: lead-generation; presentation: screen
+    // Headline: Stay in touch
+    @extend %jsmii-screen-descriptor;
+
+    .screen {
+      &__panel {
+        position: static !important;
+        justify-content: flex-start !important;
+        gap: 24px;
+
+        & > * {
+          max-height: fit-content;
+        }
+      }
+
+      &__body {
+        display: none;
+        @include t.font(body);
+        color: fn.color(black);
+      }
+
+      &__eyebrow {
+        @extend %jsmii-logo-placement;
+      }
+    }
+
+
+    //form settings
+    #blockCta {
+      table {
+        max-width: 80vw !important;
+        @include desktop {
+          max-width: 600px !important;
+        }
+
+        th.inner {
+          padding: 0 !important;
+        }
+
+        th:has(.containerWrapper h3),
+        th:has(.columnContainer textarea) {
+          padding: 0 !important;
+          h3 {
+            text-align: left !important;
+            @include t.font(body);
+          }
+        }
+
+        &.containerWrapper {
+          tr {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 8px 0;
+            gap: 16px;
+
+            th.columnContainer {
+              flex: 1 0 80vw;
+              max-width: 80vw;
+              min-height: fit-content;
+              text-align: left;
+
+              @include desktop {
+                max-width: 600px;
+              }
+
+              tr {
+                display: table-row;
+              }
+
+              label {
+                padding-bottom: 8px;
+                background: transparent;
+
+                span {
+                  background-color: transparent !important;
+                }
+              }
+
+              select,
+              textarea,
+              input {
+                width: 100%;
+                padding: 1ch 1ch;
+                border-radius: 8px;
+                @include t.font(body);
+                border: none;
+                margin-top: 8px;
+              }
+
+
+              .twoOptionFormFieldBlock {
+                text-align: left;
+
+                .radiobuttons > div {
+                  display: flex;
+                  align-items: center;
+                  margin-top: 12px;
+                  gap: 12px;
+
+                  label {
+                    padding-bottom: 0;
+                  }
+
+                  input {
+                    max-width: 12px;
+                    margin: 0;
+                  }
+                }
+              }
+              .twooption_checkbox {
+                & > div {
+                  display: flex;
+                  gap: 12px;
+                  align-items: flex-start;
+                  input {
+                    max-width: 12px;
+                  }
+                  label {
+                    font-weight: 600;
+                  }
+                }
+              }
+            }
+
+          }
+        }
+
+        div.submitButtonWrapper {
+          display: flex;
+          justify-content: center;
+          button {
+            @extend %jsmii-style-button-secondary;
+            background-color: transparent !important;
+            &:after {
+              background-color: fn.color(skillaBlue);
+              border-color: fn.color(skillaBlue);
+            }
+          }
+        }
+      }
+      #scroll-to-cta {
+        display: none !important;
+      }
+    }
+  }
+}
+
+
+

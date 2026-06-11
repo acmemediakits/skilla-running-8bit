@@ -1,0 +1,214 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/mixins" as *;
+@use "../components/type" as t;
+
+
+#presentation-layer.is-modal.is-visible {
+  background: none !important;
+  backdrop-filter: none !important;
+}
+
+#screen-mount {
+  display: block;
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  margin: auto;
+
+  @supports (min-height: 100svh) {
+    min-height: 100svh;
+  }
+
+  @include desktop {
+    max-width: 1024px;
+    padding-top: calc(1024px * 0.64);
+    min-height: unset;
+  }
+  overflow: hidden;
+
+  & > .screen {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    min-height: 100%;
+    background-color: fn.color(secondary);
+    background-image: url(../assets/presentation/bgr-mobile.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center bottom;
+
+    @include desktop {
+      background-position: right bottom;
+      background-image: url(../assets/presentation/bgr-desktop.png);
+    }
+
+    &.screen--panel {
+      flex-direction: column;
+      justify-content: center;
+
+      .screen {
+        &__panel {
+          flex: 1 0 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-evenly;
+          align-items: center;
+          @include desktop {
+            justify-content: space-between;
+          }
+
+          & > * {
+            flex: 0 0 36%;
+          }
+
+          & > p:empty,
+          & > h1:empty {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .screen {
+      &__panel {
+        position: relative;
+
+        button.screen__sound-toggle {
+          position: absolute;
+          inset: 16px 16px auto auto;
+          display: block;
+          z-index: 900;
+          @extend %jsmii-style-button-primary;
+          font-size: 0;
+          line-height: 0;
+          padding: 8px 10px !important;
+
+          & > span {
+            display: block;
+            padding: 12px;
+            background-position: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+            //background: url(../assets/presentation/sound.png) no-repeat center/contain;
+          }
+          &.sound-on span {
+            background-image: url(../assets/presentation/sound-on.png);
+          }
+          &.sound-off span {
+            background-image: url(../assets/presentation/sound-off.png);
+          }
+        }
+      }
+
+      &__actions {
+        margin: 0;
+        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        row-gap: 24px;
+
+        @include desktop {
+          //flex-direction: row;
+        }
+
+        .button--primary {
+          @extend %jsmii-style-button-primary;
+        }
+
+        .button--secondary {
+          @extend %jsmii-style-button-secondary;
+        }
+
+        h3 {
+          text-align: center;
+          @include t.font(h3);
+          text-transform: uppercase;
+          color: fn.color(skillaBlue);
+          //text-shadow: 1px 1px fn.color(shadow);
+        }
+      }
+    }
+
+
+    &.screen--game-level {
+      background: none;
+    }
+  }
+}
+
+
+.screen--game-end .screen__panel,
+.screen--game-over .screen__panel {
+  @extend %jsmii-style-card;
+}
+
+
+#game-root:has(.screen[data-screen="game-rules"] ) {
+  $light: #3CB0E1;
+  $dark: #0B174E;
+  background: linear-gradient(to bottom, $light, $light 50%, $dark 50%, $dark);
+  @include desktop {
+    &:before {
+      background: linear-gradient(to bottom, $light, $dark);
+    }
+  }
+}
+
+.screen--game-rules {
+  .screen {
+    &__panel {
+      justify-content: flex-start !important;
+      @include desktop {
+        align-items: center;
+      }
+
+      & > * {
+        //flex: 0 0 auto;
+        max-height: fit-content !important;
+      }
+    }
+
+    &__body {
+        margin-top: 10%;
+      @include desktop {
+        margin-top: 10%;
+      }
+      //@include jsmii-8bit-frame(fn.color(text),fn.color(text),fn.color(shadow), normal, 1px, true);
+
+    }
+
+    &__card {
+      width: 100%;
+      @include jsmii-8bit-frame(fn.color(text), fn.color(text), fn.color(shadow), normal, 1px, true);
+      @include t.font(body);
+      color: fn.color(black);
+      text-align: center;
+      padding: 16px;
+      @include mobile {
+        padding: 16px;
+      }
+
+      &.text-primary {
+        color: fn.color(primary);
+      }
+    }
+  }
+}
+
+.selective-display {
+  .is-mobile {
+    display: block;
+    @include desktop {
+      display: none;
+    }
+  }
+
+  .is-desktop {
+    display: none;
+    @include desktop {
+      display: block;
+    }
+  }
+}

@@ -1,0 +1,13 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/type" as t;
+@use "../components/mixins" as *;
+
+.screen[data-screen="game-end"] {
+  // Role: game-end; presentation: screen
+  // Headline: Game Complete
+}
+
+.screen[data-screen="game-end"] .screen__panel {
+  @extend %jsmii-style-card;
+}

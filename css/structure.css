@@ -1,0 +1,1637 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+@keyframes jsmii-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+:root {
+  --jsmii-runtime-font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --jsmii-game-background: #05070a;
+  --jsmii-game-surface: #10151b;
+  --jsmii-game-panel: #151b22;
+  --jsmii-game-border: rgba(255, 255, 255, 0.12);
+  --jsmii-game-text: #f4f7fb;
+  --jsmii-game-text-muted: rgba(244, 247, 251, 0.68);
+  --jsmii-game-accent: #d8dde6;
+  --jsmii-game-action: #f4f7fb;
+  --jsmii-game-action-text: #05070a;
+  --jsmii-game-radius: 8px;
+  --jsmii-game-space-sm: 12px;
+  --jsmii-game-space-md: 16px;
+  --jsmii-game-space-lg: 24px;
+  --jsmii-game-space-xl: 36px;
+  --jsmii-hud-ink: #0b174e;
+  --jsmii-hud-life-size: 24px;
+  --jsmii-hud-life-gap: 6px;
+  --jsmii-hud-time-width: 180px;
+  --jsmii-hud-time-height: 30px;
+  --jsmii-hud-time-progress: 100%;
+  --jsmii-hud-life-full: url("../assets/hud/foundation/lives-full.png");
+  --jsmii-hud-life-empty: url("../assets/hud/foundation/lives-empty.png");
+  --jsmii-hud-timeline-full: url("../assets/hud/foundation/timeline-full.png");
+  --jsmii-hud-timeline-empty: url("../assets/hud/foundation/timeline-empty.png");
+}
+
+@media (min-width: 992px) {
+  :root {
+    --jsmii-hud-life-size: 31px;
+    --jsmii-hud-life-gap: 8px;
+    --jsmii-hud-time-width: 260px;
+    --jsmii-hud-time-height: 43px;
+  }
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  font-family: var(--jsmii-runtime-font);
+  background: var(--jsmii-game-background);
+  color: var(--jsmii-game-text);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.game-root {
+  position: relative;
+  width: min(100vw, 1200px);
+  min-height: 100vh;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.screen-mount,
+.presentation-layer,
+.game-layer,
+.hud-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.screen-mount {
+  z-index: 20;
+}
+
+.presentation-layer {
+  z-index: 40;
+  pointer-events: none;
+}
+.presentation-layer.is-visible {
+  pointer-events: auto;
+}
+.presentation-layer.is-modal {
+  display: grid;
+  place-items: center;
+  padding: var(--jsmii-game-space-lg);
+  background: rgba(2, 8, 13, 0.64);
+  backdrop-filter: blur(4px);
+}
+.presentation-layer.is-overlay {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--jsmii-game-space-md);
+}
+
+.game-layer {
+  z-index: 15;
+}
+
+.hud-layer {
+  z-index: 30;
+  pointer-events: none;
+}
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: rgba(5, 7, 10, 0.92);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 180ms ease, visibility 180ms ease;
+}
+.loading-overlay.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+.loading-overlay__panel {
+  width: min(88vw, 440px);
+  padding: var(--jsmii-game-space-lg);
+  border: 1px solid var(--jsmii-game-border);
+  border-radius: var(--jsmii-game-radius);
+  background: rgba(16, 21, 27, 0.96);
+}
+.loading-overlay__eyebrow {
+  margin: 0 0 10px;
+  color: var(--jsmii-game-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 12px;
+  font-weight: 700;
+}
+.loading-overlay__title {
+  margin: 0;
+  font-size: clamp(30px, 4vw, 46px);
+  line-height: 0.94;
+}
+.loading-overlay__message {
+  margin: 12px 0 20px;
+  color: var(--jsmii-game-text-muted);
+}
+.loading-overlay__bar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.loading-overlay__progress {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--jsmii-game-action);
+  transition: width 220ms ease;
+}
+
+.screen {
+  display: none;
+  min-height: 100vh;
+  padding: var(--jsmii-game-space-lg);
+}
+.screen.is-active {
+  display: flex;
+  animation: jsmii-fade-up 320ms ease;
+}
+.screen--panel {
+  align-items: center;
+  justify-content: center;
+}
+.screen__panel {
+  width: min(92vw, 520px);
+  padding: var(--jsmii-game-space-lg);
+  border: 1px solid var(--jsmii-game-border);
+  border-radius: var(--jsmii-game-radius);
+  background: var(--jsmii-game-panel);
+}
+.screen__eyebrow {
+  margin: 0 0 10px;
+  color: var(--jsmii-game-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 12px;
+  font-weight: 700;
+}
+.screen__title {
+  margin: 0 0 12px;
+  font-size: clamp(32px, 5vw, 60px);
+  line-height: 0.92;
+}
+.screen__body {
+  margin: 0;
+  color: var(--jsmii-game-text-muted);
+  font-size: 16px;
+  line-height: 1.55;
+}
+.screen__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--jsmii-game-space-sm);
+  margin-top: var(--jsmii-game-space-lg);
+}
+.screen--game-level {
+  align-items: stretch;
+  padding: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(85, 137, 170, 0.22), transparent 52%), #071017;
+}
+.screen__game-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  padding: var(--jsmii-game-space-md);
+}
+.screen__game-shell--overlay {
+  position: relative;
+  display: block;
+  padding: 0;
+  overflow: hidden;
+}
+.screen__game-header {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 10fr) minmax(0, 1fr);
+  align-items: start;
+  gap: var(--jsmii-game-space-md);
+  padding: var(--jsmii-game-space-sm) 0;
+}
+.screen__game-header .screen__title {
+  margin: 0;
+  font-size: clamp(24px, 4vw, 44px);
+}
+.screen__game-header .screen__actions {
+  margin-top: 0;
+}
+.screen__game-footer {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 10fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--jsmii-game-space-md);
+  min-height: 72px;
+  padding: var(--jsmii-game-space-sm) 0;
+}
+.screen__hud-area {
+  display: inline-flex;
+  min-width: 0;
+  gap: var(--jsmii-game-space-sm);
+}
+.screen__hud-area--row {
+  flex-flow: row wrap;
+  align-items: center;
+}
+.screen__hud-area--column {
+  flex-direction: column;
+  align-items: flex-start;
+}
+.screen__hud-area--center {
+  justify-content: center;
+  text-align: center;
+}
+.screen__hud-area--right {
+  justify-content: flex-end;
+  text-align: right;
+}
+.screen__hud-area--right.screen__hud-area--column {
+  align-items: flex-end;
+}
+.screen__hud-area--center.screen__hud-area--column {
+  align-items: center;
+}
+.screen__hud-area--header-center:has(.screen__hud-item--lives, .screen__hud-item--time) {
+  flex-direction: column;
+  align-items: center;
+}
+.screen__hud-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--jsmii-game-border);
+  border-radius: 999px;
+  background: rgba(7, 16, 23, 0.72);
+  color: var(--jsmii-game-text);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.screen__hud-item--lives, .screen__hud-item--time {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--jsmii-hud-ink);
+  overflow: visible;
+}
+.screen__hud-item--lives .screen__hud-lives {
+  display: inline-flex;
+  gap: var(--jsmii-hud-life-gap);
+  width: max-content;
+  height: var(--jsmii-hud-life-size);
+}
+.screen__hud-item--lives .screen__hud-life {
+  display: block;
+  width: var(--jsmii-hud-life-size);
+  height: var(--jsmii-hud-life-size);
+  background-image: var(--jsmii-hud-life-empty);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  image-rendering: pixelated;
+}
+.screen__hud-item--lives .screen__hud-life[data-state=filled] {
+  background-image: var(--jsmii-hud-life-full);
+}
+.screen__hud-item--lives .screen__hud-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.screen__hud-item--time {
+  position: relative;
+  display: inline-block;
+  width: var(--jsmii-hud-time-width);
+  height: var(--jsmii-hud-time-height);
+  background-image: var(--jsmii-hud-timeline-empty);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+}
+.screen__hud-item--time::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--hud-time-progress, var(--tester-preview-hud-time-progress, var(--jsmii-hud-time-progress)));
+  background-image: var(--jsmii-hud-timeline-full);
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: auto 100%;
+  pointer-events: none;
+  transition: width 250ms linear;
+}
+.screen__hud-item--time .screen__hud-timeline {
+  display: none;
+}
+.screen__hud-item--time .screen__hud-time-value {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  color: var(--jsmii-hud-ink);
+  font-family: "Press Start 2P", system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.14;
+  opacity: var(--hud-time-value-opacity, var(--tester-preview-hud-time-value-opacity, 0));
+  transition: opacity 0.3s ease;
+  white-space: nowrap;
+}
+.screen__game-title-block {
+  min-width: 0;
+}
+.screen__game-footer .screen__actions {
+  justify-content: center;
+  margin-top: 0;
+}
+.screen__game-shell--solid .runner-mount {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.screen__game-shell--overlay {
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+}
+.screen__game-shell--overlay .screen__game-header {
+  position: fixed;
+  inset: 0 0 auto;
+  padding: var(--jsmii-game-space-md);
+  background: none;
+  pointer-events: none;
+}
+.screen__game-shell--overlay .screen__game-footer {
+  position: fixed;
+  inset: auto 0 0;
+  padding: var(--jsmii-game-space-md);
+  background: none;
+  pointer-events: none;
+}
+.screen__game-shell--overlay .screen__hud-area,
+.screen__game-shell--overlay .screen__actions {
+  pointer-events: auto;
+}
+.screen__game-shell--overlay .runner-mount {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+.screen__game-shell--overlay .runner-stage {
+  min-height: 0;
+}
+.screen__game-shell--overlay .runner-stage {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.presentation-layer .screen.is-active {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+}
+.presentation-layer.is-modal .screen.is-active {
+  align-items: center;
+  justify-content: center;
+}
+.presentation-layer.is-modal .screen__panel {
+  width: min(92vw, 520px);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.42);
+}
+.presentation-layer.is-overlay .screen.is-active {
+  align-items: flex-start;
+  justify-content: center;
+}
+.presentation-layer.is-overlay .screen__panel {
+  width: min(92vw, 640px);
+}
+
+.runner-mount {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-height: min(72vh, 640px);
+  place-items: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior: contain;
+}
+
+.screen[data-runner-renderer=preview-canvas] .screen__game-header,
+.screen[data-runner-renderer=preview-canvas] .screen__game-footer {
+  display: none;
+}
+
+.screen[data-runner-renderer=preview-canvas] .runner-mount {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #071017;
+}
+@supports (height: 100svh) {
+  .screen[data-runner-renderer=preview-canvas] .runner-mount {
+    height: 100svh;
+    min-height: 100svh;
+  }
+}
+
+.screen--game-level[data-runner-viewport=mobile]:not([data-runner-renderer=preview-canvas]) .runner-mount {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  max-width: 1024px;
+  height: 160vw;
+  max-height: 100vh;
+  min-height: 0;
+  margin: auto;
+  overflow: hidden;
+  background: #071017;
+}
+@supports (height: 100svh) {
+  .screen--game-level[data-runner-viewport=mobile]:not([data-runner-renderer=preview-canvas]) .runner-mount {
+    max-height: 100svh;
+  }
+}
+
+.screen--game-level[data-runner-viewport=mobile]:not([data-runner-renderer=preview-canvas]) .runner-stage--mobile {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  aspect-ratio: auto;
+}
+
+.runner-stage {
+  position: relative;
+  width: min(100%, 133.3333333333vh, 1024px);
+  aspect-ratio: var(--runner-canvas-aspect, 4/3);
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--jsmii-game-border);
+  border-radius: calc(var(--jsmii-game-radius) * 2);
+  background: #071017;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  perspective: var(--runner-perspective, 1200px);
+  perspective-origin: 50% 62%;
+  isolation: isolate;
+  transform-style: preserve-3d;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior: contain;
+}
+
+.runner-stage--mobile {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  aspect-ratio: auto;
+}
+
+.runner-world {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+.runner-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  pointer-events: none;
+  transform: translate3d(var(--runner-layer-x, 0px), var(--runner-layer-y, 0px), 0);
+  transform-origin: 50% 100%;
+  isolation: isolate;
+  transform-style: flat;
+  will-change: transform;
+}
+
+.runner-layer-plane {
+  position: absolute;
+  inset: 0;
+  transform: translateZ(var(--runner-layer-z, 0px)) scale(var(--runner-layer-scale, 1));
+  transform-origin: 50% 50%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.runner-layer-visual {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, 0);
+}
+
+.runner-stage--mobile .runner-layer-visual {
+  bottom: 50%;
+  transform: translate(-50%, 50%);
+}
+
+.runner-layer-track {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  display: block;
+  width: 0;
+  height: 100%;
+  transform: translate3d(var(--runner-track-x, 0px), 0, 0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+.runner-layer-track img {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: block;
+  max-width: none;
+  height: 100%;
+  margin: 0;
+  object-fit: contain;
+  image-rendering: pixelated;
+  user-select: none;
+  will-change: transform;
+}
+
+.runner-stage.tester-preview .tester-preview__stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  padding: 0;
+  pointer-events: none;
+}
+
+.runner-stage.tester-preview .tester-preview__stage--perspective {
+  perspective: var(--preview-perspective);
+  perspective-origin: 50% 62%;
+  isolation: isolate;
+  transform-style: preserve-3d;
+}
+
+.runner-stage.tester-preview .tester-preview__layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: translate3d(var(--layer-x), var(--layer-y), 0);
+  transform-origin: 50% 100%;
+  z-index: var(--layer-z);
+  isolation: isolate;
+  transform-style: flat;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.runner-stage.tester-preview .tester-preview__layer-plane {
+  position: absolute;
+  inset: 0;
+  transform: translateZ(var(--layer-z-offset, 0px)) scale(var(--layer-scale));
+  transform-origin: var(--layer-origin-x, 50%) var(--layer-origin-y, 100%);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.runner-stage.tester-preview .tester-preview__layer-visual {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, 0);
+}
+
+.runner-stage--mobile.tester-preview .tester-preview__layer-visual {
+  bottom: 50%;
+  transform: translate(-50%, 50%);
+}
+
+.runner-stage.tester-preview .tester-preview__layer-track {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  display: block;
+  width: 0;
+  height: 100%;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+.runner-stage.tester-preview .tester-preview__layer-track img {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: block;
+  max-width: none;
+  height: 100%;
+  margin: 0;
+  object-fit: contain;
+  transform: translate3d(0, 0, 0);
+  image-rendering: pixelated;
+  user-select: none;
+  will-change: transform;
+}
+
+.runner-stage.tester-preview {
+  --tester-preview-hud-ink: var(--jsmii-hud-ink);
+  --tester-preview-hud-life-size: var(--jsmii-hud-life-size);
+  --tester-preview-hud-life-gap: var(--jsmii-hud-life-gap);
+  --tester-preview-hud-time-width: var(--jsmii-hud-time-width);
+  --tester-preview-hud-time-height: var(--jsmii-hud-time-height);
+  --tester-preview-hud-time-progress: 100%;
+  --tester-preview-hud-life-full: var(--jsmii-hud-life-full);
+  --tester-preview-hud-life-empty: var(--jsmii-hud-life-empty);
+  --tester-preview-hud-timeline-full: var(--jsmii-hud-timeline-full);
+  --tester-preview-hud-timeline-empty: var(--jsmii-hud-timeline-empty);
+}
+
+.runner-stage.tester-preview .tester-preview__hud {
+  position: absolute;
+  inset: 0;
+  z-index: 240;
+  pointer-events: none;
+}
+
+.runner-stage.tester-preview .tester-preview__hud-zone {
+  position: absolute;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 10fr) minmax(0, 1fr);
+  gap: 8px;
+  padding: calc(env(safe-area-inset-top, 0px) + 8px) 12px 0;
+}
+
+.runner-stage.tester-preview .tester-preview__hud-zone--header {
+  top: 0;
+}
+
+.runner-stage.tester-preview .tester-preview__hud-zone--footer {
+  bottom: 0;
+  align-items: end;
+  padding: 0 12px 12px;
+}
+
+.runner-stage.tester-preview .tester-preview__hud--solid .tester-preview__hud-zone {
+  background: rgba(7, 16, 23, 0.24);
+}
+
+.runner-stage.tester-preview .tester-preview__hud-game {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.runner-stage.tester-preview .tester-preview__hud-area {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  gap: 8px;
+}
+
+.runner-stage.tester-preview .tester-preview__hud-area--row {
+  flex-flow: row wrap;
+}
+
+.runner-stage.tester-preview .tester-preview__hud-area--column {
+  flex-direction: column;
+}
+
+.runner-stage.tester-preview .tester-preview__hud-area--left {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.runner-stage.tester-preview .tester-preview__hud-area--right {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.runner-stage.tester-preview .tester-preview__hud-area--header-center:has(.screen__hud-item--lives, .screen__hud-item--time) {
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 12px;
+}
+
+.runner-stage.tester-preview .tester-preview__hud-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 120px;
+  min-width: 0;
+  padding: 5px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 999px;
+  background: rgba(7, 16, 23, 0.72);
+  color: var(--jsmii-game-text);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.05;
+  text-align: center;
+  text-transform: uppercase;
+  transform: scale(var(--preview-hud-item-scale, 1));
+  transform-origin: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.runner-stage.tester-preview .tester-preview__hud-game .tester-preview__hud-item[data-hud-zone=game] {
+  position: absolute;
+  transform: translate(-50%, -50%) scale(var(--preview-hud-item-scale, 1));
+}
+
+.runner-stage.tester-preview .tester-preview__hud-item--lives,
+.runner-stage.tester-preview .tester-preview__hud-item--time {
+  max-width: none;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--tester-preview-hud-ink);
+  overflow: visible;
+}
+
+.runner-stage.tester-preview .tester-preview__hud-item--lives .screen__hud-lives {
+  display: inline-flex;
+  gap: var(--tester-preview-hud-life-gap);
+  width: max-content;
+  height: var(--tester-preview-hud-life-size);
+}
+
+.runner-stage.tester-preview .tester-preview__hud-item--lives .screen__hud-life {
+  display: block;
+  width: var(--tester-preview-hud-life-size);
+  height: var(--tester-preview-hud-life-size);
+  background-image: var(--tester-preview-hud-life-empty);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  image-rendering: pixelated;
+}
+
+.runner-stage.tester-preview .tester-preview__hud-item--lives .screen__hud-life[data-state=filled] {
+  background-image: var(--tester-preview-hud-life-full);
+}
+
+.runner-stage.tester-preview .tester-preview__hud-item--lives .screen__hud-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.runner-stage.tester-preview .tester-preview__hud-item--time {
+  position: relative;
+  display: inline-block;
+  width: var(--tester-preview-hud-time-width);
+  height: var(--tester-preview-hud-time-height);
+  background-image: var(--tester-preview-hud-timeline-empty);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+}
+
+.runner-stage.tester-preview .tester-preview__hud-item--time::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--tester-preview-hud-time-progress);
+  background-image: var(--tester-preview-hud-timeline-full);
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: auto 100%;
+  pointer-events: none;
+}
+
+.runner-stage.tester-preview .tester-preview__hud-item--time .screen__hud-timeline {
+  display: none;
+}
+
+.runner-stage.tester-preview .tester-preview__hud-item--time .screen__hud-time-value {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  color: var(--tester-preview-hud-ink);
+  font-family: "Press Start 2P", system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.14;
+  opacity: var(--tester-preview-hud-time-value-opacity, 0);
+  transition: opacity 0.3s ease;
+  white-space: nowrap;
+}
+
+@media (min-width: 992px) {
+  .runner-stage.tester-preview .tester-preview__hud-zone {
+    gap: 12px;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
+  }
+  .runner-stage.tester-preview .tester-preview__hud-area--header-center:has(.screen__hud-item--lives, .screen__hud-item--time) {
+    gap: 16px;
+  }
+}
+.runner-stage.tester-preview .tester-preview__character-anchor {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 8;
+  width: 0;
+  height: 100%;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  transform-origin: 50% 100%;
+  transform-style: preserve-3d;
+}
+
+.runner-stage.tester-preview.tester-preview--mobile .tester-preview__character-anchor {
+  left: 20%;
+}
+
+.runner-stage.tester-preview .tester-preview__character-sprite,
+.runner-stage.tester-preview .tester-preview__character-jump-guide {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--preview-world-height, 1px) * var(--preview-character-scene-bottom-factor, 0.1));
+  --preview-character-frame-aspect: 1;
+  --preview-character-frame-height-ratio: 0.142222;
+  --preview-character-frame-natural-width: 128px;
+  --preview-character-frame-natural-height: 128px;
+  --preview-character-frame-height: var(--preview-character-frame-natural-height);
+  --preview-character-frame-width: var(--preview-character-frame-natural-width);
+  --preview-character-scene-bottom-factor: 0.1;
+  --preview-character-scene-transform: translate3d(calc(var(--preview-character-scene-x, 0px) + var(--preview-character-exit-x, 0px)), 0, var(--preview-character-scene-z, 0px)) scale(var(--preview-character-scene-scale, 1));
+  --preview-character-anchor-transform: translateX(-50%);
+  transform: var(--preview-character-scene-transform) var(--preview-character-anchor-transform);
+  transform-origin: 50% 100%;
+}
+
+.runner-stage.tester-preview .tester-preview__character-sprite {
+  width: var(--preview-character-frame-width);
+  height: var(--preview-character-frame-height);
+  image-rendering: pixelated;
+}
+
+.runner-stage.tester-preview .tester-preview__character-jump-guide {
+  z-index: 7;
+  width: max(200vw, 2000px);
+  height: 3px;
+  background: #ff4fd8;
+  opacity: 0.92;
+  transform: var(--preview-character-scene-transform) var(--preview-character-anchor-transform) translate3d(0, var(--preview-character-jump-y), 0);
+}
+
+.runner-stage.tester-preview[data-preview-state=render] .tester-preview__character-jump-guide {
+  opacity: 0;
+}
+
+.runner-stage.tester-preview .tester-preview__character-frame {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-image: var(--preview-character-image);
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-size: calc(var(--preview-character-frame-width) * var(--preview-character-frame-count, 1)) var(--preview-character-frame-height);
+  image-rendering: pixelated;
+  --preview-character-surface-transform: translate3d(0, 0, 0);
+  transform: var(--preview-character-surface-transform, translate3d(0, 0, 0));
+  transform-origin: 50% 100%;
+}
+
+.runner-stage.tester-preview .tester-preview__character-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: var(--preview-character-bb-thickness, 4px) solid #5cff00;
+  opacity: 1;
+  transform: translate(var(--preview-character-bb-x, 0%), var(--preview-character-bb-y, 0%)) scale(var(--preview-character-bb-scale-x, var(--preview-character-bb-scale, 1)), var(--preview-character-bb-scale-y, var(--preview-character-bb-scale, 1)));
+  transform-origin: 50% 100%;
+  pointer-events: none;
+}
+
+.runner-stage.tester-preview .tester-preview__character-sprite[data-character-animated=true] .tester-preview__character-frame {
+  animation: jsmii-preview-character-frames var(--preview-character-duration, 1s) steps(var(--preview-character-steps, 1)) infinite;
+}
+
+.runner-stage.tester-preview .tester-preview__character-sprite[data-character-loop=false] .tester-preview__character-frame {
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+.runner-stage.tester-preview .tester-preview__character-sprite[data-character-animated=true][data-character-motion=idle-breathe] .tester-preview__character-frame {
+  animation: jsmii-preview-character-frames var(--preview-character-duration, 1s) steps(var(--preview-character-steps, 1)) infinite, jsmii-preview-character-motion-idle var(--preview-character-duration, 1s) ease-in-out infinite;
+}
+
+.runner-stage.tester-preview .tester-preview__character-sprite[data-character-animated=true][data-character-motion=walk-cycle] .tester-preview__character-frame,
+.runner-stage.tester-preview .tester-preview__character-sprite[data-character-animated=true][data-character-motion=run-cycle] .tester-preview__character-frame {
+  animation: jsmii-preview-character-frames var(--preview-character-duration, 1s) steps(var(--preview-character-steps, 1)) infinite, jsmii-preview-character-motion-run var(--preview-character-duration, 1s) linear infinite;
+}
+
+.runner-stage.tester-preview .tester-preview__character-sprite[data-character-animated=true][data-character-motion=jump-arc] .tester-preview__character-frame {
+  animation: jsmii-preview-character-frames var(--preview-character-duration, 1s) steps(var(--preview-character-steps, 1)) 1 forwards, jsmii-preview-character-motion-jump var(--preview-character-duration, 1s) ease-in-out 1 forwards;
+}
+
+.runner-stage.tester-preview .tester-preview__character-sprite[data-character-animated=true][data-character-motion=lunge] .tester-preview__character-frame {
+  animation: jsmii-preview-character-frames var(--preview-character-duration, 1s) steps(var(--preview-character-steps, 1)) infinite, jsmii-preview-character-motion-lunge var(--preview-character-duration, 1s) ease-out infinite;
+}
+
+.runner-stage.tester-preview .tester-preview__character-sprite[data-character-animated=true][data-character-motion=guard] .tester-preview__character-frame {
+  animation: jsmii-preview-character-frames var(--preview-character-duration, 1s) steps(var(--preview-character-steps, 1)) infinite, jsmii-preview-character-motion-guard var(--preview-character-duration, 1s) ease-out infinite;
+}
+
+.runner-stage.tester-preview .tester-preview__character-sprite[data-character-animated=true][data-character-motion=knockback] .tester-preview__character-frame {
+  animation: jsmii-preview-character-frames var(--preview-character-duration, 1s) steps(var(--preview-character-steps, 1)) infinite, jsmii-preview-character-motion-knockback var(--preview-character-duration, 1s) ease-out infinite;
+}
+
+.runner-stage.tester-preview .tester-preview__character-sprite[data-character-animated=true][data-character-motion=death-fall] .tester-preview__character-frame {
+  animation: jsmii-preview-character-frames var(--preview-character-duration, 1s) steps(var(--preview-character-steps, 1)) 1 forwards, jsmii-preview-character-motion-death-fall var(--preview-character-duration, 1s) ease-in 1 forwards;
+}
+
+.runner-stage.tester-preview .tester-preview__character-sprite[data-character-animated=false][data-character-motion=jump-arc] .tester-preview__character-frame {
+  animation: jsmii-preview-character-motion-jump var(--preview-character-duration, 1s) ease-in-out 1 forwards;
+}
+
+.runner-stage.tester-preview .tester-preview__character-sprite[data-character-animated=false][data-character-motion=lunge] .tester-preview__character-frame {
+  animation: jsmii-preview-character-motion-lunge var(--preview-character-duration, 1s) ease-out infinite;
+}
+
+.runner-stage.tester-preview .tester-preview__character-sprite[data-character-animated=false][data-character-motion=guard] .tester-preview__character-frame {
+  animation: jsmii-preview-character-motion-guard var(--preview-character-duration, 1s) ease-out infinite;
+}
+
+.runner-stage.tester-preview .tester-preview__character-sprite[data-character-animated=false][data-character-motion=knockback] .tester-preview__character-frame {
+  animation: jsmii-preview-character-motion-knockback var(--preview-character-duration, 1s) ease-out infinite;
+}
+
+.runner-stage.tester-preview .tester-preview__character-sprite[data-character-animated=false][data-character-motion=death-fall] .tester-preview__character-frame {
+  animation: jsmii-preview-character-motion-death-fall var(--preview-character-duration, 1s) ease-in 1 forwards;
+}
+
+.runner-stage.tester-preview .tester-preview__character-sprite[data-character-surface=falling] .tester-preview__character-frame,
+.runner-stage.tester-preview.tester-preview--mobile .tester-preview__character-sprite[data-character-surface=falling] .tester-preview__character-frame {
+  --preview-character-surface-transform:
+    translate3d(var(--preview-character-fall-x, 0px), var(--preview-character-fall-y, 0px), 0)
+    rotate(var(--preview-character-fall-rotation, 0deg));
+}
+
+.runner-stage.tester-preview .tester-preview__scene-module,
+.runner-stage.tester-preview .tester-preview__scene-module-bb {
+  transform-origin: 50% 100%;
+}
+
+.runner-stage.tester-preview .tester-preview__scene-module-bb {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: block;
+  height: 100%;
+  border: var(--spawn-bb-thickness, 4px) solid #ff2438;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.runner-stage.tester-preview .tester-preview__spawn-object {
+  position: absolute;
+  left: var(--spawn-left, 50%);
+  bottom: var(--spawn-bottom, 10%);
+  z-index: var(--spawn-z, 71);
+  width: var(--spawn-frame-width, auto);
+  height: var(--spawn-frame-height, auto);
+  transform: translateX(-50%) scale(var(--spawn-scale, 1));
+  transform-origin: 50% 100%;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.runner-stage.tester-preview .tester-preview__spawn-object img,
+.runner-stage.tester-preview .tester-preview__spawn-object-sprite {
+  display: block;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.runner-stage.tester-preview .tester-preview__spawn-object-sprite {
+  background-image: var(--spawn-sprite-image);
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: calc(100% * var(--spawn-frame-count, 1)) 100%;
+  animation: jsmii-preview-spawn-object-frames var(--spawn-frame-duration, 1s) steps(var(--spawn-frame-steps, 1)) infinite;
+}
+
+.runner-stage.tester-preview .tester-preview__spawn-object::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border: var(--spawn-bb-thickness, 45px) solid #fff;
+  opacity: 1;
+  transform: translate(var(--spawn-bb-x, 0%), var(--spawn-bb-y, 0%)) scale(var(--spawn-bb-scale-x, var(--spawn-bb-scale, 1)), var(--spawn-bb-scale-y, var(--spawn-bb-scale, 1)));
+  transform-origin: 50% 100%;
+  pointer-events: none;
+}
+
+.runner-stage.tester-preview .tester-preview__spawn-object[data-bounding-box-mode=hidden]::before,
+.runner-stage.tester-preview[data-preview-state=render] .tester-preview__spawn-object[data-bounding-box-mode=visible]::before,
+.runner-stage.tester-preview .tester-preview__character-sprite[data-bounding-box-mode=hidden] .tester-preview__character-frame::before,
+.runner-stage.tester-preview[data-preview-state=render] .tester-preview__character-sprite[data-bounding-box-mode=visible] .tester-preview__character-frame::before {
+  opacity: 0;
+}
+
+.runner-preview-export[data-preview-bb=true] .runner-stage.tester-preview .tester-preview__spawn-object::before,
+.runner-preview-export[data-preview-bb=true] .runner-stage.tester-preview .tester-preview__character-sprite .tester-preview__character-frame::before {
+  opacity: 1;
+}
+
+.runner-stage.tester-preview .tester-preview__spawn-object[data-spawn-text-bonus=true][data-spawn-collected=true] {
+  opacity: 1 !important;
+}
+
+.runner-stage.tester-preview .tester-preview__spawn-object[data-spawn-text-bonus=true] {
+  transform: translateX(-50%);
+}
+
+.runner-stage.tester-preview .tester-preview__spawn-text-bonus {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: block;
+  min-width: max-content;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: opacity 180ms ease-out;
+  image-rendering: pixelated;
+}
+
+.runner-stage.tester-preview:not([data-preview-state=render]) .tester-preview__spawn-object[data-spawn-text-bonus=true] .tester-preview__spawn-text-bonus {
+  opacity: 1 !important;
+}
+
+@keyframes jsmii-preview-character-frames {
+  to {
+    background-position: var(--preview-character-last-frame-x, 0px) 0;
+  }
+}
+@keyframes jsmii-preview-character-motion-idle {
+  0%, 100% {
+    transform: var(--preview-character-surface-transform) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: var(--preview-character-surface-transform) translate3d(0, -4px, 0);
+  }
+}
+@keyframes jsmii-preview-character-motion-run {
+  0%, 100% {
+    transform: var(--preview-character-surface-transform) translate3d(0, 0, 0);
+  }
+  25% {
+    transform: var(--preview-character-surface-transform) translate3d(var(--preview-character-run-x, 8px), -5px, 0);
+  }
+  50% {
+    transform: var(--preview-character-surface-transform) translate3d(0, 0, 0);
+  }
+  75% {
+    transform: var(--preview-character-surface-transform) translate3d(calc(var(--preview-character-run-x, 8px) * -1), -5px, 0);
+  }
+}
+@keyframes jsmii-preview-character-motion-jump {
+  0%, 100% {
+    transform: var(--preview-character-surface-transform) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: var(--preview-character-surface-transform) translate3d(0, var(--preview-character-jump-y, -64px), 0);
+  }
+}
+@keyframes jsmii-preview-character-motion-lunge {
+  0% {
+    transform: var(--preview-character-surface-transform) translate3d(0, 0, 0);
+  }
+  55% {
+    transform: var(--preview-character-surface-transform) translate3d(var(--preview-character-lunge-x, 22px), -4px, 0) scale(1.025);
+  }
+  100% {
+    transform: var(--preview-character-surface-transform) translate3d(0, 0, 0);
+  }
+}
+@keyframes jsmii-preview-character-motion-guard {
+  0%, 100% {
+    transform: var(--preview-character-surface-transform) translate3d(-4px, 0, 0);
+  }
+}
+@keyframes jsmii-preview-character-motion-knockback {
+  0% {
+    transform: var(--preview-character-surface-transform) translate3d(0, 0, 0);
+  }
+  55% {
+    transform: var(--preview-character-surface-transform) translate3d(var(--preview-character-knockback-x, -24px), -8px, 0);
+  }
+  100% {
+    transform: var(--preview-character-surface-transform) translate3d(0, 0, 0);
+  }
+}
+@keyframes jsmii-preview-character-motion-death-fall {
+  0% {
+    opacity: 1;
+    transform: var(--preview-character-surface-transform) translate3d(0, 0, 0) rotate(0deg);
+  }
+  42% {
+    opacity: 1;
+    transform: var(--preview-character-surface-transform) translate3d(var(--preview-character-knockback-x, -24px), -10px, 0) rotate(-8deg);
+  }
+  100% {
+    opacity: 0.92;
+    transform: var(--preview-character-surface-transform) translate3d(calc(var(--preview-character-knockback-x, -24px) * 1.45), 96px, 0) rotate(-18deg);
+  }
+}
+@keyframes jsmii-preview-spawn-object-frames {
+  to {
+    background-position: var(--spawn-last-frame-x, 100%) 0;
+  }
+}
+.runner-preview-export-set {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr);
+  align-items: center;
+  justify-items: center;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+}
+
+.runner-preview-export-set[data-preview-canvas-export=both] {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: max-content;
+  min-width: 100%;
+}
+
+.runner-preview-export {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-width: 0;
+  width: 100%;
+}
+
+.runner-preview-export--desktop {
+  flex-direction: column;
+  gap: 10px;
+  width: min(1024px, 100vw - 32px);
+  max-width: 1024px;
+  height: auto;
+}
+
+.runner-preview-export--desktop .runner-preview-game-container {
+  width: 100%;
+  max-width: 1024px;
+  aspect-ratio: 4/3;
+}
+
+.runner-preview-export--desktop .runner-stage--desktop {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  aspect-ratio: 4/3;
+}
+
+.runner-preview-export--mobile {
+  flex-direction: row;
+  gap: 0;
+  width: 100vw;
+  max-width: 1024px;
+  height: 160vw;
+  max-height: 100vh;
+}
+@supports (height: 100svh) {
+  .runner-preview-export--mobile {
+    max-height: 100svh;
+  }
+}
+
+.runner-preview-game-container {
+  position: relative;
+  flex: 0 0 auto;
+  width: 100%;
+  overflow: hidden;
+  background: #071017;
+}
+
+.runner-preview-export--mobile .runner-preview-game-container {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+
+.runner-preview-dash {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  background: rgba(7, 16, 23, 0.92);
+}
+
+.runner-preview-export--desktop .runner-preview-dash {
+  flex-direction: row;
+  width: 100%;
+}
+
+.runner-preview-export--mobile .runner-preview-dash {
+  position: fixed;
+  top: 50%;
+  right: max(8px, env(safe-area-inset-right));
+  z-index: 80;
+  flex-direction: column;
+  width: auto;
+  transform: translateY(-50%);
+  pointer-events: auto;
+}
+
+.runner-preview-dash__button {
+  min-width: 74px;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 6px;
+  color: #f6fbff;
+  background: #132532;
+  font: 700 12px/1 var(--jsmii-game-font, sans-serif);
+  cursor: pointer;
+}
+
+.runner-preview-dash__button[aria-pressed=true] {
+  border-color: #ffd45a;
+  color: #071017;
+  background: #ffd45a;
+}
+
+.runner-stage--preview-canvas {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.runner-sky,
+.runner-horizon,
+.runner-ground {
+  position: absolute;
+  inset-inline: 0;
+  pointer-events: none;
+}
+
+.runner-sky {
+  inset-block-start: 0;
+  height: 58%;
+  background: radial-gradient(circle at 78% 22%, rgba(255, 255, 255, 0.74), transparent 0 7%, transparent 14%), linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 62%);
+}
+
+.runner-horizon {
+  inset-block-end: 31%;
+  height: 22%;
+  background: linear-gradient(135deg, transparent 0 30%, rgba(20, 50, 70, 0.45) 30% 42%, transparent 42%), linear-gradient(45deg, transparent 0 35%, rgba(12, 39, 54, 0.5) 35% 52%, transparent 52%);
+  opacity: 0.8;
+}
+
+.runner-ground {
+  inset-block-end: 0;
+  height: 34%;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 44px), linear-gradient(180deg, #4e5a29, #17180d);
+}
+
+.runner-hud {
+  position: absolute;
+  inset: 14px 14px auto;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.runner-hud span {
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: #071017;
+  background: rgba(255, 255, 255, 0.82);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.runner-player {
+  position: absolute;
+  left: 0;
+  bottom: 92px;
+  z-index: 3;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  transform-origin: 50% 100%;
+  will-change: transform, background-position;
+}
+
+.runner-spawn {
+  position: absolute;
+  z-index: 2;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  transform-origin: 50% 100%;
+  will-change: transform, background-position, opacity;
+}
+
+.runner-spawn--obstacle,
+.runner-spawn--hazard {
+  z-index: 2;
+}
+
+.runner-spawn--bonus {
+  z-index: 4;
+}
+
+.runner-spawn--text-bonus {
+  background: none;
+  overflow: visible;
+}
+
+.runner-spawn__text-bonus {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: block;
+  min-width: max-content;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: opacity 180ms ease-out;
+  image-rendering: pixelated;
+}
+
+.runner-hollow-gap {
+  position: absolute;
+  inset-block-end: 0;
+  z-index: 2;
+  height: 34%;
+  border-radius: 10px 10px 0 0;
+  background: linear-gradient(180deg, rgba(5, 8, 12, 0.96), #020305);
+  box-shadow: inset 0 16px 24px rgba(255, 255, 255, 0.08);
+}
+
+.runner-obstacle {
+  position: absolute;
+  left: 0;
+  bottom: 96px;
+  z-index: 2;
+  width: 34px;
+  height: 62px;
+  border-radius: 8px 8px 4px 4px;
+  background: linear-gradient(180deg, #ffcf57, #b24b23);
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.22);
+}
+
+.runner-start {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  z-index: 4;
+  transform: translateX(-50%);
+}
+
+.button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  cursor: pointer;
+  background: var(--jsmii-game-action);
+  color: var(--jsmii-game-action-text);
+  text-decoration: none;
+  font: inherit;
+  font-weight: 700;
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+.button:hover {
+  transform: translateY(-1px);
+}
+.button--ghost {
+  border: 1px solid var(--jsmii-game-border);
+  background: transparent;
+  color: var(--jsmii-game-text);
+}
+
+@media (min-width: 768px) {
+  .screen {
+    padding: var(--jsmii-game-space-xl);
+  }
+  .screen__panel {
+    padding: var(--jsmii-game-space-xl);
+  }
+}
+
+/* jsmii runtime export overrides */
+.screen__hud-item--time::before {
+  width: var(--hud-time-progress, var(--tester-preview-hud-time-progress, var(--jsmii-hud-time-progress))) !important;
+  transition: width 250ms linear;
+}
+.screen__hud-item--time .screen__hud-time-value {
+  opacity: var(--hud-time-value-opacity, var(--tester-preview-hud-time-value-opacity, 0)) !important;
+}
+.screen--game-level {
+  background: var(--jsmii-game-page-background, var(--jsmii-game-viewport-background, transparent));
+}
+.screen[data-runner-renderer=preview-canvas] .runner-mount {
+  background: var(--jsmii-game-viewport-background, transparent);
+}
+.screen--game-level[data-runner-viewport=desktop]:not([data-runner-renderer=preview-canvas]) .runner-mount {
+  width: min(100vw, 1024px);
+  max-width: 1024px;
+  height: auto;
+  max-height: 100vh;
+  min-height: 0;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--jsmii-game-viewport-background, transparent);
+}
+@supports (height: 100svh) {
+  .screen--game-level[data-runner-viewport=desktop]:not([data-runner-renderer=preview-canvas]) .runner-mount {
+    max-height: 100svh;
+  }
+}
+.screen--game-level[data-runner-viewport=desktop]:not([data-runner-renderer=preview-canvas]) .runner-stage--desktop {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  aspect-ratio: 4 / 3;
+}
+.screen--game-level[data-runner-viewport=mobile]:not([data-runner-renderer=preview-canvas]) .runner-mount {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  max-width: 1024px;
+  height: 160vw;
+  max-height: 100vh;
+  min-height: 0;
+  margin: auto;
+  overflow: hidden;
+  background: var(--jsmii-game-viewport-background, transparent);
+}
+@supports (height: 100svh) {
+  .screen--game-level[data-runner-viewport=mobile]:not([data-runner-renderer=preview-canvas]) .runner-mount {
+    max-height: 100svh;
+  }
+}
+.screen--game-level[data-runner-viewport=mobile]:not([data-runner-renderer=preview-canvas]) .runner-stage--mobile {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  aspect-ratio: auto;
+}
+.screen[data-runner-renderer=preview-canvas] .runner-preview-export-set[data-preview-canvas-export=mobile],
+.screen[data-runner-renderer=preview-canvas] .runner-preview-export--mobile,
+.screen[data-runner-renderer=preview-canvas] .runner-preview-export--mobile .runner-preview-game-container {
+  width: 100vw !important;
+  max-width: 1024px !important;
+  height: 160vw !important;
+  max-height: 100vh !important;
+  min-height: 0 !important;
+  margin: auto !important;
+}
+@supports (height: 100svh) {
+  .screen[data-runner-renderer=preview-canvas] .runner-preview-export-set[data-preview-canvas-export=mobile],
+  .screen[data-runner-renderer=preview-canvas] .runner-preview-export--mobile,
+  .screen[data-runner-renderer=preview-canvas] .runner-preview-export--mobile .runner-preview-game-container {
+    max-height: 100svh !important;
+  }
+}
+.screen[data-runner-renderer=preview-canvas] .runner-preview-export--mobile .runner-stage--mobile {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+}
+.runner-preview-dash {
+  display: none !important;
+}

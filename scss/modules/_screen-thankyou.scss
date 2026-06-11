@@ -1,0 +1,13 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/type" as t;
+@use "../components/mixins" as *;
+
+.screen[data-screen="thankyou"] {
+  // Role: thankyou; presentation: screen
+  // Headline: Thank you
+}
+
+.screen[data-screen="thankyou"] .screen__panel {
+  @extend %jsmii-style-body;
+}

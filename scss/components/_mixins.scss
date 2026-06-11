@@ -1,0 +1,432 @@
+@use "sass:map";
+@use "vars" as v;
+@use "functions" as fn;
+@use "type" as t;
+
+@mixin mobile {
+  @include v.respond-to(mobile) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @include v.respond-to(desktop) {
+    @content;
+  }
+}
+
+@mixin hidden-label {
+  overflow: hidden;
+  color: transparent;
+  font-size: 0;
+  line-height: 0;
+  text-indent: -999rem;
+  white-space: nowrap;
+}
+
+@function jsmii-8bit-clip($detail: draft) {
+  @if $detail == detailed {
+    @return polygon(0 16px, 4px 16px, 4px 10px, 10px 10px, 10px 4px, 16px 4px, 16px 0, calc(100% - 16px) 0, calc(100% - 16px) 4px, calc(100% - 10px) 4px, calc(100% - 10px) 10px, calc(100% - 4px) 10px, calc(100% - 4px) 16px, 100% 16px, 100% calc(100% - 16px), calc(100% - 4px) calc(100% - 16px), calc(100% - 4px) calc(100% - 10px), calc(100% - 10px) calc(100% - 10px), calc(100% - 10px) calc(100% - 4px), calc(100% - 16px) calc(100% - 4px), calc(100% - 16px) 100%, 16px 100%, 16px calc(100% - 4px), 10px calc(100% - 4px), 10px calc(100% - 10px), 4px calc(100% - 10px), 4px calc(100% - 16px), 0 calc(100% - 16px));
+  }
+  @if $detail == normal {
+    @if (true) {
+      @return polygon(
+              8px 0,
+              calc(100% - 8px) 0,
+              calc(100% - 8px) 4px,
+              calc(100% - 4px) 4px,
+              calc(100% - 4px) 8px,
+              100% 8px,
+              100% calc(100% - 8px),
+              calc(100% - 4px) calc(100% - 8px),
+              calc(100% - 4px) calc(100% - 4px),
+              calc(100% - 8px) calc(100% - 4px),
+              calc(100% - 8px) 100%,
+              8px 100%,
+              8px calc(100% - 4px),
+              4px calc(100% - 4px),
+              4px calc(100% - 8px),
+              0 calc(100% - 8px),
+              0 8px,
+              4px 8px,
+              4px 4px,
+              8px 4px
+      );
+    }
+    @return polygon(0 12px, 6px 12px, 6px 6px, 12px 6px, 12px 0, calc(100% - 12px) 0, calc(100% - 12px) 6px, calc(100% - 6px) 6px, calc(100% - 6px) 12px, 100% 12px, 100% calc(100% - 12px), calc(100% - 6px) calc(100% - 12px), calc(100% - 6px) calc(100% - 6px), calc(100% - 12px) calc(100% - 6px), calc(100% - 12px) 100%, 12px 100%, 12px calc(100% - 6px), 6px calc(100% - 6px), 6px calc(100% - 12px), 0 calc(100% - 12px));
+  }
+  @return polygon(0 8px, 8px 8px, 8px 0, calc(100% - 8px) 0, calc(100% - 8px) 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 8px calc(100% - 8px), 0 calc(100% - 8px));
+}
+
+@function jsmii-shadow-clip() {
+  @return polygon(
+          8px 8px,
+          100% 8px,
+          100% calc(100% - 8px),
+          calc(100% - 4px) calc(100% - 8px),
+          calc(100% - 4px) calc(100% - 4px),
+          calc(100% - 8px) calc(100% - 4px),
+          calc(100% - 8px) 100%,
+          8px 100%
+  );
+}
+
+@function jsmii-8bit-shadow-offset($detail: draft) {
+  @if $detail == detailed {
+    @return 8px;
+  }
+  @if $detail == normal {
+    @return 6px;
+  }
+  @return 4px;
+}
+
+@mixin jsmii-8bit-frame($background, $border-color, $shadow-color: fn.color(shadow), $detail: draft, $border-width: 1px, $shadow-enabled: true) {
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  &::before {
+    z-index: -2;
+    clip-path: jsmii-shadow-clip();
+    background: $shadow-color;
+    //transform: translate(jsmii-8bit-shadow-offset($detail), jsmii-8bit-shadow-offset($detail));
+    transform: translate(4px,4px);
+    @if $shadow-enabled == false {
+      display: none;
+    }
+  }
+
+  &::after {
+    z-index: -1;
+    clip-path: jsmii-8bit-clip($detail);
+    box-sizing: border-box;
+    border: $border-width solid $border-color;
+    background: $background;
+  }
+}
+
+@mixin jsmii-style-h1 {
+  font-family: "Press Start 2P", system-ui, sans-serif;
+  font-size: 42px;
+  font-weight: 900;
+  color: fn.color(text);
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 fn.color(accent);
+  box-shadow: none;
+}
+
+%jsmii-style-h1 {
+  @include jsmii-style-h1;
+}
+
+@mixin jsmii-style-h2 {
+  @include t.font(h2);
+  text-transform: uppercase;
+}
+
+%jsmii-style-h2 {
+  @include jsmii-style-h2;
+}
+
+@mixin jsmii-style-h3 {
+  @include t.font(h3);
+  color: #ea447b;
+  text-transform: none;
+  text-shadow: none;
+  box-shadow: none;
+}
+
+%jsmii-style-h3 {
+  @include jsmii-style-h3;
+}
+
+@mixin jsmii-style-body {
+  @include t.font(body);
+  color: fn.color(text);
+  text-transform: none;
+  text-shadow: none;
+  box-shadow: none;
+}
+
+%jsmii-style-body {
+  @include jsmii-style-body;
+}
+
+@mixin jsmii-style-cta {
+  @include t.font(cta);
+  color: #0000d2;
+  text-transform: uppercase;
+  text-shadow: none;
+  padding: 12px;
+  border-radius: 999px;
+  box-shadow: none;
+}
+
+%jsmii-style-cta {
+  @include jsmii-style-cta;
+}
+
+
+@mixin jsmii-style-hud {
+  @include t.font(hud);
+  color: fn.color(color-hud);
+  text-transform: uppercase;
+  text-shadow: none;
+  padding: 8px;
+
+  border-radius: 0;
+  box-shadow: none;
+}
+
+%jsmii-style-hud {
+  @include jsmii-style-hud;
+}
+
+@mixin jsmii-style-button-primary {
+  @include t.font(button-primary);
+  color: fn.color(text);
+  text-transform: uppercase;
+  //text-shadow: 1px 1px 0 fn.color(accent);
+  padding: 14px 28px;
+  @include jsmii-8bit-frame(fn.color(primary), fn.color(primary), fn.color(shadow), normal, 1px, true);
+}
+
+%jsmii-style-button-primary {
+  @include jsmii-style-button-primary;
+}
+
+@mixin jsmii-style-button-secondary {
+  @include t.font(button-secondary);
+  color: fn.color(text);
+  text-transform: uppercase;
+  padding: 14px 28px;
+  @include jsmii-8bit-frame(fn.color(secondary), fn.color(secondary), fn.color(shadow), normal, 1px, true);
+}
+
+%jsmii-style-button-secondary {
+  @include jsmii-style-button-secondary;
+}
+
+@mixin jsmii-style-card {
+  font-family: "DM Mono", system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #0000d2;
+  text-transform: none;
+  text-shadow: none;
+  padding: 18px;
+  @include jsmii-8bit-frame(fn.color(text), fn.color(text), fn.color(shadow), detailed, 1px, true);
+}
+
+%jsmii-style-card {
+  @include jsmii-style-card;
+}
+
+@mixin jsmii-style-lead-form {
+  @include t.font(body);
+  color: fn.color(black);
+  text-transform: none;
+  text-shadow: none;
+}
+
+%jsmii-style-lead-form {
+  @include jsmii-style-lead-form;
+}
+
+@mixin jsmii-panel-modal {
+  width: 420px;
+  max-width: 340px;
+  height: 576px;
+  min-height: unset !important;
+  max-height: 680px;
+  @include mobile {
+    max-width: 360px;
+  }
+  @include desktop {
+    max-height: 680px;
+  }
+  @include jsmii-8bit-frame(fn.color(color-hud), fn.color(Transparent), fn.color(shadow), normal, 1px, true);
+  align-items: center;
+  padding: 32px !important;
+  .screen {
+    &__eyebrow,
+    &__title {
+      @include jsmii-style-h2;
+      color: fn.color(text);
+      text-shadow: 2px 2px fn.color(shadow);
+      text-align: center;
+    }
+
+    &__body {
+      .character {
+        &-idle {
+          width: 180px;
+          display: block;
+          margin: 0 auto;
+
+          &:before {
+            content: '';
+            display: block;
+            padding: 50%;
+            overflow: hidden;
+            background-position: bottom center;
+            background-repeat: no-repeat;
+            background-size: contain;
+          }
+        }
+
+        &-alieno:before {
+          background-image: url('../assets/presentation/character-alieno-idle.gif');
+        }
+
+        &-robot:before {
+          background-image: url('../assets/presentation/character-robot-idle.gif');
+        }
+
+      }
+    }
+
+    &__actions {
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-content: center;
+      row-gap: 24px;
+
+      .button--primary {
+        @extend %jsmii-style-button-primary;
+      }
+
+      .button--secondary {
+        @extend %jsmii-style-button-secondary;
+      }
+    }
+
+    &__sound-toggle {
+      display: none;
+    }
+  }
+}
+
+%jsmii-panel-modal {
+  @include jsmii-panel-modal;
+}
+
+@mixin jsmii-screen-descriptor {
+  background: fn.color(panel) !important;
+  flex-direction: column;
+  justify-content: center;
+  .screen {
+    &__panel {
+      flex: 1 0 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      & > * {
+        flex: 0 0 36%;
+      }
+      & > p:empty,
+      &> h1:empty {
+        display: none;
+      }
+    }
+    &__title {
+      @include jsmii-style-h2;
+      color: fn.color(skillaBlue);
+      text-shadow: none;
+      text-align: center;
+    }
+    &__body {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-evenly;
+      gap: 12px;
+      @include mobile {
+        gap: 24px;
+      }
+    }
+    &__card {
+      width: 100%;
+      @include jsmii-8bit-frame(fn.color(text), fn.color(transparent), fn.color(shadow), normal, 1px, true);
+      @include t.font(body);
+      color: fn.color(black);
+      text-align: center;
+      padding: 8px 16px;
+      @include mobile {
+        padding: 16px;
+      }
+      .text-primary {
+        color: fn.color(primary);
+      }
+    }
+    &__list {
+      margin: 0;
+      list-style-type: none;
+      color: fn.color(black);
+      & > li {
+        position: relative;
+        margin-bottom: 12px;
+        &:before {
+          content: '';
+          position: absolute;
+          display: block;
+          inset: 4px auto auto -36px;
+          padding: 8px;
+          background: url(../assets/presentation/list-arrow.png) no-repeat center/contain;
+        }
+        &:last-of-type {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}
+
+%jsmii-screen-descriptor {
+  @include jsmii-screen-descriptor;
+}
+
+
+@mixin logo_placement {
+  padding-top: 64px;
+  position: relative;
+  display: block !important;
+  max-height: fit-content;
+  width: 100%;
+  @include desktop {
+    width: 300px;
+    padding-top: 100px;
+  }
+
+  &:before {
+    position: absolute;
+    content: '';
+    inset: 0;
+    margin: auto;
+    display: block;
+    width: 100%;
+    background: url(../assets/presentation/logo.svg) no-repeat center/contain;
+  }
+}
+
+%jsmii-logo-placement {
+ @include logo_placement;
+}

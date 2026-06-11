@@ -1,0 +1,27 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/type" as t;
+
+.jsmii-website-sandbox {
+  min-height: 100%;
+  background: fn.color(skillaBlue);//linear-gradient(0deg, fn.color(background-from), fn.color(background-to));
+  color: fn.color(text);
+  @include t.font(body);
+}
+
+.game-root {
+  min-height: 100vh;
+  background: fn.color(skillaBlue);//linear-gradient(0deg, fn.color(background-from), fn.color(background-to));
+  color: fn.color(text);
+  display: flex;
+  @supports (min-height: 100svh) {
+    min-height: 100svh;
+  }
+}
+
+.screen-mount,
+.presentation-layer,
+.game-layer,
+.hud-layer {
+  color: inherit;
+}

@@ -1,0 +1,21 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/mixins" as *;
+
+.screen__game-footer {
+  position: relative;
+  z-index: fn.z(hud);
+  color: fn.color(text);
+}
+
+.screen__hud-area--footer-left {
+  // Footer left micro-area.
+}
+
+.screen__hud-area--footer-center {
+  // Footer center micro-area.
+}
+
+.screen__hud-area--footer-right {
+  // Footer right micro-area.
+}

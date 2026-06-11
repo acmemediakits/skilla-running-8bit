@@ -1,0 +1,18 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/type" as t;
+@use "../components/mixins" as *;
+
+.screen[data-screen="life-zero"] {
+  // Role: game-over; presentation: modal
+  // Headline: Life === 0
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  min-height: 90%;
+  justify-content: center;
+}
+
+.screen[data-screen="life-zero"] .screen__panel {
+  @extend %jsmii-panel-modal;
+}

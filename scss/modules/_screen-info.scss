@@ -1,0 +1,65 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/type" as t;
+@use "../components/mixins" as *;
+
+
+#game-root:has(.screen[data-screen="info"] ){
+  background: fn.color(panel) !important;
+}
+
+.screen[data-screen="info"] {
+  // Role: info; presentation: screen
+  // Headline: Scegli il tuo avatar
+
+  background: fn.color(panel) !important;
+  flex-direction: column;
+  justify-content: center;
+  .screen {
+    &__panel {
+      flex: 1 0 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      & > * {
+        flex: 0 0 36%;
+      }
+      & > p:empty,
+      &> h1:empty {
+        display: none;
+      }
+    }
+    &__body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-evenly;
+      gap: 12px;
+      @include mobile {
+        gap: 24px;
+      }
+    }
+    &__card {
+      width: 100%;
+      @include jsmii-8bit-frame(fn.color(text), fn.color(transparent), fn.color(shadow), normal, 1px, true);
+      @include t.font(body);
+      color: fn.color(black);
+      text-align: center;
+      padding: 8px 16px;
+      @include mobile {
+        padding: 16px;
+      }
+      .text-primary {
+        color: fn.color(primary);
+      }
+    }
+    &__actions {
+      h3 {
+        @include desktop {
+          //flex: 1 0 100%;
+        }
+      }
+    }
+  }
+}
+

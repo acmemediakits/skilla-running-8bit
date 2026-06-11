@@ -1,0 +1,21 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/mixins" as *;
+
+.screen__form {
+  @extend %jsmii-style-lead-form;
+}
+
+.screen__field {
+  display: grid;
+  gap: fn.space(xs);
+  margin-block: fn.space(sm);
+}
+
+.screen__field input {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 2px solid currentColor;
+  background: color-mix(in srgb, fn.color(text), transparent 8%);
+  color: fn.color(background-from);
+}

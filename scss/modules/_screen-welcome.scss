@@ -1,0 +1,45 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/type" as t;
+@use "../components/mixins" as *;
+
+.screen[data-screen="welcome"] {
+  // Role: welcome; presentation: screen
+  // Headline: Welcome
+  .screen {
+    &__panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between !important;
+      height: 100%;
+      @include desktop {
+        max-height: 680px;
+      }
+    }
+    &__eyebrow {
+      @extend %jsmii-logo-placement;
+      /*padding-top: 64px;
+      position: relative;
+      display: block !important;
+      max-height: fit-content;
+      &:before {
+        position: absolute;
+        content: '';
+        inset: 0;
+        margin: auto;
+        display: block;
+        width: 100%;
+        background: url(../assets/presentation/logo.svg) no-repeat center/contain;
+      }*/
+    }
+    &__actions {
+      margin: 0;
+      justify-content: center;
+      max-height: fit-content;
+    }
+  }
+}
+
+.screen[data-screen="welcome"] .screen__panel {
+  @extend %jsmii-style-h1;
+}

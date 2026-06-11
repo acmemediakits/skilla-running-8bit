@@ -1,0 +1,37 @@
+@use "sass:list";
+@use "sass:map";
+@use "vars" as v;
+@use "functions" as fn;
+
+@function _fallback-size($candidate, $fallback) {
+  @if list.nth($candidate, 1) != -1 {
+    @return $candidate;
+  }
+
+  @return $fallback;
+}
+
+@mixin font($key) {
+  $style: fn.font-style($key);
+
+  @if $style == null {
+    @warn "Unknown layout font style: #{$key}.";
+  } @else {
+    $family-key: list.nth($style, 1);
+    $weight-key: list.nth($style, 2);
+    $mobile: list.nth($style, 3);
+    $desktop: _fallback-size(list.nth($style, 4), $mobile);
+    $spacing: list.nth($style, 5);
+
+    font-family: map.get(v.$font-families, $family-key);
+    font-weight: map.get(v.$font-weights, $weight-key);
+    font-size: list.nth($mobile, 1);
+    line-height: list.nth($mobile, 2);
+    letter-spacing: $spacing;
+
+    @include v.respond-to(desktop) {
+      font-size: list.nth($desktop, 1);
+      line-height: list.nth($desktop, 2);
+    }
+  }
+}

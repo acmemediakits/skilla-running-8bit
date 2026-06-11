@@ -1,0 +1,156 @@
+@use "sass:map";
+
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap");
+
+// Generated from Game Design > Theme, then normalized for editable sandboxes.
+// Keep project tokens here; modules/components should consume maps and helpers.
+$asset-path: "../assets" !default;
+
+$jsmii-theme-primary: #ea447b !default;
+$jsmii-theme-secondary: #00abf8 !default;
+$jsmii-theme-accent: #00abf8 !default;
+$jsmii-theme-text: #ffffff !default;
+$jsmii-theme-background-from: #0000d2 !default;
+$jsmii-theme-background-to: #ade5ff !default;
+$jsmii-theme-shadow: #05080d !default;
+$jsmii-theme-color-hud: #0A164D !default;
+$jsmii-theme-color-panel: #DCDCDC !default;
+
+$grid-breakpoints: (
+      mobile: 390px,
+      desktop: 992px
+) !default;
+
+@mixin respond-to($breakpoint) {
+  @if map.has-key($grid-breakpoints, $breakpoint) {
+    @media (min-width: map.get($grid-breakpoints, $breakpoint)) {
+      @content;
+    }
+  }
+}
+
+$font-families: (
+  pixel: ("Press Start 2P", system-ui, sans-serif),
+  display: ("Silkscreen", system-ui, sans-serif),
+  mono: ("DM Sans", "SFMono-Regular", Consolas, monospace),
+  base: ("Avenir Next", system-ui, sans-serif),
+  h1: ("Avenir Next", system-ui, sans-serif),
+  h2: ("Avenir Next", system-ui, sans-serif),
+  h3: ("Avenir Next", system-ui, sans-serif),
+  body: ("Avenir Next", system-ui, sans-serif),
+  cta: ("Avenir Next", system-ui, sans-serif),
+  hud: ("Avenir Next", system-ui, sans-serif),
+  fallback: (system-ui, sans-serif)
+) !default;
+
+$font-weights: (
+  regular: 400,
+  medium: 500,
+  bold: 700,
+  black: 900
+) !default;
+
+// Layout-facing type schema:
+// (family-key, weight-key, mobile-size/line-height, desktop-size/line-height, letter-spacing).
+$layoutFontStyles: (
+  h1: (pixel, black, (42px, 1.18), (47px, 1.18), 0),
+  preload: (pixel, black, (26px, 1.18), (47px, 1.18), 0),
+  h2: (pixel, regular, (18px, 1.20em), (28px, 1.2em), 0),
+  h3: (display, bold, (16px, 1.18), (18px, 1.18), 0),
+  label: (display, regular, (14px, 1.18), (18px, 1.18), 0),
+  body: (mono, regular, (16px, 1.20), (16px, 1.20), 0),
+  cta: (mono, regular, (15px, 1.18), (15px, 1.18), 0),
+  hud: (pixel, regular, (12px, 1.18), (12px, 1.18), 0),
+  button-primary: (display, regular, (15px, 1.18), (15px, 1.18), 0),
+  button-secondary: (display, regular, (15px, 1.18), (15px, 1.18), 0),
+  card: (mono, regular, (16px, 1.18), (16px, 1.18), 0),
+  lead-form: (body, medium, (16px, 1.18), (16px, 1.18), 0),
+  screen-label: (pixel, regular, (9px, 1.3), (11px, 1.3), 0),
+) !default;
+
+$colors: (
+  transparent: transparent,
+  black: #000000,
+  white: #FFFFFF,
+  primary: $jsmii-theme-primary,
+  secondary: $jsmii-theme-secondary,
+  accent: $jsmii-theme-accent,
+  text: $jsmii-theme-text,
+  skillaBlue: $jsmii-theme-background-from,
+  background-from: $jsmii-theme-background-from,
+  background-to: $jsmii-theme-background-to,
+  shadow: $jsmii-theme-shadow,
+  color-hud: $jsmii-theme-color-hud,
+  panel: $jsmii-theme-color-panel,
+  panel-soft: rgba($jsmii-theme-background-to, 0.22),
+  sandbox-border: rgba($jsmii-theme-text, 0.2),
+  game-label: rgba($jsmii-theme-text, 0.34)
+) !default;
+
+$spacing: (
+  2xs: 4px,
+  xs: 8px,
+  sm: 12px,
+  md: 16px,
+  lg: 24px,
+  xl: 32px,
+  2xl: 48px
+) !default;
+
+$radii: (
+  none: 0,
+  sm: 6px,
+  md: 12px,
+  lg: 18px,
+  pill: 999px
+) !default;
+
+$z-indexes: (
+  base: 1,
+  game: 2,
+  hud: 10,
+  modal: 20
+) !default;
+
+$website-layout: (
+  screen-panel-width: 620px,
+  screen-panel-padding: (mobile: 28px, desktop: 56px),
+  screen-actions-gap: (mobile: 12px, desktop: 16px),
+  hud-zone-padding: (mobile: 12px, desktop: 22px 28px),
+  hud-zone-gap: (mobile: 8px, desktop: 14px),
+  hud-area-gap: (mobile: 8px, desktop: 12px),
+  lives-icon-size: (mobile: 24px, desktop: 31px),
+  lives-gap: (mobile: 6px, desktop: 8px),
+  time-width: (mobile: 180px, desktop: 260px),
+  time-height: (mobile: 30px, desktop: 43px),
+  time-progress: 78%
+) !default;
+
+$hud-assets: (
+  lives-full: "hud/foundation/lives-full.png",
+  lives-empty: "hud/foundation/lives-empty.png",
+  time-full: "hud/foundation/timeline-full.png",
+  time-empty: "hud/foundation/timeline-empty.png"
+) !default;
+
+$jsmii-theme-font-size: 18px;
+$jsmii-theme-style-preset: "pixel";
+
+:root {
+  --jsmii-theme-primary: #ea447b;
+  --jsmii-theme-secondary: #00abf8;
+  --jsmii-theme-accent: #00abf8;
+  --jsmii-theme-text: #ffffff;
+  --jsmii-theme-background-from: #0000d2;
+  --jsmii-theme-background-to: #ade5ff;
+  --jsmii-theme-shadow: #05080d;
+  --jsmii-theme-color-hud: #ffffff;
+  --jsmii-theme-font-base: "Avenir Next", system-ui, sans-serif;
+  --jsmii-theme-font-h1: "Avenir Next", system-ui, sans-serif;
+  --jsmii-theme-font-h2: "Avenir Next", system-ui, sans-serif;
+  --jsmii-theme-font-h3: "Avenir Next", system-ui, sans-serif;
+  --jsmii-theme-font-body: "Avenir Next", system-ui, sans-serif;
+  --jsmii-theme-font-cta: "Avenir Next", system-ui, sans-serif;
+  --jsmii-theme-font-hud: "Avenir Next", system-ui, sans-serif;
+  --jsmii-theme-font-size: 18px;
+}

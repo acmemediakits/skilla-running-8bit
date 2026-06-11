@@ -1,0 +1,55 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/type" as t;
+@use "../components/mixins" as *;
+
+
+#game-root:has(.screen--level-complete ){
+  background: fn.color(panel) !important;
+}
+
+.screen--level-complete {
+  // Role: level-complete; presentation: screen
+  // Headline: Level End
+  @extend %jsmii-screen-descriptor;
+  .screen {
+    &__title {
+      max-height: fit-content;
+    }
+    &__panel {
+      margin-bottom: 0;
+      flex: 1 0 auto;
+    }
+    &__card {
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+    &__actions {
+      max-height: fit-content;
+    }
+  }
+  &[data-screen="all-levels-complete"] {
+    .screen {
+      &__panel {
+        & > * {
+          flex: 0 0 auto !important;
+        }
+      }
+      &__body {
+        text-align: center;
+        color: fn.color(black);
+        @include t.font(body);
+        &.payoff {
+          color: fn.color(skillaBlue);
+          @include t.font(h3);
+        }
+      }
+      &__eyebrow {
+        @extend %jsmii-logo-placement;
+      }
+      &__form {
+
+      }
+    }
+  }
+}

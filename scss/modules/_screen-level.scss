@@ -1,0 +1,297 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/type" as t;
+@use "../components/mixins" as *;
+
+
+#game-root {
+  position: relative;
+  overflow: clip;
+  @include desktop {
+    &:before {
+      display: block;
+      position: absolute;
+      content: '';
+      inset: 0;
+      width: 100vw;
+      height: calc(100vw * 0.64);
+      margin: auto 0;
+    }
+  }
+
+  &:has(.screen[data-screen="level-1"]) {
+    $light: #3CB0E1;
+    $dark: #0B174E;
+    background: linear-gradient(to bottom, $light, $light 50%, $dark 50%, $dark);
+    @include desktop {
+      &:before {
+        background: linear-gradient(to bottom, $light, $dark);
+      }
+    }
+  }
+
+  &:has(.screen[data-screen="level-2"]) {
+    $light: #FBC786;
+    $dark: #3E2F36;
+    background: linear-gradient(to bottom, $light, $light 50%, $dark 50%, $dark);
+    @include desktop {
+      &:before {
+        background: linear-gradient(to bottom, $light, $dark);
+      }
+    }
+  }
+
+  &:has(.screen[data-screen="level-3"]) {
+    $light: #1D3E40;
+    $dark: #0B174E;
+    background: linear-gradient(to bottom, $light, $light 50%, $dark 50%, $dark);
+    @include desktop {
+      &:before {
+        background: linear-gradient(to bottom, $light, $dark);
+      }
+    }
+  }
+}
+
+#screen-mount {
+  &:has(.screen[data-screen="level-1"]),
+  &:has(.screen[data-screen="level-2"]),
+  &:has(.screen[data-screen="level-3"]) {
+    @include desktop {
+      padding-top: calc(1024px * 0.64);
+      overflow: clip;
+      -ms-overflow-style: none; /* IE/Edge */
+      scrollbar-width: none; /* Firefox */
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    .screen {
+      &--game-level {
+        padding: 0;
+        overflow: clip;
+
+
+        &:before,
+        &:after {
+          content: "";
+          position: absolute;
+          pointer-events: none;
+          image-rendering: pixelated;
+          z-index: 40;
+          opacity: 0;
+          @include desktop {
+            position: fixed;
+            inset: 0;
+          }
+        }
+
+        &:before {
+          inset: 0;
+          background: fn.color(skillaBlue);
+
+        }
+
+        &:after {
+          display: block;
+          inset: 0;
+          max-width: 128px;
+          padding: 64px;
+          margin: auto;
+          background: url(../assets/presentation/preload.gif) no-repeat center/contain;
+          /*top: 50%;
+          left: 50%;
+          width: 16px;
+          height: 16px;
+          margin-top: -32px;
+          margin-left: -32px;
+          background: #fff;
+          box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+          animation: jsmii-preload-8bit-loop 900ms steps(1) infinite;*/
+        }
+
+        &.preload {
+          &:before,
+          &:after {
+            opacity: 1;
+            //transition: opacity 0.3s ease-in-out;
+            //transition-delay: 0.5s;
+          }
+        }
+      }
+
+      &__game-header {
+        display: none;
+        position: absolute;
+        inset: 0 0 auto;
+        //display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        width: 100%;
+        padding: calc(env(safe-area-inset-top, 0px) + 8px) 12px 0;
+        pointer-events: none;
+      }
+
+      &__hud-area--header-left,
+      &__hud-area--header-right {
+        display: none;
+      }
+
+      &__hud-area--header-center {
+        display: inline-flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: center;
+        width: auto;
+        max-width: 100%;
+        gap: 8px;
+      }
+
+
+      //panel
+      &__panel {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 100%;
+      }
+
+      @include desktop {
+        &__game-header {
+          padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
+        }
+        &__hud-area--header-center {
+          gap: 12px;
+        }
+      }
+    }
+
+    /* .screen[data-screen="level-1"] {
+       // Role: game-level; presentation: screen
+       // Headline: Level
+       .screen {
+
+       }
+
+       .screen__game-header {
+         position: absolute;
+         inset: 0 0 auto;
+         display: flex;
+         justify-content: center;
+         align-items: flex-start;
+         width: 100%;
+         padding: calc(env(safe-area-inset-top, 0px) + 8px) 12px 0;
+         pointer-events: none;
+       }
+
+       .screen__hud-area--header-left,
+       .screen__hud-area--header-right {
+         display: none;
+       }
+
+       .screen__hud-area--header-center {
+         display: inline-flex;
+         flex-direction: row;
+         align-items: flex-start;
+         justify-content: center;
+         width: auto;
+         max-width: 100%;
+         gap: 8px;
+       }
+
+       @include desktop {
+         .screen__game-header {
+           padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
+         }
+
+         .screen__hud-area--header-center {
+           gap: 12px;
+         }
+       }
+
+       .screen {
+         &__panel {
+           display: flex;
+           flex-direction: column;
+           justify-content: space-between;
+           min-height: 100%;
+         }
+       }
+     }*/
+
+    .screen[data-screen="level-1"][data-runner-renderer="preview-canvas"] {
+      /*.screen__game-header {
+        display: none;
+      }*/
+
+      .runner-mount,
+      .runner-preview-export-set,
+      .runner-preview-export {
+        overflow: clip;
+        overscroll-behavior: none;
+        scrollbar-width: none;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      .runner-stage,
+      .tester-preview__stage {
+        touch-action: none;
+      }
+
+      .runner-mount::-webkit-scrollbar,
+      .runner-preview-export-set::-webkit-scrollbar,
+      .runner-preview-export::-webkit-scrollbar {
+        display: none;
+      }
+
+      .runner-preview-export--mobile,
+      .runner-stage--mobile {
+        width: min(100%, 390px);
+      }
+
+      @supports (width: 1svh) {
+        .runner-stage--mobile {
+          width: min(100%, 56.28svh, 390px);
+        }
+      }
+    }
+
+    .screen[data-screen="level-1"] .screen__panel {
+      @extend %jsmii-style-hud;
+    }
+  }
+}
+
+
+@keyframes jsmii-preload-8bit-loop {
+  0% {
+    transform: translate(0, 0);
+  }
+  12.5% {
+    transform: translate(16px, 0);
+  }
+  25% {
+    transform: translate(32px, 0);
+  }
+  37.5% {
+    transform: translate(48px, 0);
+  }
+  50% {
+    transform: translate(48px, 16px);
+  }
+  62.5% {
+    transform: translate(48px, 32px);
+  }
+  75% {
+    transform: translate(32px, 32px);
+  }
+  87.5% {
+    transform: translate(16px, 32px);
+  }
+  100% {
+    transform: translate(0, 32px);
+  }
+}

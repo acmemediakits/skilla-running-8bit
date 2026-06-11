@@ -1,0 +1,21 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/mixins" as *;
+
+.screen__game-header {
+  position: relative;
+  z-index: fn.z(hud);
+  color: fn.color(text);
+}
+
+.screen__hud-area--header-left {
+  // Header left micro-area.
+}
+
+.screen__hud-area--header-center {
+  // Header center micro-area.
+}
+
+.screen__hud-area--header-right {
+  // Header right micro-area.
+}

@@ -1,0 +1,56 @@
+{
+  "app": {
+    "name": "jsmii",
+    "environment": "development",
+    "baseUrl": "./"
+  },
+  "build": {
+    "release": "1.1.3",
+    "version": "1.1.3-20260610193052",
+    "manifestPath": "settings/asset-manifest.json"
+  },
+  "debug": {
+    "enabled": true,
+    "verbose": true,
+    "mountInRuntime": false
+  },
+  "assets": {
+    "strategy": "query",
+    "queryKey": "v",
+    "useManifest": false,
+    "stylesheetPath": "scss/main.css"
+  },
+  "html": {
+    "screensBasePath": "html/screens"
+  },
+  "audio": {
+    "overallVolume": 0.72,
+    "themeVolume": 0.72,
+    "sfxVolume": 0.72
+  },
+  "flow": {
+    "initialScreen": "welcome"
+  },
+  "fetch": {
+    "defaultCache": "no-store",
+    "timeoutMs": 8000
+  },
+  "db": {
+    "bootstrapPath": "settings/game.json",
+    "overridePaths": [],
+    "projectSettingsApi": "",
+    "cacheEnabled": true
+  },
+  "loading": {
+    "minVisibleMs": 450
+  },
+  "future": {
+    "adminPanel": {
+      "enabled": false,
+      "authStrategy": "google-authenticator"
+    }
+  },
+  "export": {
+    "profile": "game"
+  }
+}

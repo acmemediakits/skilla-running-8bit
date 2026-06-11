@@ -1,0 +1,12 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/mixins" as *;
+
+.runner-mount {
+  background: color-mix(in srgb, fn.color(background-to), transparent 18%);
+}
+
+.arcade-runner,
+.arcade-runner__world {
+  // Runner-specific visual overrides.
+}

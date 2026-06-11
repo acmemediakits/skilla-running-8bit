@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="jsmii-build-id" content="1.1.3-20260610193052">
+  <meta name="robots" content="noindex,nofollow">
+  <title>SKILLA Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap">
+  <link rel="stylesheet" href="./css/structure.css?v=1.1.3-20260610193052">
+  <script type="module">
+    window.__JSMII_BASE_URL__ = "../";
+    const SOUND_ENABLED_SESSION_KEY = "jsmii:soundEnabled";
+    const readStoredSoundEnabled = () => {
+      try {
+        const raw = window.sessionStorage?.getItem(SOUND_ENABLED_SESSION_KEY);
+        if (raw == null) {
+          window.sessionStorage?.setItem(SOUND_ENABLED_SESSION_KEY, "true");
+          return true;
+        }
+        return !["0", "false", "off", "no", "muted"].includes(String(raw).toLowerCase());
+      } catch {
+        return true;
+      }
+    };
+    const writeStoredSoundEnabled = (enabled) => {
+      try {
+        window.sessionStorage?.setItem(SOUND_ENABLED_SESSION_KEY, enabled ? "true" : "false");
+      } catch {
+        // Session storage can be unavailable in embedded/private contexts.
+      }
+    };
+    const muteParam = new URLSearchParams(window.location.search).get("mute");
+    let soundEnabled = readStoredSoundEnabled();
+    if (muteParam !== null) {
+      soundEnabled = ["0", "false", "off", "no"].includes(String(muteParam).toLowerCase());
+      writeStoredSoundEnabled(soundEnabled);
+    }
+    const muted = !soundEnabled;
+    window.__JSMII_AUDIO_MUTED__ = muted;
+    document.documentElement.dataset.jsmiiAudioMuted = muted ? "true" : "false";
+    const { bootstrap } = await import("./src/bootstrap.js?v=1.1.3-20260610193052");
+    bootstrap();
+  </script>
+</head>
+<body class="jsmii-shell is-booting">
+  <div id="app" class="app-shell">
+    <main id="game-root" class="game-root" data-runtime="booting">
+      <section id="screen-mount" class="screen-mount" aria-live="polite"></section>
+      <section id="presentation-layer" class="presentation-layer"></section>
+      <section id="game-layer" class="game-layer"></section>
+      <section id="hud-layer" class="hud-layer"></section>
+    </main>
+    <aside id="loading-overlay" class="loading-overlay is-visible" aria-live="polite">
+      <div class="loading-overlay__panel">
+        <p class="loading-overlay__eyebrow">Skilla HUB</p>
+        <h1 class="loading-overlay__title">Loading adventure...</h1>
+        <p id="loading-message" class="loading-overlay__message">Preparing runtime</p>
+        <div class="loading-overlay__bar">
+          <span id="loading-progress" class="loading-overlay__progress" style="width: 4%"></span>
+        </div>
+      </div>
+    </aside>
+  </div>
+</body>
+</html>

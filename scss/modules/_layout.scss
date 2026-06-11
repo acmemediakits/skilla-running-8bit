@@ -1,0 +1,103 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/type" as t;
+@use "../components/mixins" as *;
+
+
+#game-root.game-root {
+  width: 100vw;
+}
+
+.screen {
+  color: fn.color(text);
+  @include t.font(body);
+  padding: 0 !important;
+}
+
+.screen__panel {
+  width: min(100%, fn.layout(screen-panel-width));
+  padding: 40px 28px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+
+  @include desktop {
+    width: 100%;
+    padding: fn.layout(screen-panel-padding, desktop);
+  }
+}
+
+.screen__eyebrow {
+  margin: 0 0 fn.space(sm);
+  @extend %jsmii-style-hud;
+}
+
+.screen__title {
+  margin: 0 0 fn.space(md);
+  @extend %jsmii-style-h1;
+}
+
+.screen__body {
+  max-width: 52ch;
+  margin: 0 0 fn.space(lg);
+  @extend %jsmii-style-body;
+}
+
+.screen--no-header .screen__game-header,
+.screen--no-footer .screen__game-footer {
+  display: none;
+}
+
+
+
+.runner-result-overlay {
+  background: fn.color(Transparent);
+  width: 100%;
+  @include desktop {
+    inset: 0;
+    margin: auto;
+    //padding: 75% 0 0 0;
+    overflow: clip;
+    max-width: 1024px;
+    max-height: fit-content;
+  }
+  .screen {
+    &.is-active {
+      align-items: center;
+    }
+  }
+}
+
+aside#loading-overlay {
+  background: transparent;
+  .loading-overlay {
+    &__panel {
+      background: transparent;
+      border: none;
+
+    }
+    &__eyebrow {
+      @include t.font(h2);
+    }
+    &__title {
+      @include t.font(preload);
+    }
+    &__message {
+      @include t.font(h3);
+      opacity: 0;
+    }
+  }
+
+}
+
+.designed {
+  display: none;
+  position: absolute;
+  inset: auto 2px 2px auto;
+  @include t.font(label);
+  color: fn.color(white);
+  & > a {
+    color: fn.color(primary);
+  }
+}

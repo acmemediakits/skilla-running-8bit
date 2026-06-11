@@ -1,0 +1,147 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/type" as t;
+@use "../components/mixins" as *;
+
+.screen__game-header,
+.screen__game-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 10fr) minmax(0, 1fr);
+  gap: fn.layout(hud-zone-gap);
+  padding: fn.layout(hud-zone-padding);
+
+  @include desktop {
+    gap: fn.layout(hud-zone-gap, desktop);
+    padding: fn.layout(hud-zone-padding, desktop);
+  }
+}
+
+.screen__hud-area {
+  display: inline-flex;
+  min-width: 0;
+  gap: fn.layout(hud-area-gap);
+
+  @include desktop {
+    gap: fn.layout(hud-area-gap, desktop);
+  }
+}
+
+.screen__hud-area--row {
+  flex-flow: row wrap;
+  align-items: center;
+}
+
+.screen__hud-area--column {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.screen__hud-area--center {
+  justify-content: center;
+  text-align: center;
+}
+
+.screen__hud-area--right {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.screen__hud-area--right.screen__hud-area--column {
+  align-items: flex-end;
+}
+
+.screen__hud-area--center.screen__hud-area--column {
+  align-items: center;
+}
+
+.screen__hud-item {
+  @extend %jsmii-style-hud;
+}
+
+.screen__hud-item--lives {
+  position: relative;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+
+  .screen__hud-lives {
+    display: inline-flex;
+    gap: fn.layout(lives-gap);
+    width: max-content;
+    height: fn.layout(lives-icon-size);
+  }
+
+  .screen__hud-life {
+    display: block;
+    width: fn.layout(lives-icon-size);
+    height: fn.layout(lives-icon-size);
+    background: fn.asset-url(fn.hud-asset(lives-empty)) center / contain no-repeat;
+    image-rendering: pixelated;
+  }
+
+  .screen__hud-life[data-state="filled"] {
+    background-image: fn.asset-url(fn.hud-asset(lives-full));
+  }
+
+  .screen__hud-text {
+    @include hidden-label;
+  }
+
+  @include desktop {
+    .screen__hud-lives {
+      gap: fn.layout(lives-gap, desktop);
+      height: fn.layout(lives-icon-size, desktop);
+    }
+
+    .screen__hud-life {
+      width: fn.layout(lives-icon-size, desktop);
+      height: fn.layout(lives-icon-size, desktop);
+    }
+  }
+}
+
+.screen__hud-item--time {
+  position: relative;
+  display: inline-block;
+  width: fn.layout(time-width);
+  height: fn.layout(time-height);
+  max-width: 70vw;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: fn.asset-url(fn.hud-asset(time-empty)) center / 100% 100% no-repeat;
+  box-shadow: none;
+  image-rendering: pixelated;
+  overflow: visible;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: fn.layout(time-progress);
+    background: fn.asset-url(fn.hud-asset(time-full)) left center / auto 100% no-repeat;
+    pointer-events: none;
+  }
+
+  .screen__hud-timeline {
+    display: none;
+  }
+
+  .screen__hud-time-value {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    color: fn.color(background-from);
+    @include t.font(hud);
+    white-space: nowrap;
+  }
+
+  @include desktop {
+    width: fn.layout(time-width, desktop);
+    height: fn.layout(time-height, desktop);
+  }
+}

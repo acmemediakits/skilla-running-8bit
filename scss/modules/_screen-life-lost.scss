@@ -1,0 +1,25 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/type" as t;
+@use "../components/mixins" as *;
+
+
+
+
+.screen {
+  &.life-lost,
+  &[data-screen="life-lost"],
+  &[data-screen="life-lost-level-2"] {
+    // Role: feedback; presentation: modal
+    // Headline: Life --
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    min-height: 90%;
+    justify-content: center;
+    .screen__panel {
+      @extend %jsmii-panel-modal;
+    }
+  }
+
+}

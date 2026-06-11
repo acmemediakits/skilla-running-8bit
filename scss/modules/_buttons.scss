@@ -1,0 +1,44 @@
+@use "../components/vars" as v;
+@use "../components/functions" as fn;
+@use "../components/mixins" as *;
+
+.screen__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: fn.layout(screen-actions-gap);
+  align-items: center;
+  margin-top: fn.space(lg);
+
+  @include desktop {
+    gap: fn.layout(screen-actions-gap, desktop);
+  }
+}
+
+.screen__actions .button {
+  appearance: none;
+  cursor: pointer;
+  @extend %jsmii-style-button-primary;
+}
+
+.screen__actions .button:nth-child(even) {
+  @extend %jsmii-style-button-secondary;
+}
+
+.screen__actions .button--primary {
+  @extend %jsmii-style-button-primary;
+}
+
+.screen__actions .button--secondary {
+  @extend %jsmii-style-button-secondary;
+  &-alt:after {
+    background-color: fn.color(skillaBlue) !important;
+    border: fn.color(skillaBlue) !important;
+  }
+  &-light {
+    color: fn.color(skillaBlue) !important;
+    &:after {
+      background-color: fn.color(white) !important;
+      border: fn.color(white) !important;
+    }
+  }
+}
