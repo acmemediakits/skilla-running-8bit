@@ -1,4 +1,4 @@
-import { AssetResolver } from "./AssetResolver.js?v=1.1.3-20260610193052";
+import { AssetResolver } from "./AssetResolver.js?v=1.1.3-20260611170100";
 import { EventBus } from "./EventBus.js";
 import { Logger } from "./Logger.js";
 import { ModuleLoader } from "./ModuleLoader.js";

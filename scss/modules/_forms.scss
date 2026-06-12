@@ -5,7 +5,9 @@
 .screen__form {
   @extend %jsmii-style-lead-form;
 }
-
+.notification-message-hide {
+  display: none;
+}
 .screen__field {
   display: grid;
   gap: fn.space(xs);

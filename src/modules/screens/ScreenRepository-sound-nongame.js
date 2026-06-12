@@ -62,7 +62,7 @@ export default class ScreenRepository {
     this.context = context;
     this.mountNode = document.getElementById("screen-mount");
     this.presentationLayerNode = document.getElementById("presentation-layer");
-    this.basePath = context.runtimeSettings?.html?.screensBasePath || "html/screens";
+    this.basePath = context.runtimeSettings?.html?.screensBasePath || "/html/screens";
     this.currentScreenId = null;
     this.currentPresentationId = null;
     this.handleNavigationClick = this.handleNavigationClick.bind(this);
@@ -570,6 +570,14 @@ export default class ScreenRepository {
     return true;
   }
 
+  shouldReloadLifeLostRetry(trigger) {
+    return Boolean(
+      trigger?.dataset?.runnerControl === "retry"
+      && trigger.closest?.('[data-screen="life-lost"]')
+      && this.isHardNavigationViewport()
+    );
+  }
+
   handleNavigationClick(event) {
     const soundToggle = event.target.closest("[data-sound-toggle]");
     if (soundToggle) {
@@ -624,6 +632,11 @@ export default class ScreenRepository {
     event.preventDefault();
     const screenId = trigger.dataset.screenTarget;
     const runnerControl = trigger.dataset.runnerControl || "";
+    if (this.shouldReloadLifeLostRetry(trigger)) {
+      event.stopImmediatePropagation();
+      window.location.reload();
+      return;
+    }
     if (runnerControl && this.context.gameplay?.handleExternalRunnerControl?.(trigger)) {
       return;
     }

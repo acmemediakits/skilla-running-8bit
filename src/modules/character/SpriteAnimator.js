@@ -43,7 +43,7 @@ const MOTION_SPEED_MULTIPLIERS = {
 const DEFAULT_ACTIONS = {
   idle: {
     label: "Idle",
-    src: "assets/dummy/character/Idle.png",
+    src: "/assets/dummy/character/Idle.png",
     fps: 8,
     loop: true,
     returnTo: "none",
@@ -57,7 +57,7 @@ const DEFAULT_ACTIONS = {
   },
   walk: {
     label: "Walk",
-    src: "assets/dummy/character/Walk.png",
+    src: "/assets/dummy/character/Walk.png",
     fps: 10,
     loop: true,
     returnTo: "none",
@@ -71,7 +71,7 @@ const DEFAULT_ACTIONS = {
   },
   run: {
     label: "Run",
-    src: "assets/dummy/character/Run.png",
+    src: "/assets/dummy/character/Run.png",
     fps: 12,
     loop: true,
     returnTo: "none",
@@ -85,7 +85,7 @@ const DEFAULT_ACTIONS = {
   },
   jump: {
     label: "Jump",
-    src: "assets/dummy/character/Jump.png",
+    src: "/assets/dummy/character/Jump.png",
     fps: 14,
     loop: false,
     returnTo: "previous",
@@ -99,7 +99,7 @@ const DEFAULT_ACTIONS = {
   },
   attack_1: {
     label: "Attack 1",
-    src: "assets/dummy/character/Attack_1.png",
+    src: "/assets/dummy/character/Attack_1.png",
     fps: 14,
     loop: false,
     returnTo: "previous",
@@ -113,7 +113,7 @@ const DEFAULT_ACTIONS = {
   },
   attack_2: {
     label: "Attack 2",
-    src: "assets/dummy/character/Attack_2.png",
+    src: "/assets/dummy/character/Attack_2.png",
     fps: 14,
     loop: false,
     returnTo: "previous",
@@ -127,7 +127,7 @@ const DEFAULT_ACTIONS = {
   },
   attack_3: {
     label: "Attack 3",
-    src: "assets/dummy/character/Attack_3.png",
+    src: "/assets/dummy/character/Attack_3.png",
     fps: 14,
     loop: false,
     returnTo: "previous",
@@ -141,7 +141,7 @@ const DEFAULT_ACTIONS = {
   },
   shield: {
     label: "Shield",
-    src: "assets/dummy/character/Shield.png",
+    src: "/assets/dummy/character/Shield.png",
     fps: 8,
     loop: false,
     returnTo: "previous",
@@ -155,7 +155,7 @@ const DEFAULT_ACTIONS = {
   },
   hurt: {
     label: "Hurt",
-    src: "assets/dummy/character/Hurt.png",
+    src: "/assets/dummy/character/Hurt.png",
     fps: 10,
     loop: false,
     returnTo: "previous",
@@ -169,7 +169,7 @@ const DEFAULT_ACTIONS = {
   },
   dead: {
     label: "Dead",
-    src: "assets/dummy/character/Dead.png",
+    src: "/assets/dummy/character/Dead.png",
     fps: 10,
     loop: false,
     returnTo: "none",

@@ -71,7 +71,7 @@ export default class JsonDbManager {
     this.context = context;
     this.data = {};
     this.loaded = false;
-    this.bootstrapPath = context.runtimeSettings?.db?.bootstrapPath || "settings/game.json";
+    this.bootstrapPath = context.runtimeSettings?.db?.bootstrapPath || "/settings/game.json";
     this.overridePaths = Array.isArray(context.runtimeSettings?.db?.overridePaths)
       ? context.runtimeSettings.db.overridePaths
       : [];

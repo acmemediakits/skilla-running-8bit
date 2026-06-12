@@ -4,9 +4,11 @@ import {
   levelSpeedForViewport,
   normalizeIrgContract,
   paintInfiniteRunnerWorld
-} from "./InfiniteRunnerWorld.js?v=1.1.3-20260610193052";
+} from "./InfiniteRunnerWorld.js?v=1.1.3-20260611170100";
 
 export const moduleName = "ArcadeRunner";
+
+const HARD_NAVIGATION_BREAKPOINT = 992;
 
 const DEFAULT_STATE = {
   status: "idle",
@@ -519,6 +521,11 @@ export default class ArcadeRunner {
     const control = event.currentTarget || event.target?.closest?.("[data-runner-control]");
     event.preventDefault();
     event.stopPropagation();
+    if (this.shouldReloadLifeLostRetry(control)) {
+      event.stopImmediatePropagation?.();
+      window.location.reload();
+      return;
+    }
     this.handleRunnerControl(control);
   }
 
@@ -530,6 +537,13 @@ export default class ArcadeRunner {
 
     const action = control.dataset.runnerControl || (control.matches?.("[data-runner-start]") ? "start" : "retry");
     if (!["retry", "restart", "start"].includes(action)) {
+      return;
+    }
+
+    if (this.shouldReloadLifeLostRetry(control)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      window.location.reload();
       return;
     }
 
@@ -570,8 +584,30 @@ export default class ArcadeRunner {
       return false;
     }
 
+    if (this.shouldReloadLifeLostRetry(control)) {
+      window.location.reload();
+      return true;
+    }
+
     this.handleRunnerControl(control);
     return true;
+  }
+
+  shouldReloadLifeLostRetry(control) {
+    return Boolean(
+      control?.dataset?.runnerControl === "retry"
+      && control.closest?.('[data-screen="life-lost"]')
+      && this.isHardNavigationViewport()
+    );
+  }
+
+  isHardNavigationViewport() {
+    if (typeof window === "undefined") {
+      return false;
+    }
+
+    return window.matchMedia?.(`(max-width: ${HARD_NAVIGATION_BREAKPOINT - 0.02}px)`)?.matches
+      ?? window.innerWidth < HARD_NAVIGATION_BREAKPOINT;
   }
 
   handleKeyDown(event) {
@@ -1251,7 +1287,7 @@ export default class ArcadeRunner {
 
   renderPlayerMarkup() {
     const action = this.getAction(this.player.actionId);
-    const src = action.src || "assets/dummy/character/Idle.png";
+    const src = action.src || "/assets/dummy/character/Idle.png";
     const resolvedSrc = this.resolveAssetSource(src);
     const metrics = this.getFrameMetrics(action);
     const frame = Math.min(this.player.frame, metrics.frameCount - 1);

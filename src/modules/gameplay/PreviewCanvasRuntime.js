@@ -633,7 +633,7 @@ export default class PreviewCanvasRuntime {
   }
 
   getResultTemplatePath(screenId = "") {
-    const basePath = this.context.runtimeSettings?.html?.screensBasePath || "html/screens";
+    const basePath = this.context.runtimeSettings?.html?.screensBasePath || "/html/screens";
     return `${basePath.replace(/\/$/, "")}/${screenId}.html`;
   }
 

@@ -73,14 +73,14 @@ export const bootstrap = async () => {
   const queryKey = runtimeSettings?.assets?.queryKey || "v";
 
   updateBootstrapMessage("Loading styles", 24);
-  const stylesheetPath = runtimeSettings?.assets?.stylesheetPath ?? "css/main.css";
+  const stylesheetPath = runtimeSettings?.assets?.stylesheetPath ?? "/css/main.css";
   if (stylesheetPath) {
     injectStylesheet(buildVersionedUrl(stylesheetPath, version, queryKey, baseUrl));
   }
 
   updateBootstrapMessage("Loading runtime modules", 52);
 
-  const { bootJsmii } = await import(buildVersionedUrl("src/main.js", version, queryKey, baseUrl));
+  const { bootJsmii } = await import(buildVersionedUrl("/src/main.js", version, queryKey, baseUrl));
 
   updateBootstrapMessage("Starting framework", 72);
   await bootJsmii(runtimeSettings);

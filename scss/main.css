@@ -1038,6 +1038,10 @@ aside#loading-overlay .loading-overlay__message {
   }
 }
 
+.notification-message-hide {
+  display: none;
+}
+
 .screen__field {
   display: grid;
   gap: 8px;
@@ -1324,20 +1328,8 @@ aside#loading-overlay .loading-overlay__message {
     max-height: 680px;
   }
 }
-.screen[data-screen=welcome] .screen__eyebrow {
-  /*padding-top: 64px;
-  position: relative;
-  display: block !important;
-  max-height: fit-content;
-  &:before {
-    position: absolute;
-    content: '';
-    inset: 0;
-    margin: auto;
-    display: block;
-    width: 100%;
-    background: url(../assets/presentation/logo.svg) no-repeat center/contain;
-  }*/
+.screen[data-screen=welcome] .screen__sound-toggle {
+  display: none !important;
 }
 .screen[data-screen=welcome] .screen__actions {
   margin: 0;

@@ -6,7 +6,7 @@ import {
   normalizeHudLayoutMode,
   normalizeIrgContract,
   paintInfiniteRunnerWorld
-} from "../gameplay/InfiniteRunnerWorld.js?v=1.1.3-20260610193052";
+} from "../gameplay/InfiniteRunnerWorld.js?v=1.1.3-20260611170100";
 
 export const moduleName = "LayerManager";
 
@@ -153,14 +153,14 @@ const CHARACTER_SPEED_MULTIPLIERS = {
 
 // Debug preview only: these dummy sources live inside the framework but are not gameplay/runtime assets.
 const PREVIEW_LAYER_ASSETS = {
-  background: "assets/dummy/test-layer/background.png",
-  clouds: "assets/dummy/test-layer/clouds.png",
-  foreground: "assets/dummy/test-layer/foreground.png",
-  horizon: "assets/dummy/test-layer/horizon.png",
-  mountains: "assets/dummy/test-layer/mountains.png",
-  scene: "assets/dummy/test-layer/scene.png",
-  stars: "assets/dummy/test-layer/stars.png",
-  terrain: "assets/dummy/test-layer/terrain.png"
+  background: "/assets/dummy/test-layer/background.png",
+  clouds: "/assets/dummy/test-layer/clouds.png",
+  foreground: "/assets/dummy/test-layer/foreground.png",
+  horizon: "/assets/dummy/test-layer/horizon.png",
+  mountains: "/assets/dummy/test-layer/mountains.png",
+  scene: "/assets/dummy/test-layer/scene.png",
+  stars: "/assets/dummy/test-layer/stars.png",
+  terrain: "/assets/dummy/test-layer/terrain.png"
 };
 
 const LAYER_DEFAULTS = {
@@ -600,7 +600,7 @@ const getPreviewAssetLocalWidth = (assetNode, visualNode, fallbackWidth = 1) => 
 const DEFAULT_PREVIEW_CHARACTER_ACTIONS = {
   idle: {
     label: "Idle",
-    src: "assets/dummy/character/Idle.png",
+    src: "/assets/dummy/character/Idle.png",
     fps: 8,
     loop: true,
     returnTo: "none",
@@ -611,7 +611,7 @@ const DEFAULT_PREVIEW_CHARACTER_ACTIONS = {
   },
   run: {
     label: "Run",
-    src: "assets/dummy/character/Run.png",
+    src: "/assets/dummy/character/Run.png",
     fps: 12,
     loop: true,
     returnTo: "none",

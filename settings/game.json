@@ -6613,21 +6613,21 @@
         "id": "run-sfx",
         "slot": "run",
         "label": "Run",
-        "path": "assets/audio/sfx/click-soft.wav",
+        "path": "/assets/audio/sfx/click-soft.wav",
         "enabled": true
       },
       {
         "id": "walk-sfx",
         "slot": "walk",
         "label": "Walk",
-        "path": "assets/audio/sfx/click-soft.wav",
+        "path": "/assets/audio/sfx/click-soft.wav",
         "enabled": true
       },
       {
         "id": "idle-sfx",
         "slot": "idle",
         "label": "Idle",
-        "path": "assets/audio/sfx/click-soft.wav",
+        "path": "/assets/audio/sfx/click-soft.wav",
         "enabled": true
       },
       {
@@ -6641,7 +6641,7 @@
         "id": "coin-up-sfx",
         "slot": "coin up",
         "label": "Coin Up",
-        "path": "assets/audio/sfx/success-chime.mp3",
+        "path": "/assets/audio/sfx/success-chime.mp3",
         "enabled": true
       },
       {
@@ -6655,7 +6655,7 @@
         "id": "spawn-sfx",
         "slot": "spawn",
         "label": "Spawn",
-        "path": "assets/audio/sfx/success-chime.mp3",
+        "path": "/assets/audio/sfx/success-chime.mp3",
         "enabled": true
       }
     ]
@@ -7022,7 +7022,7 @@
           },
           "walk": {
             "label": "Walk",
-            "src": "assets/dummy/character/Walk.png",
+            "src": "/assets/dummy/character/Walk.png",
             "fps": 12,
             "loop": true,
             "returnTo": "none",
@@ -7094,7 +7094,7 @@
           },
           "attack_1": {
             "label": "Attack 1",
-            "src": "assets/dummy/character/Attack_1.png",
+            "src": "/assets/dummy/character/Attack_1.png",
             "fps": 14,
             "loop": false,
             "returnTo": "previous",
@@ -7112,7 +7112,7 @@
           },
           "attack_2": {
             "label": "Attack 2",
-            "src": "assets/dummy/character/Attack_2.png",
+            "src": "/assets/dummy/character/Attack_2.png",
             "fps": 14,
             "loop": false,
             "returnTo": "previous",
@@ -7130,7 +7130,7 @@
           },
           "attack_3": {
             "label": "Attack 3",
-            "src": "assets/dummy/character/Attack_3.png",
+            "src": "/assets/dummy/character/Attack_3.png",
             "fps": 14,
             "loop": false,
             "returnTo": "previous",
@@ -7148,7 +7148,7 @@
           },
           "shield": {
             "label": "Shield",
-            "src": "assets/dummy/character/Shield.png",
+            "src": "/assets/dummy/character/Shield.png",
             "fps": 8,
             "loop": false,
             "returnTo": "previous",
@@ -7166,7 +7166,7 @@
           },
           "hurt": {
             "label": "Hurt",
-            "src": "assets/dummy/character/Hurt.png",
+            "src": "/assets/dummy/character/Hurt.png",
             "fps": 10,
             "loop": false,
             "returnTo": "previous",
@@ -7242,7 +7242,7 @@
           },
           "walk": {
             "label": "Walk",
-            "src": "assets/dummy/character/Walk.png",
+            "src": "/assets/dummy/character/Walk.png",
             "fps": 10,
             "loop": true,
             "returnTo": "none",
@@ -7314,7 +7314,7 @@
           },
           "attack_1": {
             "label": "Attack 1",
-            "src": "assets/dummy/character/Attack_1.png",
+            "src": "/assets/dummy/character/Attack_1.png",
             "fps": 14,
             "loop": false,
             "returnTo": "previous",
@@ -7332,7 +7332,7 @@
           },
           "attack_2": {
             "label": "Attack 2",
-            "src": "assets/dummy/character/Attack_2.png",
+            "src": "/assets/dummy/character/Attack_2.png",
             "fps": 14,
             "loop": false,
             "returnTo": "previous",
@@ -7350,7 +7350,7 @@
           },
           "attack_3": {
             "label": "Attack 3",
-            "src": "assets/dummy/character/Attack_3.png",
+            "src": "/assets/dummy/character/Attack_3.png",
             "fps": 14,
             "loop": false,
             "returnTo": "previous",
@@ -7368,7 +7368,7 @@
           },
           "shield": {
             "label": "Shield",
-            "src": "assets/dummy/character/Shield.png",
+            "src": "/assets/dummy/character/Shield.png",
             "fps": 8,
             "loop": false,
             "returnTo": "previous",
@@ -7386,7 +7386,7 @@
           },
           "hurt": {
             "label": "Hurt",
-            "src": "assets/dummy/character/Hurt.png",
+            "src": "/assets/dummy/character/Hurt.png",
             "fps": 10,
             "loop": false,
             "returnTo": "previous",
@@ -7460,7 +7460,7 @@
       },
       "walk": {
         "label": "Walk",
-        "src": "assets/dummy/character/Walk.png",
+        "src": "/assets/dummy/character/Walk.png",
         "fps": 10,
         "loop": true,
         "returnTo": "none",
@@ -7532,7 +7532,7 @@
       },
       "attack_1": {
         "label": "Attack 1",
-        "src": "assets/dummy/character/Attack_1.png",
+        "src": "/assets/dummy/character/Attack_1.png",
         "fps": 14,
         "loop": false,
         "returnTo": "previous",
@@ -7550,7 +7550,7 @@
       },
       "attack_2": {
         "label": "Attack 2",
-        "src": "assets/dummy/character/Attack_2.png",
+        "src": "/assets/dummy/character/Attack_2.png",
         "fps": 14,
         "loop": false,
         "returnTo": "previous",
@@ -7568,7 +7568,7 @@
       },
       "attack_3": {
         "label": "Attack 3",
-        "src": "assets/dummy/character/Attack_3.png",
+        "src": "/assets/dummy/character/Attack_3.png",
         "fps": 14,
         "loop": false,
         "returnTo": "previous",
@@ -7586,7 +7586,7 @@
       },
       "shield": {
         "label": "Shield",
-        "src": "assets/dummy/character/Shield.png",
+        "src": "/assets/dummy/character/Shield.png",
         "fps": 8,
         "loop": false,
         "returnTo": "previous",
@@ -7604,7 +7604,7 @@
       },
       "hurt": {
         "label": "Hurt",
-        "src": "assets/dummy/character/Hurt.png",
+        "src": "/assets/dummy/character/Hurt.png",
         "fps": 10,
         "loop": false,
         "returnTo": "previous",
