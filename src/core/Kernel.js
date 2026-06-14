@@ -8,6 +8,8 @@ const SCREEN_QUERY_ALIASES = {
   form: "lead",
   "all-levels-complete": "all-levels-complete"
 };
+const HARD_NAVIGATION_BREAKPOINT = 992;
+const CLEAN_SCREEN_QUERY_NAVIGATION_TYPES = new Set(["reload", "back_forward"]);
 
 const normalizeScreenId = (value) => {
   const rawValue = String(value || "").trim().replace(/\.html$/i, "");
@@ -17,8 +19,86 @@ const normalizeScreenId = (value) => {
   return SCREEN_QUERY_ALIASES[rawValue] || rawValue;
 };
 
+const isMobileViewport = () => {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  return window.matchMedia?.(`(max-width: ${HARD_NAVIGATION_BREAKPOINT - 0.02}px)`)?.matches
+    ?? window.innerWidth < HARD_NAVIGATION_BREAKPOINT;
+};
+
+const hasScreenQuery = () => {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  return new URLSearchParams(window.location.search || "").has(SCREEN_QUERY_PARAM);
+};
+
+const getNavigationType = () => {
+  if (typeof window === "undefined" || typeof performance === "undefined") {
+    return "";
+  }
+  const navigation = performance.getEntriesByType?.("navigation")?.[0];
+  if (navigation?.type) {
+    return navigation.type;
+  }
+  if (performance.navigation?.type === 1) {
+    return "reload";
+  }
+  if (performance.navigation?.type === 2) {
+    return "back_forward";
+  }
+  return "";
+};
+
+const getCleanIndexUrl = () => {
+  const url = new URL("index.html", window.location.href);
+  url.search = "";
+  url.hash = "";
+  return url;
+};
+
+const assignCleanIndex = () => {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  const cleanUrl = getCleanIndexUrl();
+  if (window.location.href === cleanUrl.toString()) {
+    return false;
+  }
+  window.location.assign(cleanUrl.toString());
+  return true;
+};
+
+const shouldCleanScreenQueryNavigation = () => (
+  hasScreenQuery()
+  && isMobileViewport()
+  && CLEAN_SCREEN_QUERY_NAVIGATION_TYPES.has(getNavigationType())
+);
+
+if (typeof window !== "undefined") {
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted && hasScreenQuery() && isMobileViewport()) {
+      assignCleanIndex();
+    }
+  });
+  window.addEventListener("popstate", () => {
+    if (hasScreenQuery() && isMobileViewport()) {
+      assignCleanIndex();
+    }
+  });
+  if (shouldCleanScreenQueryNavigation()) {
+    assignCleanIndex();
+  }
+}
+
 const getInitialScreenOverride = () => {
   if (typeof window === "undefined") {
+    return "";
+  }
+
+  if (shouldCleanScreenQueryNavigation()) {
+    assignCleanIndex();
     return "";
   }
 

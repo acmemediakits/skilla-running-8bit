@@ -3,6 +3,9 @@
 @use "../components/type" as t;
 @use "../components/mixins" as *;
 
+body {
+  background-color: fn.color(panel) !important;
+}
 
 #game-root.game-root {
   width: 100vw;

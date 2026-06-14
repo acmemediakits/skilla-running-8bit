@@ -492,6 +492,10 @@ body:has(.screen--lead-generation) .screen--lead-generation .screen__eyebrow:bef
   color: inherit;
 }
 
+body {
+  background-color: #DCDCDC !important;
+}
+
 #game-root.game-root {
   width: 100vw;
 }
@@ -1076,11 +1080,11 @@ aside#loading-overlay .loading-overlay__message {
   }
 }
 #game-root:has(.screen[data-screen=level-1]) {
-  background: linear-gradient(to bottom, #3CB0E1, #3CB0E1 50%, #0B174E 50%, #0B174E);
+  background: linear-gradient(to bottom, #ACE4FE, #ACE4FE 50%, #0B174E 50%, #0B174E);
 }
 @media (min-width: 992px) {
   #game-root:has(.screen[data-screen=level-1]):before {
-    background: linear-gradient(to bottom, #3CB0E1, #0B174E);
+    background: linear-gradient(to bottom, #ACE4FE, #0B174E);
   }
 }
 #game-root:has(.screen[data-screen=level-2]) {

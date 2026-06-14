@@ -6,7 +6,7 @@ import {
   normalizeHudLayoutMode,
   normalizeIrgContract,
   paintInfiniteRunnerWorld
-} from "../gameplay/InfiniteRunnerWorld.js?v=1.1.3-20260611170100";
+} from "../gameplay/InfiniteRunnerWorld.js?v=1.1.4-irg-windowed-20260613";
 
 export const moduleName = "LayerManager";
 
@@ -17,18 +17,19 @@ const LEGACY_TRANSFORM_BASE = {
   z: 640
 };
 const VIEWPORT_BASE_SIZE = {
-  desktop: { width: 1440, height: 900 },
-  mobile: { width: 390, height: 693 }
+  desktop: { width: 1024, height: 768 },
+  mobile: { width: 420, height: 747 }
 };
 const GAME_CANVAS_MAX_SIZE = {
-  desktop: { width: 1440, height: 900 },
-  mobile: { width: 430, height: 764 }
+  desktop: { width: 1024, height: 768 },
+  mobile: { width: 420, height: 747 }
 };
 const CHARACTER_SCENE_REFERENCE_HEIGHT = GAME_CANVAS_MAX_SIZE.desktop.height;
 const DEFAULT_MAX_JUMP_ELEVATION = 1.5;
 const PREVIEW_SEQUENCE_MIN_TILE_COUNT = 5;
 const PREVIEW_SEQUENCE_MAX_TILE_COUNT = 161;
 const PREVIEW_TILE_OVERLAP_PX = 1;
+const PREVIEW_RUNTIME_REBASE_PX = 4096;
 const PREVIEW_SPAWN_PLAN_SECONDS = 30;
 const PREVIEW_SPAWN_PREROLL_SECONDS = 3;
 const PREVIEW_RUNNER_STOP_DURATION_MS = 500;
@@ -90,12 +91,91 @@ const normalizeAssetPath = (value = "") => String(value || "")
   .replace(/^\/+/, "")
   .replaceAll("\\", "/")
   .toLowerCase();
+const SPRITE_ALIAS_STOPWORDS = new Set([
+  "asset",
+  "assets",
+  "background",
+  "bonus",
+  "character",
+  "jpeg",
+  "jpg",
+  "obstacle",
+  "png",
+  "project",
+  "source",
+  "spawn",
+  "webp"
+]);
+const getAssetBasename = (value = "") => {
+  const normalized = normalizeAssetPath(value).split("?")[0].split("#")[0];
+  return normalized.split("/").filter(Boolean).pop() || normalized;
+};
+const getSpriteAliasStem = (value = "") => {
+  return getAssetBasename(value)
+    .replace(/\.[a-z0-9]+$/i, "")
+    .replace(/[-_][a-f0-9]{8,}$/i, "")
+    .replace(/[-_]v\d+$/i, "")
+    .replace(/^(?:bonus|obstacle|ostacolo|asset|sprite|img)[-_]+/i, "")
+    .replace(/^(?:l|p)\d+[-_]+/i, "")
+    .replace(/[^a-z0-9]+/gi, "-")
+    .replace(/^-+|-+$/g, "");
+};
+const getSpriteAliasTokens = (value = "") => {
+  return getSpriteAliasStem(value)
+    .split("-")
+    .map((token) => token.trim())
+    .filter((token) => token.length >= 4 && !SPRITE_ALIAS_STOPWORDS.has(token) && !/^(?:l|p)?\d+$/i.test(token));
+};
+const createSpriteAliasSet = (values = []) => {
+  const aliases = new Set();
+  values.filter(Boolean).forEach((value) => {
+    const stem = getSpriteAliasStem(value);
+    if (stem) {
+      aliases.add(stem);
+    }
+    getSpriteAliasTokens(value).forEach((token) => aliases.add(token));
+  });
+  return aliases;
+};
+const spriteSheetMatchesSource = (source = "", config = {}, key = "", value = {}) => {
+  const normalizedSource = normalizeAssetPath(source);
+  const normalizedKey = normalizeAssetPath(key);
+  const normalizedRef = normalizeAssetPath(value?.assetRef || "");
+  if (
+    normalizedKey === normalizedSource
+    || normalizedRef === normalizedSource
+    || normalizedSource.endsWith(`/${normalizedKey}`)
+    || (normalizedRef && normalizedSource.endsWith(`/${normalizedRef}`))
+  ) {
+    return true;
+  }
+
+  const sourceAliases = createSpriteAliasSet([
+    source,
+    config?.assetRef,
+    config?.src,
+    config?.source,
+    config?.internalName,
+    config?.name,
+    config?.label
+  ]);
+  const sheetAliases = createSpriteAliasSet([key, value?.assetRef]);
+  return [...sourceAliases].some((alias) => sheetAliases.has(alias));
+};
 const rectsOverlap = (a, b) => {
   return Boolean(a && b)
     && a.right > b.left
     && a.left < b.right
     && a.bottom > b.top
     && a.top < b.bottom;
+};
+
+const isNoCollisionMetaEnabled = () => {
+  if (typeof document === "undefined") {
+    return false;
+  }
+  const value = document.querySelector('meta[name="no-collision"]')?.getAttribute("content") || "false";
+  return ["1", "true", "yes", "on"].includes(String(value).trim().toLowerCase());
 };
 
 const isNegativeSpawnKind = (kind = "") => ["hazard", "obstacle"].includes(String(kind || "").toLowerCase());
@@ -164,19 +244,51 @@ const PREVIEW_LAYER_ASSETS = {
 };
 
 const LAYER_DEFAULTS = {
-  horizon: { zIndex: 10, depth: 0.12, parallaxFactor: 0.08, scaleBase: 1.02, offsetX: 0, offsetY: -12 },
-  stars: { zIndex: 20, depth: 0.2, parallaxFactor: 0.12, scaleBase: 1, offsetX: 0, offsetY: -26 },
-  mountains: { zIndex: 30, depth: 0.3, parallaxFactor: 0.2, scaleBase: 1.08, offsetX: 0, offsetY: 8 },
-  clouds: { zIndex: 40, depth: 0.38, parallaxFactor: 0.26, scaleBase: 1.08, offsetX: 0, offsetY: -16 },
-  terrain: { zIndex: 50, depth: 0.5, parallaxFactor: 0.38, scaleBase: 1.12, offsetX: 0, offsetY: 24 },
-  background: { zIndex: 60, depth: 0.6, parallaxFactor: 0.48, scaleBase: 1.14, offsetX: 0, offsetY: 10 },
-  scene: { zIndex: 70, depth: 0.72, parallaxFactor: 0.62, scaleBase: 1.18, offsetX: 0, offsetY: 34 },
-  character: { zIndex: 75, depth: 0.78, parallaxFactor: 0.66, scaleBase: 1, offsetX: 0, offsetY: 38 },
-  foreground: { zIndex: 80, depth: 0.84, parallaxFactor: 0.8, scaleBase: 1.24, offsetX: 0, offsetY: 48 },
-  screen: { zIndex: 90, depth: 0.94, parallaxFactor: 0, scaleBase: 1, offsetX: 0, offsetY: 0 },
-  lens: { zIndex: 100, depth: 1, parallaxFactor: 0, scaleBase: 1, offsetX: 0, offsetY: 0 }
+  horizon: { zIndex: 1, depth: 0.01, parallaxFactor: 0.01, scaleBase: 1.02, offsetX: 0, offsetY: -12 },
+  stars: { zIndex: 5, depth: 0.05, parallaxFactor: 0.05, scaleBase: 1, offsetX: 0, offsetY: -26 },
+  mountains: { zIndex: 10, depth: 0.1, parallaxFactor: 0.1, scaleBase: 1.08, offsetX: 0, offsetY: 8 },
+  clouds: { zIndex: 30, depth: 0.3, parallaxFactor: 0.3, scaleBase: 1.08, offsetX: 0, offsetY: -16 },
+  terrain: { zIndex: 60, depth: 0.6, parallaxFactor: 0.6, scaleBase: 1.12, offsetX: 0, offsetY: 24 },
+  background: { zIndex: 90, depth: 0.9, parallaxFactor: 0.9, scaleBase: 1.14, offsetX: 0, offsetY: 10 },
+  scene: { zIndex: 100, depth: 1, parallaxFactor: 1, scaleBase: 1.18, offsetX: 0, offsetY: 34 },
+  character: { zIndex: 105, depth: 1.05, parallaxFactor: 1, scaleBase: 1, offsetX: 0, offsetY: 38 },
+  foreground: { zIndex: 110, depth: 1.1, parallaxFactor: 1.1, scaleBase: 1.24, offsetX: 0, offsetY: 48 },
+  screen: { zIndex: 130, depth: 1.3, parallaxFactor: 1.3, scaleBase: 1, offsetX: 0, offsetY: 0 },
+  lens: { zIndex: 180, depth: 1.8, parallaxFactor: 1.8, scaleBase: 1, offsetX: 0, offsetY: 0 }
 };
 const CHARACTER_DEPTH = LAYER_DEFAULTS.character.depth;
+const LEGACY_LAYER_Z_INDEX = {
+  horizon: 10,
+  stars: 20,
+  mountains: 30,
+  clouds: 40,
+  terrain: 50,
+  background: 60,
+  scene: 70,
+  character: 75,
+  foreground: 80,
+  screen: 90,
+  lens: 100
+};
+
+const getLayerZIndex = (layer = {}, fallback = 1) => {
+  const layerId = String(layer.id || "");
+  if (layerId === "scene") {
+    return LAYER_DEFAULTS.scene.zIndex;
+  }
+  const configured = Number(layer.zIndex ?? layer.z);
+  if (
+    Number.isFinite(configured)
+    && Object.prototype.hasOwnProperty.call(LAYER_DEFAULTS, layerId)
+    && configured === LEGACY_LAYER_Z_INDEX[layerId]
+  ) {
+    return LAYER_DEFAULTS[layerId].zIndex;
+  }
+  if (Number.isFinite(configured)) {
+    return configured;
+  }
+  return LAYER_DEFAULTS[layerId]?.zIndex ?? fallback;
+};
 
 const normalizeViewportName = (viewport) => {
   return VIEWPORTS.includes(viewport) ? viewport : "desktop";
@@ -345,40 +457,22 @@ const normalizeRunnerSettings = (runner = {}) => {
     minObjectDistancePs,
     spawnMinDistancePixsecs: minObjectDistancePs,
     paintSeed: String(runner.paintSeed || ""),
-    backgroundParallaxSpeed: runner.backgroundParallaxSpeed || "native",
-    foregroundParallaxSpeed: runner.foregroundParallaxSpeed || "native"
+    backgroundParallaxSpeed: "native",
+    foregroundParallaxSpeed: "native",
+    renderer: {
+      desktop: runner.renderer?.desktop === "strip" ? "striped" : (runner.renderer?.desktop || "windowed"),
+      mobile: runner.renderer?.mobile === "strip" ? "striped" : (runner.renderer?.mobile || "windowed")
+    }
   };
 };
 
 const getRunnerSpeed = (layer, transform = {}, runner = {}, viewport = "desktop") => {
-  const baseDepth = Number(layer.depth ?? 0.5);
-  const zOffset = Number(transform.z || 0) / 100;
-  const proximity = clamp(baseDepth + zOffset, 0, 1);
   const runnerSettings = normalizeRunnerSettings(runner);
-  const characterProximity = clamp(CHARACTER_DEPTH, 0.1, 0.95);
-  const backT = clamp(proximity / characterProximity, 0, 1);
-  const frontT = clamp((proximity - characterProximity) / (1 - characterProximity), 0, 1);
-  const backFalloff = 1 - (Math.log1p((1 - backT) * 16) / Math.log1p(16));
-  const backgroundMode = runnerSettings.backgroundParallaxSpeed || "native";
-  const foregroundMode = runnerSettings.foregroundParallaxSpeed || "native";
-  const backgroundDepthSpeed = backgroundMode === "linear"
-    ? 0.08 + (backT * 0.92)
-    : backgroundMode === "logarithmic"
-      ? 0.08 + (backFalloff * 0.92)
-      : 0.08 + (Number(layer.parallaxFactor ?? backFalloff) * 0.92);
-  const foregroundDepthSpeed = foregroundMode === "logarithmic"
-    ? 1 + (Math.log1p(frontT * 4) / Math.log1p(4)) * 0.55
-    : foregroundMode === "linear"
-      ? 1 + (frontT * 0.55)
-      : 1 + (frontT * 0.55);
-  const depthSpeed = proximity <= characterProximity
-    ? backgroundDepthSpeed
-    : foregroundDepthSpeed;
   const baseline = Math.max(120, runnerSettings.worldScrollSpeed);
   const levelSpeed = levelSpeedForViewport(runnerSettings, viewport);
-  const layerSpeed = Math.max(0.1, Number(layer.speedMultiplier ?? 1));
-  const contractSpeedBoost = layer.id === "scene" ? 1.75 : 1;
-  return Number((baseline * levelSpeed * depthSpeed * layerSpeed * contractSpeedBoost).toFixed(2));
+  const zIndex = getLayerZIndex(layer, 35);
+  const coefficient = clamp(Number.isFinite(zIndex) ? zIndex / 100 : 0.35, 0, 3);
+  return Number((baseline * levelSpeed * coefficient).toFixed(2));
 };
 
 const getCharacterSpeedMultiplier = (action = {}) => {
@@ -407,34 +501,13 @@ const getPreviewSequenceTileCount = (previewWidth, tileStride, assetRelativeX = 
 const getGameCanvasMetrics = (containerNode, viewport = "desktop") => {
   const mode = normalizeViewportName(viewport);
   const maxSize = GAME_CANVAS_MAX_SIZE[mode] || GAME_CANVAS_MAX_SIZE.desktop;
-  const fallback = VIEWPORT_BASE_SIZE[mode] || VIEWPORT_BASE_SIZE.desktop;
-  const rect = containerNode?.getBoundingClientRect?.();
-  const containerWidth = Math.max(1, Number(containerNode?.clientWidth || rect?.width || fallback.width));
-  const containerHeight = Math.max(1, Number(containerNode?.clientHeight || rect?.height || fallback.height));
-  const usesViewportSizing = mode === "mobile"
-    && containerNode?.dataset?.previewCanvasSizing === "viewport";
-
-  if (usesViewportSizing) {
-    return {
-      width: Number(containerWidth.toFixed(2)),
-      height: Number(containerHeight.toFixed(2)),
-      maxWidth: Number(containerWidth.toFixed(2)),
-      maxHeight: Number(containerHeight.toFixed(2)),
-      scale: 1
-    };
-  }
-
-  const width = Math.min(maxSize.width, containerWidth);
-  const expectedHeight = width * (maxSize.height / maxSize.width);
-  const height = Math.min(maxSize.height, containerHeight || expectedHeight);
-  const normalizedHeight = Math.min(maxSize.height, Math.max(1, height));
 
   return {
-    width: Number(width.toFixed(2)),
-    height: Number(normalizedHeight.toFixed(2)),
+    width: Number(maxSize.width.toFixed(2)),
+    height: Number(maxSize.height.toFixed(2)),
     maxWidth: maxSize.width,
     maxHeight: maxSize.height,
-    scale: Number(Math.min(width / maxSize.width, normalizedHeight / maxSize.height).toFixed(4))
+    scale: 1
   };
 };
 
@@ -496,6 +569,22 @@ const getPreviewTrackTiles = (trackNode) => {
     return [];
   }
   return [...trackNode.children].filter((node) => node.matches?.(PREVIEW_SCENE_TILE_SELECTOR));
+};
+
+const detachTrackCharacterAnchors = (trackNode) => {
+  const parent = trackNode?.parentElement;
+  if (!parent) {
+    return;
+  }
+  trackNode.querySelectorAll(".tester-preview__character-anchor").forEach((characterNode) => {
+    parent.append(characterNode);
+  });
+};
+
+const cloneSceneLevelForStorage = (scene = {}) => {
+  const clone = JSON.parse(JSON.stringify(scene || {}));
+  delete clone.levels;
+  return clone;
 };
 
 const hashString = (value = "") => {
@@ -570,31 +659,36 @@ const syncPreviewTrackTileCount = (trackNode, tileCount, tileIndexes = getPrevie
     tile.classList.remove("is-scene-hollow-replacement");
     fragment.append(tile);
   });
-  trackNode.querySelectorAll(".tester-preview__spawn-object").forEach((objectNode) => {
-    fragment.append(objectNode);
-  });
-  trackNode.querySelectorAll(".tester-preview__character-anchor").forEach((characterNode) => {
-    fragment.append(characterNode);
-  });
+  const spawnPlane = trackNode.querySelector(":scope > .tester-preview__spawn-plane");
+  if (spawnPlane) {
+    fragment.append(spawnPlane);
+  } else {
+    trackNode.querySelectorAll(":scope > .tester-preview__spawn-object").forEach((objectNode) => {
+      fragment.append(objectNode);
+    });
+  }
+  detachTrackCharacterAnchors(trackNode);
   trackNode.replaceChildren(fragment);
   delete trackNode.dataset.sceneCompositionKey;
   trackNode.parentElement?.setAttribute("data-preview-tile-count", String(tileIndexes.length));
 };
 
-const getPreviewAssetLocalWidth = (assetNode, visualNode, fallbackWidth = 1) => {
+const getPreviewAssetLocalSize = (assetNode, visualNode, fallbackWidth = 1, fallbackHeight = 1) => {
   const naturalWidth = Number(assetNode?.naturalWidth || 0);
   const naturalHeight = Number(assetNode?.naturalHeight || 0);
-  const visualHeight = Math.max(
-    1,
-    Number(visualNode?.clientHeight || 0),
-    Number(assetNode?.parentElement?.clientHeight || 0)
-  );
-
-  if (naturalWidth > 0 && naturalHeight > 0 && visualHeight > 0) {
-    return Math.max(1, (naturalWidth / naturalHeight) * visualHeight);
+  if (naturalWidth > 0 && naturalHeight > 0) {
+    return {
+      width: Math.max(1, naturalWidth),
+      height: Math.max(1, naturalHeight)
+    };
   }
 
-  return Math.max(1, Number(assetNode?.getBoundingClientRect?.().width || 0), Number(fallbackWidth || 1));
+  const rect = assetNode?.getBoundingClientRect?.();
+  const visualRect = visualNode?.getBoundingClientRect?.();
+  return {
+    width: Math.max(1, Number(rect?.width || 0), Number(visualRect?.width || 0), Number(fallbackWidth || 1)),
+    height: Math.max(1, Number(rect?.height || 0), Number(visualRect?.height || 0), Number(fallbackHeight || 1))
+  };
 };
 
 const DEFAULT_PREVIEW_CHARACTER_ACTIONS = {
@@ -801,6 +895,7 @@ export default class LayerManager {
     this.previewCharacterReturnTimer = null;
     this.previewCharacterActionStartedAt = 0;
     this.previewCharacterActionDurationMs = 0;
+    this.previewCharacterActionInputLockedUntil = 0;
     this.characterFallStartedAt = 0;
     this.previewCharacterAirborneUntil = 0;
     this.runnerStopStartedAt = 0;
@@ -1088,6 +1183,32 @@ export default class LayerManager {
     this.previewHudTimerId = null;
   }
 
+  getPersistableScene(scene = this.scene) {
+    const storedScene = this.context.db?.get("location.scene", {}) || {};
+    const storedLevels = storedScene.levels && typeof storedScene.levels === "object" ? storedScene.levels : {};
+    const sceneLevels = scene.levels && typeof scene.levels === "object" ? scene.levels : {};
+    const levels = {};
+    [...new Set([...Object.keys(storedLevels), ...Object.keys(sceneLevels)])].forEach((storedLevelId) => {
+      levels[storedLevelId] = {
+        ...cloneSceneLevelForStorage(sceneLevels[storedLevelId] || storedLevels[storedLevelId] || {}),
+        levelId: storedLevelId
+      };
+    });
+
+    const levelId = scene.levelId || "";
+    if (levelId) {
+      levels[levelId] = {
+        ...cloneSceneLevelForStorage(scene),
+        levelId
+      };
+    }
+
+    return {
+      ...cloneSceneLevelForStorage(scene),
+      levels
+    };
+  }
+
   updateIrgLevel(patch = {}, options = {}) {
     const contract = this.getIrgContract();
     const levelId = options.levelId || contract.activeLevelId || this.scene.levelId || "level-1";
@@ -1129,11 +1250,7 @@ export default class LayerManager {
     this.spawnPlan = [];
     this.spawnPlanById = new Map();
     this.spawnCollisionMap = [];
-    this.context.db?.merge("location", { scene: this.scene });
-    if (!this.refreshPreviewLayout?.()) {
-      this.renderPreview();
-    }
-    this.context.events.emit("location:changed", { scene: this.scene, renderLayerControls: options.renderLayerControls !== false });
+    this.sync({ renderLayerControls: options.renderLayerControls !== false });
     return nextLevel;
   }
 
@@ -1476,14 +1593,9 @@ export default class LayerManager {
       <div class="tester-preview__stage${stageClass}" style="${this.renderBackgroundStyle(background)}; --preview-perspective:${effectivePerspective}px; --preview-world-width:${previewWidth}px; --preview-world-height:${previewHeight}px">
         ${visibleLayers.map((layer, layerIndex) => {
           const transform = layer.viewports?.[viewport] || layer.viewports?.desktop || normalizeViewportTransform(layer, "desktop");
-          const cameraTranslateXPercent = Number((camera.x * layer.parallaxFactor).toFixed(2));
-          const translateYPercent = Number((camera.y * layer.parallaxFactor + transform.y).toFixed(2));
-          const translateZPercent = layer.id === "screen" || layer.id === "lens"
-            ? Number(transform.z.toFixed(2))
-            : Number((((1 - layer.depth) * -65.63) + transform.z).toFixed(2));
-          const translateX = Number(((cameraTranslateXPercent / 100) * previewWidth).toFixed(2));
-          const translateY = Number(((translateYPercent / 100) * previewHeight).toFixed(2));
-          const translateZ = Number(((translateZPercent / 100) * previewWidth).toFixed(2));
+          const translateX = 0;
+          const translateY = Number(((Number(transform.y || 0) / 100) * previewHeight).toFixed(2));
+          const translateZ = 0;
           const effectiveScale = Number((transform.scale || 1).toFixed(4));
           const layerClass = `tester-preview__layer tester-preview__layer--${layer.id}`;
           const runnerSpeed = getRunnerSpeed(layer, transform, this.scene.runner, viewport);
@@ -1502,7 +1614,7 @@ export default class LayerManager {
               data-animated="${layer.animated ? "true" : "false"}"
               data-pattern="${escapeHtml(layer.pattern || "none")}"
               style="
-                --layer-z:${layerIndex + 1};
+                --layer-z:${getLayerZIndex(layer, layerIndex + 1)};
                 --layer-scale:${effectiveScale};
                 --layer-x:${translateX}px;
                 --layer-y:${translateY}px;
@@ -1580,14 +1692,9 @@ export default class LayerManager {
     visibleLayers.forEach((layer, layerIndex) => {
       const layerNode = layerNodes[layerIndex];
       const transform = layer.viewports?.[viewport] || layer.viewports?.desktop || normalizeViewportTransform(layer, "desktop");
-      const cameraTranslateXPercent = Number((camera.x * layer.parallaxFactor).toFixed(2));
-      const translateYPercent = Number((camera.y * layer.parallaxFactor + transform.y).toFixed(2));
-      const translateZPercent = layer.id === "screen" || layer.id === "lens"
-        ? Number(transform.z.toFixed(2))
-        : Number((((1 - layer.depth) * -65.63) + transform.z).toFixed(2));
-      const translateX = Number(((cameraTranslateXPercent / 100) * previewWidth).toFixed(2));
-      const translateY = Number(((translateYPercent / 100) * previewHeight).toFixed(2));
-      const translateZ = Number(((translateZPercent / 100) * previewWidth).toFixed(2));
+      const translateX = 0;
+      const translateY = Number(((Number(transform.y || 0) / 100) * previewHeight).toFixed(2));
+      const translateZ = 0;
       const effectiveScale = Number((transform.scale || 1).toFixed(4));
       const runnerSpeed = getRunnerSpeed(layer, transform, this.scene.runner, viewport);
       layerNode.dataset.layerXTravel = Number(transform.x ?? 50).toFixed(2);
@@ -1598,7 +1705,7 @@ export default class LayerManager {
       layerNode.dataset.runnerSpeed = String(runnerSpeed);
       layerNode.dataset.animated = layer.animated ? "true" : "false";
       layerNode.dataset.pattern = layer.pattern || "none";
-      layerNode.style.setProperty("--layer-z", String(layerIndex + 1));
+      layerNode.style.setProperty("--layer-z", String(getLayerZIndex(layer, layerIndex + 1)));
       layerNode.style.setProperty("--layer-scale", String(effectiveScale));
       layerNode.style.setProperty("--layer-x", `${translateX}px`);
       layerNode.style.setProperty("--layer-y", `${translateY}px`);
@@ -2120,6 +2227,8 @@ export default class LayerManager {
       const frameHeight = Math.max(1, size.height);
       const fps = Math.max(1, Number(sprite.fps || 12));
       const spriteDuration = Number((frameCount / fps).toFixed(3));
+      const isSpriteSheet = frameCount > 1;
+      node.dataset.spawnSprite = isSpriteSheet ? "true" : "false";
       node.style.setProperty("--spawn-frame-width", `${frameWidth}px`);
       node.style.setProperty("--spawn-frame-height", `${frameHeight}px`);
       node.style.setProperty("--spawn-frame-count", String(frameCount));
@@ -2127,6 +2236,13 @@ export default class LayerManager {
       node.style.setProperty("--spawn-last-frame-x", frameCount > 1 ? "100%" : "0%");
       node.style.setProperty("--spawn-frame-duration", `${spriteDuration}s`);
       node.style.setProperty("--spawn-sprite-sheet-width", `${frameWidth * frameCount}px`);
+      if (isSpriteSheet && !node.querySelector(".tester-preview__spawn-object-sprite")) {
+        node.replaceChildren();
+        const spriteNode = document.createElement("span");
+        spriteNode.className = "tester-preview__spawn-object-sprite";
+        spriteNode.setAttribute("aria-hidden", "true");
+        node.append(spriteNode);
+      }
     });
   }
 
@@ -2143,6 +2259,8 @@ export default class LayerManager {
         const spawnKind = this.getSpawnKindFromSource(source, renderConfig);
         return {
           ...renderConfig,
+          x: 0,
+          xPx: 0,
           source,
           key: source,
           type: spawnKind,
@@ -2196,9 +2314,13 @@ export default class LayerManager {
       const isActive = isPrerendered || isTextBonus
         ? isVisibleInCanvas
         : elapsed >= startsAt && isVisibleInCanvas;
+      const nextVisibility = isVisibleInCanvas ? "visible" : "hidden";
       const nextOpacity = isTextBonus && isTextBonusRevealed ? "1" : (isCollected ? "0" : (isPrerendered ? "1" : (isActive ? "1" : "0")));
       const nextActive = isActive && !isCollected && !isTextBonusRevealed ? "true" : "false";
       const nextCollected = isCollected ? "true" : "false";
+      if (node.style.visibility !== nextVisibility) {
+        node.style.visibility = nextVisibility;
+      }
       if (node.style.opacity !== nextOpacity) {
         node.style.opacity = nextOpacity;
       }
@@ -2216,6 +2338,17 @@ export default class LayerManager {
         characterNode.dataset.collisionTriggerAction = "";
         characterNode.dataset.collisionTriggerOutcome = "";
       }
+      return;
+    }
+
+    if (isNoCollisionMetaEnabled()) {
+      if (characterNode) {
+        characterNode.dataset.collisionTriggerEvent = "";
+        characterNode.dataset.collisionTriggerAction = "";
+        characterNode.dataset.collisionTriggerOutcome = "";
+        characterNode.dataset.characterSurface = "grounded";
+      }
+      this.characterFallStartedAt = 0;
       return;
     }
 
@@ -2439,6 +2572,7 @@ export default class LayerManager {
     const { source, config } = overlayConfig;
     const y = clamp(Number(config.y ?? 0), -PREVIEW_SPAWN_Y_LIMIT, PREVIEW_SPAWN_Y_LIMIT);
     const bottomFactor = Number((0.1 + (y / 100)).toFixed(6));
+    const parentNode = spawnNode.parentElement;
     const left = spawnNode.style.getPropertyValue("--spawn-left")
       || getComputedStyle(spawnNode).getPropertyValue("--spawn-left")
       || "50%";
@@ -2466,7 +2600,7 @@ export default class LayerManager {
     textNode.textContent = this.getNextTextBonusOverlayWord(config);
     this.applyTextBonusNodeStyle(textNode, config, false, true);
     overlay.append(textNode);
-    spawnNode.parentElement.append(overlay);
+    parentNode.append(overlay);
 
     window.setTimeout(() => overlay.remove(), 1400);
   }
@@ -2754,11 +2888,32 @@ export default class LayerManager {
     trackNode.append(fragment);
   }
 
+  ensureSceneSpawnPlane(trackNode) {
+    if (!trackNode) {
+      return null;
+    }
+
+    let spawnPlane = trackNode.querySelector(":scope > .tester-preview__spawn-plane");
+    if (!spawnPlane) {
+      spawnPlane = document.createElement("div");
+      spawnPlane.className = "tester-preview__spawn-plane";
+      spawnPlane.setAttribute("aria-hidden", "true");
+      trackNode.append(spawnPlane);
+    }
+
+    trackNode.querySelectorAll(":scope > .tester-preview__spawn-object").forEach((node) => {
+      spawnPlane.append(node);
+    });
+
+    return spawnPlane;
+  }
+
   syncSceneTrackComposition(trackNode, tileIndexes = [], replacements = new Map(), objectPlacements = []) {
     if (!trackNode || !tileIndexes.length) {
       return;
     }
 
+    const spawnPlane = this.ensureSceneSpawnPlane(trackNode);
     const currentTiles = getPreviewTrackTiles(trackNode);
     const sourceTile = currentTiles.find((tile) => tile.dataset.sceneReplacement !== "hollow" && tile.dataset.normalSrc) || currentTiles[0];
     if (!sourceTile) {
@@ -2766,7 +2921,7 @@ export default class LayerManager {
     }
 
     const normalSrc = sourceTile.dataset.normalSrc || sourceTile.src;
-    const characterAnchor = trackNode.querySelector(".tester-preview__character-anchor");
+    detachTrackCharacterAnchors(trackNode);
     const objectCompositionKey = objectPlacements.map((placement) => {
       const bounds = placement.config?.boundingBox || {};
       return [
@@ -2854,13 +3009,43 @@ export default class LayerManager {
       }
     });
 
-    objectPlacements.forEach((placement) => {
-      fragment.append(this.createSceneObjectNode(placement));
+    const reusableObjectNodes = new Map();
+    const desiredObjectIds = new Set();
+    spawnPlane?.querySelectorAll(":scope > .tester-preview__spawn-object").forEach((node) => {
+      const eventId = node.dataset.spawnEventId || "";
+      if (eventId) {
+        reusableObjectNodes.set(eventId, node);
+      }
     });
-    if (characterAnchor) {
-      fragment.append(characterAnchor);
-    }
-    trackNode.replaceChildren(fragment);
+
+    objectPlacements.forEach((placement) => {
+      const eventId = String(placement.id || "");
+      if (eventId) {
+        desiredObjectIds.add(eventId);
+      }
+      const node = eventId && reusableObjectNodes.has(eventId)
+        ? reusableObjectNodes.get(eventId)
+        : this.createSceneObjectNode(placement);
+      if (node) {
+        this.updateStaticSceneObjectNode(node, placement);
+        if (spawnPlane && node.parentElement !== spawnPlane) {
+          spawnPlane.append(node);
+        }
+      }
+    });
+    reusableObjectNodes.forEach((node, eventId) => {
+      if (!desiredObjectIds.has(eventId)) {
+        node.remove();
+      }
+    });
+    [...trackNode.children]
+      .filter((node) => {
+        return node.matches?.(PREVIEW_SCENE_TILE_SELECTOR)
+          || node.classList?.contains("tester-preview__scene-module-bb")
+          || node.classList?.contains("tester-preview__scene-hollow-overlay");
+      })
+      .forEach((node) => node.remove());
+    trackNode.prepend(fragment);
     trackNode.dataset.sceneCompositionKey = compositionKey;
     trackNode.parentElement?.setAttribute("data-preview-tile-count", String(tileIndexes.length));
   }
@@ -2870,8 +3055,9 @@ export default class LayerManager {
       return;
     }
 
+    const spawnPlane = this.ensureSceneSpawnPlane(trackNode);
     const desiredIds = new Set(objectPlacements.map((placement) => String(placement.id || "")));
-    trackNode.querySelectorAll(".tester-preview__spawn-object").forEach((node) => {
+    spawnPlane?.querySelectorAll(":scope > .tester-preview__spawn-object").forEach((node) => {
       const eventId = node.dataset.spawnEventId || "";
       if (!desiredIds.has(eventId)) {
         node.remove();
@@ -2884,14 +3070,14 @@ export default class LayerManager {
         return;
       }
 
-      let node = trackNode.querySelector(`.tester-preview__spawn-object[data-spawn-event-id="${CSS.escape(eventId)}"]`);
+      let node = spawnPlane?.querySelector(`:scope > .tester-preview__spawn-object[data-spawn-event-id="${CSS.escape(eventId)}"]`);
       if (!node) {
         node = this.createSceneObjectNode(placement);
       } else {
         this.updateStaticSceneObjectNode(node, placement);
       }
-      if (node.parentElement !== trackNode) {
-        trackNode.append(node);
+      if (spawnPlane && node.parentElement !== spawnPlane) {
+        spawnPlane.append(node);
       }
     });
   }
@@ -2903,11 +3089,34 @@ export default class LayerManager {
 
     const renderConfig = placement.config || {};
     const source = placement.source || "";
+    const resolvedSource = this.context.assets?.resolveRaw ? this.context.assets.resolveRaw(source) : source;
     const bounds = renderConfig.boundingBox || {};
     const trigger = placement.trigger || this.getSpawnCollisionTrigger(source, renderConfig);
     const textBonus = placement.textBonus || this.isTextBonusSource(source, renderConfig);
+    const sprite = this.getSpawnSpriteSheetForSource(source, renderConfig);
+    const frameCount = Math.max(1, Number(sprite.frameCount || 1));
+    const cachedAssetSize = this.previewAssetSizeCache.get(resolvedSource);
+    const frameWidth = textBonus
+      ? TEXT_BONUS_FRAME_SIZE.width
+      : cachedAssetSize
+      ? Math.max(1, cachedAssetSize.width / frameCount)
+      : Math.max(1, Number(sprite.frameWidth || 1));
+    const frameHeight = textBonus
+      ? TEXT_BONUS_FRAME_SIZE.height
+      : cachedAssetSize
+      ? Math.max(1, cachedAssetSize.height)
+      : Math.max(1, Number(sprite.frameHeight || 1));
+    const fps = Math.max(1, Number(sprite.fps || 12));
+    const isSpriteSheet = !textBonus && frameCount > 1;
+    const spriteDuration = Number((frameCount / fps).toFixed(3));
+    node.className = `tester-preview__spawn-object tester-preview__spawn-object--scene${textBonus ? " tester-preview__spawn-object--text-bonus" : ""}`;
+    node.setAttribute("aria-hidden", "true");
+    delete node.dataset.spawnVisualOnly;
+    delete node.dataset.spawnVisualRuntime;
     node.dataset.spawnKind = placement.kind || (textBonus ? "bonus" : this.getSpawnKindFromSource(source));
     node.dataset.spawnSource = source;
+    node.dataset.spawnResolvedSrc = textBonus ? "" : resolvedSource;
+    node.dataset.spawnSprite = !textBonus && isSpriteSheet ? "true" : "false";
     node.dataset.spawnTextBonus = textBonus ? "true" : "false";
     node.dataset.spawnTextDecorative = placement.textBonusVisible ? "true" : "false";
     node.dataset.spawnTextEffect = textBonus ? (renderConfig.textEffect || "show") : "";
@@ -2939,11 +3148,15 @@ export default class LayerManager {
     node.style.setProperty("--spawn-bb-scale-x", Number(getBoundsScaleX(bounds)).toFixed(3));
     node.style.setProperty("--spawn-bb-scale-y", Number(getBoundsScaleY(bounds)).toFixed(3));
     node.style.setProperty("--spawn-bb-thickness", `${Number(getBoundsThickness(bounds, 45)).toFixed(0)}px`);
+    node.style.setProperty("--spawn-frame-width", `${frameWidth}px`);
+    node.style.setProperty("--spawn-frame-height", `${frameHeight}px`);
+    node.style.setProperty("--spawn-frame-count", String(frameCount));
+    node.style.setProperty("--spawn-frame-steps", String(Math.max(1, frameCount - 1)));
+    node.style.setProperty("--spawn-last-frame-x", frameCount > 1 ? "100%" : "0%");
+    node.style.setProperty("--spawn-frame-duration", `${spriteDuration}s`);
+    node.style.setProperty("--spawn-sprite-image", textBonus ? "none" : `url('${resolvedSource}')`);
+    node.style.setProperty("--spawn-sprite-sheet-width", `${frameWidth * frameCount}px`);
     if (textBonus) {
-      node.dataset.spawnSprite = "false";
-      node.style.setProperty("--spawn-frame-width", `${TEXT_BONUS_FRAME_SIZE.width}px`);
-      node.style.setProperty("--spawn-frame-height", `${TEXT_BONUS_FRAME_SIZE.height}px`);
-      node.style.setProperty("--spawn-sprite-image", "none");
       let textNode = node.querySelector(".tester-preview__spawn-text-bonus");
       if (!textNode) {
         node.replaceChildren();
@@ -2953,6 +3166,24 @@ export default class LayerManager {
       }
       textNode.textContent = placement.textWord || this.getTextBonusWord(renderConfig, placement.id || source);
       this.applyTextBonusNodeStyle(textNode, renderConfig, Boolean(placement.collected), Boolean(placement.textBonusVisible));
+    } else if (isSpriteSheet) {
+      if (!node.querySelector(".tester-preview__spawn-object-sprite")) {
+        node.replaceChildren();
+        const spriteNode = document.createElement("span");
+        spriteNode.className = "tester-preview__spawn-object-sprite";
+        spriteNode.setAttribute("aria-hidden", "true");
+        node.append(spriteNode);
+      }
+    } else {
+      let image = node.querySelector(":scope > img");
+      if (!image) {
+        node.replaceChildren();
+        image = document.createElement("img");
+        image.alt = "";
+        image.decoding = "async";
+        node.append(image);
+      }
+      image.src = resolvedSource;
     }
   }
 
@@ -2977,10 +3208,11 @@ export default class LayerManager {
       ? Math.max(1, cachedAssetSize.height)
       : Math.max(1, Number(sprite.frameHeight || 1));
     const fps = Math.max(1, Number(sprite.fps || 12));
-    const isSpriteSheet = frameCount > 1 && frameWidth > 0 && frameHeight > 0;
+    const isSpriteSheet = !textBonus && frameCount > 1;
     const spriteDuration = Number((frameCount / fps).toFixed(3));
     const node = document.createElement("div");
-    node.className = "tester-preview__spawn-object tester-preview__spawn-object--scene";
+    node.className = `tester-preview__spawn-object tester-preview__spawn-object--scene${textBonus ? " tester-preview__spawn-object--text-bonus" : ""}`;
+    node.setAttribute("aria-hidden", "true");
     node.dataset.spawnKind = placement.kind || (textBonus ? "bonus" : this.getSpawnKindFromSource(source));
     node.dataset.spawnSource = source;
     node.dataset.spawnResolvedSrc = textBonus ? "" : resolvedSource;
@@ -3133,7 +3365,9 @@ export default class LayerManager {
       const visualNode = layerNode.querySelector(".tester-preview__layer-visual, .tester-preview__screen-fog, .tester-preview__lens-flare");
       const trackNode = visualNode?.querySelector(".tester-preview__layer-track") || null;
       const assetNode = getPreviewTrackTiles(trackNode)[0] || visualNode;
-      const assetWidth = getPreviewAssetLocalWidth(assetNode, visualNode, previewWidth);
+      const assetSize = getPreviewAssetLocalSize(assetNode, visualNode, previewWidth, canvasMetrics.height);
+      const assetWidth = assetSize.width;
+      const assetHeight = assetSize.height;
       const layerScale = Math.max(0.01, Number.parseFloat(getComputedStyle(layerNode).getPropertyValue("--layer-scale")) || 1);
       const runnerSpeed = Math.max(1, Number(layerNode.dataset.runnerSpeed || 1));
       const isAnimated = layerNode.dataset.animated === "true";
@@ -3145,20 +3379,30 @@ export default class LayerManager {
       const runnerOffset = isAnimated && keepRuntimeScene
         ? worldElapsed * runnerSpeed
         : 0;
+      const runtimeRebaseOffset = isAnimated && keepRuntimeScene
+        ? Math.floor(runnerOffset / PREVIEW_RUNTIME_REBASE_PX) * PREVIEW_RUNTIME_REBASE_PX
+        : 0;
+      const visualRunnerOffset = runnerOffset - runtimeRebaseOffset;
       const runnerPhase = runnerDuration > 0 ? runnerElapsed % runnerDuration : 0;
       const assetRelativeX = (0.5 - travel) * (previewWidth + assetWidth);
       const defaultLayerX = cameraX + assetRelativeX;
+      const maxRunnerOffset = isAnimated && keepRuntimeScene
+        ? worldDurationPs * runnerSpeed
+        : 0;
       const layerWorldWidth = keepRuntimeScene
-        ? Math.max(previewWidth, runnerSpeed * Math.max(1, worldDurationPs))
+        ? Math.max(previewWidth, maxRunnerOffset + previewWidth + Math.abs(assetRelativeX) + tileStride)
         : previewWidth;
       const staticSceneTiles = layerId === "scene";
-      const tileCount = keepRuntimeScene
-        ? getPreviewSequenceTileCount(layerWorldWidth, tileStride, assetRelativeX)
-        : staticSceneTiles
-          ? getPreviewSequenceTileCount(previewWidth, tileStride, assetRelativeX)
-          : 1;
+      const tileCount = keepRuntimeScene || staticSceneTiles
+        ? clamp(
+          Math.ceil((layerWorldWidth + Math.abs(assetRelativeX) + (tileStride * 2)) / tileStride) + 3,
+          2,
+          PREVIEW_SEQUENCE_MAX_TILE_COUNT
+        )
+        : 1;
+      const leadingTileBuffer = Math.ceil((previewWidth + Math.abs(assetRelativeX)) / tileStride) + 2;
       const tileIndexes = keepRuntimeScene
-        ? getPreviewRunnerTileIndexes(tileCount)
+        ? Array.from({ length: tileCount }, (_, index) => index - leadingTileBuffer)
         : staticSceneTiles
           ? getPreviewTileIndexes(tileCount)
           : [0];
@@ -3166,11 +3410,12 @@ export default class LayerManager {
         tileCount,
         tileIndexes.join(","),
         Number(assetWidth.toFixed(3)),
+        Number(assetHeight.toFixed(3)),
         Number(layerWorldWidth.toFixed(3)),
         Number(assetRelativeX.toFixed(3)),
         Number(previewWidth.toFixed(3))
       ].join(":");
-      const allowMetricDrivenCompositionSync = !keepRuntimeScene || this.previewCanvasRuntime === true;
+      const allowMetricDrivenCompositionSync = true;
       const shouldSyncTrackComposition = syncComposition
         || (
           allowMetricDrivenCompositionSync
@@ -3207,67 +3452,65 @@ export default class LayerManager {
         tileNodes.forEach((image, index) => {
           const tileIndex = Number(image.dataset.previewTileIndex ?? tileIndexes[index] ?? 0);
           const isHollowModule = image.dataset.sceneReplacement === "hollow";
-          const sceneRatio = Math.max(
-            0.01,
-            Number(assetNode?.naturalWidth || 0) / Math.max(1, Number(assetNode?.naturalHeight || 0))
-          );
-          const hollowRatio = Math.max(
-            sceneRatio,
-            Number(image.naturalWidth || 0) / Math.max(1, Number(image.naturalHeight || 0))
-          );
           const hollowVisualScale = isHollowModule
             ? Math.max(0.01, Number(image.dataset.spawnScale || 1))
             : 1;
           const moduleBaseWidth = isHollowModule
-            ? Math.max(1, assetWidth * (hollowRatio / sceneRatio))
+            ? Math.max(1, getPreviewAssetLocalSize(image, visualNode, assetWidth, assetHeight).width)
             : assetWidth;
+          const moduleBaseHeight = isHollowModule
+            ? Math.max(1, getPreviewAssetLocalSize(image, visualNode, assetWidth, assetHeight).height)
+            : assetHeight;
           const moduleWidth = Number((moduleBaseWidth * hollowVisualScale).toFixed(3));
+          const moduleHeight = Number((moduleBaseHeight * hollowVisualScale).toFixed(3));
           const tileLeft = (tileIndex * tileStride) - (moduleWidth / 2);
+          const renderTileLeft = tileLeft - runtimeRebaseOffset;
           const visualOffsetYFactor = isHollowModule
             ? Number((-1 * (Number(image.dataset.spawnY || 0) / 100)).toFixed(6))
             : 0;
           const visualOffsetY = isHollowModule
             ? `calc(var(--preview-world-height, 1px) * ${visualOffsetYFactor})`
             : "0px";
+          const shouldPaintModule = !keepRuntimeScene
+            || (renderTileLeft + moduleWidth >= visualRunnerOffset - (previewWidth * 4)
+              && renderTileLeft <= visualRunnerOffset + (previewWidth * 6));
           image.style.width = `${Number(moduleWidth.toFixed(3))}px`;
-          image.style.height = "100%";
-          image.style.transform = `translate3d(${Number(tileLeft.toFixed(3))}px, ${visualOffsetY}, 0)`;
+          image.style.height = `${Number(moduleHeight.toFixed(3))}px`;
+          image.style.visibility = shouldPaintModule ? "" : "hidden";
+          image.style.transform = `translate(${Number(renderTileLeft.toFixed(3))}px, ${visualOffsetY})`;
         });
         trackNode.querySelectorAll(".tester-preview__scene-hollow-overlay").forEach((image) => {
-          const sceneRatio = Math.max(
-            0.01,
-            Number(assetNode?.naturalWidth || 0) / Math.max(1, Number(assetNode?.naturalHeight || 0))
-          );
-          const hollowRatio = Math.max(
-            sceneRatio,
-            Number(image.naturalWidth || 0) / Math.max(1, Number(image.naturalHeight || 0))
-          );
-          const hollowBaseWidth = Math.max(1, assetWidth * (hollowRatio / sceneRatio));
+          const hollowSize = getPreviewAssetLocalSize(image, visualNode, assetWidth, assetHeight);
+          const hollowBaseWidth = hollowSize.width;
+          const hollowBaseHeight = hollowSize.height;
           const placementX = clamp(Number(image.dataset.scenePlacementX ?? 0), -1200, 1200);
           const tileLeft = placementX - (hollowBaseWidth / 2);
+          const renderTileLeft = tileLeft - runtimeRebaseOffset;
+          const shouldPaintOverlay = !keepRuntimeScene
+            || (renderTileLeft + hollowBaseWidth >= visualRunnerOffset - (previewWidth * 4)
+              && renderTileLeft <= visualRunnerOffset + (previewWidth * 6));
           image.style.width = `${Number(hollowBaseWidth.toFixed(3))}px`;
-          image.style.height = "100%";
-          image.style.transform = `translate3d(${Number(tileLeft.toFixed(3))}px, 0, 0)`;
+          image.style.height = `${Number(hollowBaseHeight.toFixed(3))}px`;
+          image.style.visibility = shouldPaintOverlay ? "" : "hidden";
+          image.style.transform = `translate(${Number(renderTileLeft.toFixed(3))}px, 0)`;
         });
         trackNode.querySelectorAll(".tester-preview__scene-module-bb").forEach((box) => {
           const previewTileIndex = box.dataset.previewTileIndex || "0";
           const hollowModule = trackNode.querySelector(`.tester-preview__scene-module--hollow[data-preview-tile-index="${CSS.escape(previewTileIndex)}"]`);
           const isStaticHollow = box.classList.contains("tester-preview__scene-module-bb--static-hollow");
           const tileIndex = Number(previewTileIndex || 0);
-          const sceneRatio = Math.max(
-            0.01,
-            Number(assetNode?.naturalWidth || 0) / Math.max(1, Number(assetNode?.naturalHeight || 0))
-          );
-          const hollowRatio = Math.max(
-            sceneRatio,
-            Number(hollowModule?.naturalWidth || 0) / Math.max(1, Number(hollowModule?.naturalHeight || 0))
-          );
+          const hollowSize = getPreviewAssetLocalSize(hollowModule, visualNode, assetWidth, assetHeight);
           const hollowVisualScale = Math.max(0.01, Number(hollowModule?.dataset.spawnScale || box.dataset.spawnScale || 1));
-          const hollowBaseWidth = Math.max(1, assetWidth * (hollowRatio / sceneRatio) * hollowVisualScale);
+          const hollowBaseWidth = Math.max(1, hollowSize.width * hollowVisualScale);
+          const hollowBaseHeight = Math.max(1, hollowSize.height * hollowVisualScale);
           const placementX = clamp(Number(box.dataset.scenePlacementX ?? 0), -1200, 1200);
           const tileLeft = isStaticHollow
             ? placementX - (hollowBaseWidth / 2)
             : (tileIndex * tileStride) - (hollowBaseWidth / 2);
+          const renderTileLeft = tileLeft - runtimeRebaseOffset;
+          const shouldPaintBox = !keepRuntimeScene
+            || (renderTileLeft + hollowBaseWidth >= visualRunnerOffset - (previewWidth * 4)
+              && renderTileLeft <= visualRunnerOffset + (previewWidth * 6));
           const visualOffsetYFactor = Number((-1 * (Number(box.dataset.spawnY || 0) / 100)).toFixed(6));
           const visualOffsetY = `calc(var(--preview-world-height, 1px) * ${visualOffsetYFactor})`;
           const bbX = Number(box.dataset.spawnBbX || 0);
@@ -3277,13 +3520,15 @@ export default class LayerManager {
           const bbThickness = Math.max(0, Math.min(50, Number(box.dataset.spawnBbThickness || 4)));
           box.style.setProperty("--spawn-bb-thickness", `${Number(bbThickness.toFixed(0))}px`);
           box.style.width = `${Number(hollowBaseWidth.toFixed(3))}px`;
-          box.style.height = "100%";
+          box.style.height = `${Number(hollowBaseHeight.toFixed(3))}px`;
+          box.style.visibility = shouldPaintBox ? "" : "hidden";
           box.style.transform = [
-            `translate3d(${Number(tileLeft.toFixed(3))}px, ${visualOffsetY}, 0)`,
+            `translate(${Number(renderTileLeft.toFixed(3))}px, ${visualOffsetY})`,
             `translate(${Number(bbX.toFixed(3))}%, ${Number(bbY.toFixed(3))}%)`,
             `scale(${Number(bbScaleX.toFixed(3))}, ${Number(bbScaleY.toFixed(3))})`
           ].join(" ");
         });
+        trackNode.style.transform = `translateX(-${Number(visualRunnerOffset.toFixed(3))}px)`;
         if (layerId === "scene") {
           const sceneVisualRect = visualNode?.getBoundingClientRect?.();
           scenePlaneMetrics = {
@@ -3293,7 +3538,7 @@ export default class LayerManager {
             layerZ: Number.parseFloat(layerNode.style.getPropertyValue("--layer-z-offset")) || 0,
             visualHeight: Math.max(1, Number(sceneVisualRect?.height || 0), canvasMetrics.height * layerScale),
             layerScale,
-            runnerOffset,
+            runnerOffset: visualRunnerOffset,
             characterExitX: Math.max(0, exitElapsed * runnerSpeed)
           };
           trackNode.querySelectorAll(".tester-preview__spawn-object[data-spawn-runtime='true']").forEach((objectNode) => {
@@ -3303,13 +3548,14 @@ export default class LayerManager {
             const trackLeft = isRuntimeObject
               ? runtimeWorldX - assetRelativeX - (previewWidth / 2)
               : authoredX;
-            objectNode.style.setProperty("--spawn-left", `${Number(trackLeft.toFixed(3))}px`);
+            const renderTrackLeft = trackLeft - runtimeRebaseOffset;
+            objectNode.style.setProperty("--spawn-left", `${Number(renderTrackLeft.toFixed(3))}px`);
           });
         }
       }
 
       if (trackNode) {
-        trackNode.style.transform = `translate3d(-${Number(runnerOffset.toFixed(3))}px, 0, 0)`;
+        trackNode.style.transform = `translateX(-${Number(visualRunnerOffset.toFixed(3))}px)`;
       }
       layerNode.style.setProperty("--layer-x", `${Number(defaultLayerX.toFixed(2))}px`);
       layerNode.style.setProperty("--runner-distance", `${Number(runnerDistance.toFixed(2))}px`);
@@ -3318,6 +3564,8 @@ export default class LayerManager {
       layerNode.style.setProperty("--runner-tile-overlap", `${PREVIEW_TILE_OVERLAP_PX}px`);
       layerNode.style.setProperty("--runner-tile-count", String(tileCount));
       layerNode.style.setProperty("--runner-world-width", `${Number(layerWorldWidth.toFixed(2))}px`);
+      layerNode.style.setProperty("--runner-rebase-offset", `${Number(runtimeRebaseOffset.toFixed(2))}px`);
+      layerNode.style.setProperty("--runner-visual-offset", `${Number(visualRunnerOffset.toFixed(2))}px`);
       if (layerId === "scene" && scenePlaneMetrics) {
         this.syncPreviewCharacterSceneAnchor(visualNode, scenePlaneMetrics, canvasMetrics, timestamp);
       }
@@ -3365,9 +3613,11 @@ export default class LayerManager {
       characterNode,
       anchorNode.querySelector(".tester-preview__character-jump-guide")
     ].filter(Boolean);
+    const isTrackAnchored = Boolean(anchorNode.closest(".tester-preview__layer-track"));
+    const runnerCompensation = isTrackAnchored ? runnerOffset : 0;
 
     syncedNodes.forEach((node) => {
-      node.style.setProperty("--preview-character-scene-x", `${Number((x + runnerOffset).toFixed(2))}px`);
+      node.style.setProperty("--preview-character-scene-x", `${Number((x + runnerCompensation).toFixed(2))}px`);
       node.style.setProperty("--preview-character-scene-y-factor", Number(yFactor.toFixed(6)));
       node.style.setProperty("--preview-character-scene-bottom-factor", Number(bottomFactor.toFixed(6)));
       node.style.setProperty("--preview-character-scene-z", `${Number(z.toFixed(2))}px`);
@@ -3733,7 +3983,7 @@ export default class LayerManager {
     return true;
   }
 
-  setPreviewCharacterAction(actionId, { scheduleReturn = false, allowDisabled = false } = {}) {
+  setPreviewCharacterAction(actionId, { scheduleReturn = false, allowDisabled = false, lockInput = false } = {}) {
     const action = this.getPreviewCharacterAction(actionId, { allowDisabled });
     window.clearTimeout(this.previewCharacterReturnTimer);
     this.previewCharacterReturnTimer = null;
@@ -3748,6 +3998,9 @@ export default class LayerManager {
     const startedAt = performance.now();
     this.previewCharacterActionStartedAt = startedAt;
     this.previewCharacterActionDurationMs = durationMs;
+    if (lockInput && !action.loop) {
+      this.previewCharacterActionInputLockedUntil = startedAt + durationMs;
+    }
     if (isJumpAction) {
       this.characterFallStartedAt = 0;
     }
@@ -3790,11 +4043,16 @@ export default class LayerManager {
   }
 
   playPreviewCharacterAction(actionId) {
-    const action = this.getPreviewCharacterAction(actionId, { allowDisabled: true });
-    if (this.isPreviewCharacterJumpAction(action) && this.isPreviewCharacterAirborne()) {
-      return this.getPreviewCharacterAction(this.previewCharacterActionId, { allowDisabled: true });
+    const timestamp = performance.now();
+    if (this.previewCharacterActionInputLockedUntil > timestamp) {
+      return null;
     }
-    return this.setPreviewCharacterAction(actionId, { scheduleReturn: true });
+
+    const action = this.getPreviewCharacterAction(actionId, { allowDisabled: true });
+    if (this.isPreviewCharacterJumpAction(action) && this.isPreviewCharacterAirborne(timestamp)) {
+      return null;
+    }
+    return this.setPreviewCharacterAction(actionId, { scheduleReturn: true, lockInput: true });
   }
 
   renderBackgroundStyle(background = {}) {
@@ -3809,6 +4067,26 @@ export default class LayerManager {
     }
 
     return `background:linear-gradient(${Number(background.angle ?? 180)}deg, ${hexToRgba(background.from || "#102d29", opacity)}, ${hexToRgba(background.to || "#071110", opacity)})`;
+  }
+
+  getPreviewCharacterMaxJumpElevation(characterProfile = this.getPreviewCharacterProfile()) {
+    const characterConfig = this.context.character?.getConfig?.() || this.context.db?.get("character", {}) || {};
+    const viewport = this.scene.viewport === "mobile" ? "mobile" : "desktop";
+    const profilePreview = characterProfile?.preview || {};
+    const configPreview = characterConfig.preview || {};
+    return Number(clamp(
+      Number(
+        profilePreview.viewports?.[viewport]?.maxJumpElevation
+          ?? (viewport === "mobile" ? profilePreview.viewports?.desktop?.maxJumpElevation : undefined)
+          ?? profilePreview.maxJumpElevation
+          ?? configPreview.viewports?.[viewport]?.maxJumpElevation
+          ?? (viewport === "mobile" ? configPreview.viewports?.desktop?.maxJumpElevation : undefined)
+          ?? configPreview.maxJumpElevation
+          ?? DEFAULT_MAX_JUMP_ELEVATION
+      ),
+      0,
+      5
+    ).toFixed(2));
   }
 
   renderPreviewCharacterSprite() {
@@ -3834,13 +4112,8 @@ export default class LayerManager {
     const motionProfile = shouldSuppressDeathFall && action.motionProfile === "death-fall"
       ? "none"
       : (action.motionProfile || "none");
-    const characterConfig = this.context.character?.getConfig?.() || this.context.db?.get("character", {}) || {};
     const direction = characterProfile.preview?.facing === "left" ? -1 : 1;
-    const maxJumpElevation = Number(clamp(
-      Number(characterProfile.preview?.maxJumpElevation ?? characterConfig.preview?.maxJumpElevation ?? DEFAULT_MAX_JUMP_ELEVATION),
-      0,
-      5
-    ).toFixed(2));
+    const maxJumpElevation = this.getPreviewCharacterMaxJumpElevation(characterProfile);
     const runX = 10 * direction;
     const lungeX = 22 * direction;
     const knockbackX = -24 * direction;
@@ -3895,11 +4168,10 @@ export default class LayerManager {
   }
 
   renderSceneCharacterAnchor() {
-    if (!this.scene.selectedLayerIds.includes("character")) {
+    if (!this.scene.selectedLayerIds.includes("scene")) {
       return "";
     }
 
-    const characterConfig = this.context.character?.getConfig?.() || this.context.db?.get("character", {}) || {};
     const characterProfile = this.getPreviewCharacterProfile();
     const actionId = this.previewCharacterActionId || this.getPreviewCharacterBaseActionId();
     const action = this.getPreviewCharacterAction(actionId);
@@ -3912,11 +4184,7 @@ export default class LayerManager {
     const frameHeight = cachedAssetSize
       ? Math.max(1, cachedAssetSize.height)
       : Math.max(1, Number(action.frameHeight || 0) || 128);
-    const maxJumpElevation = Number(clamp(
-      Number(characterProfile.preview?.maxJumpElevation ?? characterConfig.preview?.maxJumpElevation ?? DEFAULT_MAX_JUMP_ELEVATION),
-      0,
-      5
-    ).toFixed(2));
+    const maxJumpElevation = this.getPreviewCharacterMaxJumpElevation(characterProfile);
 
     return `
       <div class="tester-preview__character-anchor" data-character-anchor="scene-fixed">
@@ -3952,6 +4220,7 @@ export default class LayerManager {
     if (!previewSource) {
       return `
         <div class="tester-preview__layer-visual tester-preview__layer-visual--empty">
+          ${layer.id === "scene" ? '<div class="tester-preview__layer-track"><div class="tester-preview__spawn-plane" aria-hidden="true"></div></div>' : ""}
           ${layer.id === "scene" ? this.renderSceneCharacterAnchor() : ""}
         </div>
       `;
@@ -3969,8 +4238,9 @@ export default class LayerManager {
       >
         <div class="tester-preview__layer-track">
           ${tileIndexes.map((tileIndex) => imgMarkup(tileIndex)).join("")}
-          ${layer.id === "scene" ? this.renderSceneCharacterAnchor() : ""}
+          ${layer.id === "scene" ? '<div class="tester-preview__spawn-plane" aria-hidden="true"></div>' : ""}
         </div>
+        ${layer.id === "scene" ? this.renderSceneCharacterAnchor() : ""}
       </div>
     `;
   }
@@ -4011,7 +4281,7 @@ export default class LayerManager {
       const y = clamp(Number(renderConfig.y ?? 0), -PREVIEW_SPAWN_Y_LIMIT, PREVIEW_SPAWN_Y_LIMIT);
       const scale = clamp(Number(renderConfig.scale ?? 1), 0, 6);
       const effectiveScale = textBonus ? 1 : getSceneBoundPreviewScale(scale, canvasScale);
-      const worldX = runtimeEvent ? Number(runtimeEvent.worldX || previewWidth + 96) : 0;
+      const worldX = runtimeEvent ? Number(runtimeEvent.worldX || previewWidth + 96) : x;
       const bottomFactor = Number((0.1 + (y / 100)).toFixed(6));
       const bottom = `calc(var(--preview-world-height, 1px) * ${bottomFactor})`;
       const className = spawnKind === "hollow"
@@ -4020,10 +4290,19 @@ export default class LayerManager {
       const trigger = runtimeEvent?.trigger || this.getSpawnCollisionTrigger(source, renderConfig);
       const sprite = this.getSpawnSpriteSheetForSource(source, renderConfig);
       const frameCount = Math.max(1, Number(sprite.frameCount || 1));
-      const frameWidth = textBonus ? TEXT_BONUS_FRAME_SIZE.width : Math.max(0, Number(sprite.frameWidth || 0));
-      const frameHeight = textBonus ? TEXT_BONUS_FRAME_SIZE.height : Math.max(0, Number(sprite.frameHeight || 0));
+      const cachedAssetSize = this.previewAssetSizeCache.get(resolvedSource);
+      const frameWidth = textBonus
+        ? TEXT_BONUS_FRAME_SIZE.width
+        : cachedAssetSize
+        ? Math.max(1, cachedAssetSize.width / frameCount)
+        : Math.max(1, Number(sprite.frameWidth || 1));
+      const frameHeight = textBonus
+        ? TEXT_BONUS_FRAME_SIZE.height
+        : cachedAssetSize
+        ? Math.max(1, cachedAssetSize.height)
+        : Math.max(1, Number(sprite.frameHeight || 1));
       const fps = Math.max(1, Number(sprite.fps || 12));
-      const isSpriteSheet = !textBonus && frameCount > 1 && frameWidth > 0 && frameHeight > 0;
+      const isSpriteSheet = !textBonus && frameCount > 1;
       const spriteDuration = Number((frameCount / fps).toFixed(3));
       const isCollected = !textBonus && Boolean(runtimeEvent?.id && this.collectedSpawnIds.has(runtimeEvent.id));
       const textBonusVisible = textBonus && runtimeEvent?.id && this.revealedTextBonusIds.has(runtimeEvent.id);
@@ -4038,6 +4317,7 @@ export default class LayerManager {
           class="${className}${textBonus ? " tester-preview__spawn-object--text-bonus" : ""}"
           data-spawn-kind="${escapeHtml(spawnKind)}"
           data-spawn-source="${escapeHtml(source)}"
+          data-spawn-resolved-src="${textBonus ? "" : escapeHtml(resolvedSource)}"
           data-spawn-sprite="${isSpriteSheet ? "true" : "false"}"
           data-spawn-text-bonus="${textBonus ? "true" : "false"}"
           data-spawn-text-decorative="${textBonusVisible ? "true" : "false"}"
@@ -4248,17 +4528,11 @@ export default class LayerManager {
     }
 
     const spriteSheets = this.context.db?.get?.("assets.spriteSheets", {}) || {};
-    const normalizedSource = normalizeAssetPath(source);
     const entry = Object.entries(spriteSheets).find(([key, value]) => {
       if (!value || typeof value !== "object") {
         return false;
       }
-      const normalizedKey = normalizeAssetPath(key);
-      const normalizedRef = normalizeAssetPath(value.assetRef || "");
-      return normalizedKey === normalizedSource
-        || normalizedRef === normalizedSource
-        || normalizedSource.endsWith(`/${normalizedKey}`)
-        || (normalizedRef && normalizedSource.endsWith(`/${normalizedRef}`));
+      return spriteSheetMatchesSource(source, config, key, value);
     });
 
     const spriteSheet = entry?.[1] || {};
@@ -4285,7 +4559,12 @@ export default class LayerManager {
   sync(eventPayload = {}) {
     const { renderPreview = true, ...payload } = eventPayload;
     this.rememberLayers(this.scene.layers);
-    this.context.db?.merge("location", { scene: this.scene });
+    const persistableScene = this.getPersistableScene();
+    this.scene = {
+      ...this.scene,
+      levels: persistableScene.levels
+    };
+    this.context.db?.merge("location", { scene: persistableScene });
     if (renderPreview) {
       if (!this.refreshPreviewLayout?.()) {
         this.renderPreview();

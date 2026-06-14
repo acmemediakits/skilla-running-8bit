@@ -13,6 +13,10 @@ export const DEFAULT_IRG_LEVEL = {
   paintSeed: "",
   backgroundParallaxSpeed: "native",
   foregroundParallaxSpeed: "native",
+  renderer: {
+    desktop: "windowed",
+    mobile: "windowed"
+  },
   hud: {
     mode: "overlay",
     zones: {
@@ -102,6 +106,14 @@ export const normalizeHudLayoutMode = (value = "overlay") => {
 export const normalizeHudFlexDirection = (value = "row") => {
   const normalized = String(value || "row").trim().toLowerCase();
   return HUD_FLEX_DIRECTIONS.includes(normalized) ? normalized : "row";
+};
+
+export const normalizeIrgRenderer = (value = "windowed") => {
+  const normalized = String(value || "windowed").trim().toLowerCase();
+  if (normalized === "strip") {
+    return "striped";
+  }
+  return ["striped", "windowed"].includes(normalized) ? normalized : "windowed";
 };
 
 export const normalizeIrgHud = (hud = {}) => {
@@ -196,6 +208,10 @@ export const normalizeIrgLevel = (level = {}, legacyRunner = {}, physics = {}) =
     paintSeed: String(merged.paintSeed || ""),
     backgroundParallaxSpeed: normalizeParallaxSpeedMode(merged.backgroundParallaxSpeed),
     foregroundParallaxSpeed: normalizeParallaxSpeedMode(merged.foregroundParallaxSpeed),
+    renderer: {
+      desktop: normalizeIrgRenderer(merged.renderer?.desktop ?? legacyRunner.renderer?.desktop ?? DEFAULT_IRG_LEVEL.renderer.desktop),
+      mobile: normalizeIrgRenderer(merged.renderer?.mobile ?? legacyRunner.renderer?.mobile ?? DEFAULT_IRG_LEVEL.renderer.mobile)
+    },
     hud: normalizeIrgHud(merged.hud)
   };
 };

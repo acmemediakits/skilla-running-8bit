@@ -56,7 +56,9 @@ export default class AudioManager {
     this.audioContext = null;
     this.themeSource = "";
     this.themeId = "";
+    this.themeScreenVolume = null;
     this.pendingThemeId = "";
+    this.pendingThemeOptions = {};
     this.sfxNodes = new Set();
     this.overallVolume = this.getConfiguredOverallVolume();
     this.themeVolume = this.overallVolume;
@@ -111,7 +113,7 @@ export default class AudioManager {
     this.themeVolume = this.overallVolume;
     this.sfxVolume = this.overallVolume;
     if (this.themeAudio) {
-      this.themeAudio.volume = this.overallVolume;
+      this.themeAudio.volume = this.themeScreenVolume ?? this.overallVolume;
     }
     this.sfxNodes.forEach((audioNode) => {
       if ("volume" in audioNode) {
@@ -136,7 +138,7 @@ export default class AudioManager {
       this.preloadThemes();
       const themeId = options.themeId || options.resumeThemeId || this.pendingThemeId || this.themeId || "";
       if (themeId) {
-        this.playTheme(themeId);
+        this.playTheme(themeId, options);
       }
     }
     this.context.events?.emit?.("audio:muted", { muted: Boolean(muted) });
@@ -239,13 +241,22 @@ export default class AudioManager {
     });
   }
 
-  playTheme(themeId = "") {
+  getThemePlaybackVolume(theme = {}, options = {}) {
+    const configured = options.volume ?? theme.volume;
+    if (configured == null || configured === "") {
+      return null;
+    }
+    return clampVolume(configured, this.overallVolume);
+  }
+
+  playTheme(themeId = "", options = {}) {
     if (isAudioMuted()) {
       this.stopTheme();
       return;
     }
 
     this.pendingThemeId = themeId;
+    this.pendingThemeOptions = { ...options };
     const theme = this.getTheme(themeId);
     if (!theme?.path || typeof Audio !== "function") {
       return;
@@ -268,11 +279,13 @@ export default class AudioManager {
     }
 
     this.themeId = theme.id || theme.slot || themeId;
-    this.themeAudio.volume = this.overallVolume;
+    this.themeScreenVolume = this.getThemePlaybackVolume(theme, options);
+    this.themeAudio.volume = this.themeScreenVolume ?? this.overallVolume;
     this.themeAudio.play()
       .then(() => {
         if (this.pendingThemeId === themeId) {
           this.pendingThemeId = "";
+          this.pendingThemeOptions = {};
         }
       })
       .catch(() => {});
@@ -284,7 +297,7 @@ export default class AudioManager {
     }
 
     const themeId = this.pendingThemeId;
-    this.playTheme(themeId);
+    this.playTheme(themeId, this.pendingThemeOptions);
   }
 
   stopTheme() {
@@ -297,7 +310,9 @@ export default class AudioManager {
     this.themeAudio = null;
     this.themeSource = "";
     this.themeId = "";
+    this.themeScreenVolume = null;
     this.pendingThemeId = "";
+    this.pendingThemeOptions = {};
   }
 
   registerSfx(audioNode) {

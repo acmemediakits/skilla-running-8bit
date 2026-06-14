@@ -4,11 +4,12 @@ import {
   levelSpeedForViewport,
   normalizeIrgContract,
   paintInfiniteRunnerWorld
-} from "./InfiniteRunnerWorld.js?v=1.1.3-20260611170100";
+} from "./InfiniteRunnerWorld.js?v=1.1.4-irg-windowed-20260613";
 
 export const moduleName = "ArcadeRunner";
 
 const HARD_NAVIGATION_BREAKPOINT = 992;
+const DEFAULT_MOBILE_FLOW_MODE = "paged";
 
 const DEFAULT_STATE = {
   status: "idle",
@@ -16,7 +17,8 @@ const DEFAULT_STATE = {
   bonusScore: 0,
   lives: 3,
   elapsed: 0,
-  distancePx: 0
+  distancePx: 0,
+  exitElapsed: 0
 };
 
 const KIND_DIMENSIONS = {
@@ -31,17 +33,54 @@ const KIND_DIMENSIONS = {
 
 const RUNNER_CANVAS_SIZE = {
   desktop: { width: 1024, height: 768, aspect: "4 / 3" },
-  mobile: { width: 390, height: 624, aspect: "10 / 16" }
+  mobile: { width: 420, height: 672, aspect: "10 / 16" }
+};
+
+const getMobileFlowMode = () => {
+  if (typeof document === "undefined") {
+    return DEFAULT_MOBILE_FLOW_MODE;
+  }
+  const value = document.querySelector('meta[name="mobile-flow"]')?.getAttribute("content") || DEFAULT_MOBILE_FLOW_MODE;
+  return String(value).trim().toLowerCase() === "ajax" ? "ajax" : DEFAULT_MOBILE_FLOW_MODE;
 };
 const RUNNER_SCALE_REFERENCE_SIZE = {
-  desktop: { width: 1440, height: 900 },
-  mobile: { width: 430, height: 764 }
+  desktop: { width: 1024, height: 768 },
+  mobile: { width: 420, height: 672 }
 };
 const CHARACTER_DEPTH = 0.78;
 const PREVIEW_TILE_OVERLAP_PX = 1;
 const PREVIEW_SEQUENCE_MIN_TILE_COUNT = 5;
 const PREVIEW_SEQUENCE_MAX_TILE_COUNT = 161;
+const RUNTIME_SEQUENCE_MAX_TILE_COUNT = 24;
+const RUNNER_MAX_FRAME_DELTA_SECONDS = 0.12;
+const TEXT_BONUS_OVERLAY_DURATION_MS = 3000;
 const DEFAULT_MAX_JUMP_ELEVATION = 1.5;
+const LEGACY_LAYER_Z_INDEX = {
+  horizon: 10,
+  stars: 20,
+  mountains: 30,
+  clouds: 40,
+  terrain: 50,
+  background: 60,
+  scene: 70,
+  character: 75,
+  foreground: 80,
+  screen: 90,
+  lens: 100
+};
+const IRG_LAYER_Z_INDEX = {
+  horizon: 1,
+  stars: 5,
+  mountains: 10,
+  clouds: 30,
+  terrain: 60,
+  background: 90,
+  scene: 100,
+  character: 105,
+  foreground: 110,
+  screen: 130,
+  lens: 180
+};
 const TEXT_BONUS_KEY = "spawn/bonus/text-bonus";
 const TEXT_BONUS_STYLE_ID = "textBonus";
 const DEFAULT_TEXT_BONUS_WORDS = ["BONUS"];
@@ -67,6 +106,14 @@ const THEME_COLOR_FALLBACKS = {
   shadowColor: "#05080d"
 };
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+const normalizeRunnerRenderer = (value = "windowed") => {
+  const normalized = String(value || "windowed").trim().toLowerCase();
+  if (normalized === "strip") {
+    return "striped";
+  }
+  return ["striped", "windowed"].includes(normalized) ? normalized : "windowed";
+};
 
 const cloneValue = (value) => {
   if (value == null) {
@@ -272,6 +319,7 @@ export default class ArcadeRunner {
     this.wordListLoading = new Set();
     this.wordListOrderCache = new Map();
     this.textBonusOverlays = [];
+    this.textBonusOverlayTimers = new Map();
     this.textBonusOverlayIndex = 0;
     this.presentedOutcomeStatus = "";
     this.boundScreenMounted = this.handleScreenMounted.bind(this);
@@ -287,6 +335,10 @@ export default class ArcadeRunner {
     this.startToken = 0;
     this.jumpInputSuspended = false;
     this.jumpInputUnlockTimer = 0;
+    this.retainedStageKey = "";
+    this.retainedTextOverlaySignature = "";
+    this.retainedRunnerOverlaySignature = "";
+    this.retainedFallbackHudSignature = "";
   }
 
   startModule() {
@@ -316,11 +368,13 @@ export default class ArcadeRunner {
     this.preloadVisualAssets();
     this.runSeed = createInfiniteRunnerPaintSeed(this.context.screens?.currentScreenId || "runtime");
     this.wordListOrderCache.clear();
+    this.clearTextBonusOverlayTimers();
     this.textBonusOverlays = [];
     this.textBonusOverlayIndex = 0;
     this.presentedOutcomeStatus = "";
     this.preloadCleared = false;
     this.worldPlan = this.paintWorld(this.runSeed);
+    this.resetRetainedRenderer();
     this.collectedSpawnIds.clear();
     this.resolvedSpawnIds.clear();
     this.deathSequence = null;
@@ -365,6 +419,9 @@ export default class ArcadeRunner {
       this.loopId = null;
     }
     this.stopRuntimeHudTimer();
+    this.clearTextBonusOverlayTimers();
+    this.textBonusOverlays = [];
+    this.resetRetainedRenderer();
     this.resumeJumpInput();
   }
 
@@ -523,7 +580,7 @@ export default class ArcadeRunner {
     event.stopPropagation();
     if (this.shouldReloadLifeLostRetry(control)) {
       event.stopImmediatePropagation?.();
-      window.location.reload();
+      this.replaceHardToLevel(control);
       return;
     }
     this.handleRunnerControl(control);
@@ -543,7 +600,7 @@ export default class ArcadeRunner {
     if (this.shouldReloadLifeLostRetry(control)) {
       event.preventDefault();
       event.stopImmediatePropagation();
-      window.location.reload();
+      this.replaceHardToLevel(control);
       return;
     }
 
@@ -585,7 +642,7 @@ export default class ArcadeRunner {
     }
 
     if (this.shouldReloadLifeLostRetry(control)) {
-      window.location.reload();
+      this.replaceHardToLevel(control);
       return true;
     }
 
@@ -601,13 +658,43 @@ export default class ArcadeRunner {
     );
   }
 
+  getHardLevelUrl(screenId = "") {
+    const targetScreenId = screenId || this.getCurrentLevelScreenId() || "level-1";
+    const url = new URL(window.location.href);
+    url.searchParams.set("screen", targetScreenId);
+    url.searchParams.delete("mute");
+    return `./index.html?${url.searchParams.toString()}`;
+  }
+
+  replaceHardToLevel(control = null) {
+    const screenId = control?.dataset?.screenTarget || this.getCurrentLevelScreenId() || "level-1";
+    window.location.replace(this.getHardLevelUrl(screenId));
+  }
+
   isHardNavigationViewport() {
     if (typeof window === "undefined") {
+      return false;
+    }
+    if (this.getRuntimeMobileFlowMode() !== "paged") {
       return false;
     }
 
     return window.matchMedia?.(`(max-width: ${HARD_NAVIGATION_BREAKPOINT - 0.02}px)`)?.matches
       ?? window.innerWidth < HARD_NAVIGATION_BREAKPOINT;
+  }
+
+  getRuntimeMobileFlowMode() {
+    const metaValue = typeof document === "undefined"
+      ? ""
+      : document.querySelector('meta[name="mobile-flow"]')?.getAttribute("content");
+    if (String(metaValue || "").trim()) {
+      return String(metaValue).trim().toLowerCase() === "ajax" ? "ajax" : "paged";
+    }
+    const runtimeValue = this.context.runtimeSettings?.flow?.mobileFlow;
+    if (String(runtimeValue || "").trim().toLowerCase() === "ajax") {
+      return "ajax";
+    }
+    return getMobileFlowMode();
   }
 
   handleKeyDown(event) {
@@ -690,7 +777,7 @@ export default class ArcadeRunner {
       return;
     }
 
-    const delta = Math.min(0.04, Math.max(0, (time - this.lastTime) / 1000));
+    const delta = Math.min(RUNNER_MAX_FRAME_DELTA_SECONDS, Math.max(0, (time - this.lastTime) / 1000));
     this.lastTime = time;
     this.update(delta);
     this.clearScreenPreload();
@@ -710,10 +797,24 @@ export default class ArcadeRunner {
 
     const plan = this.getWorldPlan();
     const sceneSpeed = Math.max(1, Number(plan?.sceneSpeed || this.config.physics?.worldScrollSpeed || 420));
+    const worldWidth = Math.max(0, Number(plan?.world?.worldWidthPx || 0));
 
     this.state.elapsed += delta;
-    this.state.distancePx = Number((this.state.elapsed * sceneSpeed).toFixed(3));
+    this.state.distancePx = Number(Math.min(this.state.elapsed * sceneSpeed, worldWidth || Infinity).toFixed(3));
     this.state.score = Math.floor((this.state.distancePx / 32) + this.state.bonusScore);
+
+    if (this.state.status === "exiting") {
+      const action = this.getAction(this.player.actionId);
+      const dimensions = this.getPlayerVisualDimensions(action);
+      const exitSpeed = Math.max(sceneSpeed * 0.75, this.getStageWidth() * 0.85);
+      this.state.exitElapsed = Number((Number(this.state.exitElapsed || 0) + delta).toFixed(3));
+      this.player.x += exitSpeed * delta;
+      this.advanceFrame(delta);
+      if (this.player.x - dimensions.width > this.getStageWidth()) {
+        this.completeRun();
+      }
+      return;
+    }
 
     if (!this.player.grounded && this.player.actionId === "jump") {
       this.player.jumpElapsed += delta;
@@ -741,17 +842,23 @@ export default class ArcadeRunner {
     this.resolveSpawnCollisions();
     this.advanceFrame(delta);
 
-    if (this.state.status === "running" && this.state.distancePx >= Number(plan?.world?.worldWidthPx || 0)) {
-      this.completeRun();
+    if (this.state.status === "running" && worldWidth > 0 && this.state.distancePx >= worldWidth) {
+      this.state.status = "exiting";
+      this.state.exitElapsed = 0;
+      this.player.x = this.getPlayerBaseX();
+      this.player.actionId = "run";
+      this.player.frame = 0;
+      this.player.frameElapsed = 0;
+      this.resumeJumpInput();
     }
   }
 
   isGameplayTicking() {
-    return this.state.status === "running" || this.state.status === "dying";
+    return this.state.status === "running" || this.state.status === "dying" || this.state.status === "exiting";
   }
 
   isWorldRenderingActive() {
-    return this.state.status === "running" || this.state.status === "dying";
+    return this.state.status === "running" || this.state.status === "dying" || this.state.status === "exiting";
   }
 
   jump() {
@@ -1094,7 +1201,33 @@ export default class ArcadeRunner {
   }
 
   getSceneLayerZIndex(layerId = "", fallback = 1) {
-    const layerIndex = this.getSelectedSceneLayers({ includeVirtual: true }).findIndex((entry) => entry.id === layerId);
+    const layer = this.getSelectedSceneLayers({ includeVirtual: true }).find((entry) => entry.id === layerId);
+    if (!layer) {
+      return fallback;
+    }
+    return this.getLayerZIndex(layer, fallback);
+  }
+
+  getLayerZIndex(layer = {}, fallback = 1) {
+    if (layer.id === "scene") {
+      return 100;
+    }
+    const configured = Number(layer.zIndex ?? layer.z);
+    const layerId = String(layer.id || "");
+    if (
+      Number.isFinite(configured)
+      && Object.prototype.hasOwnProperty.call(IRG_LAYER_Z_INDEX, layerId)
+      && configured === LEGACY_LAYER_Z_INDEX[layerId]
+    ) {
+      return IRG_LAYER_Z_INDEX[layerId];
+    }
+    if (Number.isFinite(configured)) {
+      return configured;
+    }
+    if (Object.prototype.hasOwnProperty.call(IRG_LAYER_Z_INDEX, layerId)) {
+      return IRG_LAYER_Z_INDEX[layerId];
+    }
+    const layerIndex = this.getSelectedSceneLayers({ includeVirtual: true }).findIndex((entry) => entry.id === layer.id);
     return layerIndex >= 0 ? layerIndex + 1 : fallback;
   }
 
@@ -1102,22 +1235,7 @@ export default class ArcadeRunner {
     if (config.static === true || config.animated === false || layer.animated === false) {
       return 0;
     }
-    if (layer.id === "scene") {
-      return 1;
-    }
-    const configured = Number(config.speedMultiplier ?? layer.speedMultiplier);
-    if (Number.isFinite(configured) && configured !== 1) {
-      return Math.max(0, configured);
-    }
-    const parallax = Number(config.parallaxFactor ?? layer.parallaxFactor);
-    if (Number.isFinite(parallax)) {
-      return clamp(parallax, 0, 1.5);
-    }
-    const depth = Number(config.depth ?? layer.depth);
-    if (Number.isFinite(depth)) {
-      return clamp(depth, 0, 1.5);
-    }
-    return 0.35;
+    return clamp(this.getLayerZIndex(layer, layer.id === "scene" ? 100 : 35) / 100, 0, 3);
   }
 
   getLayerRuntimeSpeed(layer = {}, config = {}) {
@@ -1125,38 +1243,16 @@ export default class ArcadeRunner {
       return 0;
     }
 
-    const baseDepth = Number(layer.depth ?? 0.5);
-    const zOffset = Number(config.z || 0) / 100;
-    const proximity = clamp(baseDepth + zOffset, 0, 1);
+    const plan = this.getWorldPlan();
     const level = this.getActiveIrgLevel();
     const runnerSettings = {
       ...(this.config.location?.scene?.runner || {}),
       ...(level || {})
     };
-    const characterProximity = clamp(CHARACTER_DEPTH, 0.1, 0.95);
-    const backT = clamp(proximity / characterProximity, 0, 1);
-    const frontT = clamp((proximity - characterProximity) / (1 - characterProximity), 0, 1);
-    const backFalloff = 1 - (Math.log1p((1 - backT) * 16) / Math.log1p(16));
-    const backgroundMode = runnerSettings.backgroundParallaxSpeed || "native";
-    const foregroundMode = runnerSettings.foregroundParallaxSpeed || "native";
-    const backgroundDepthSpeed = backgroundMode === "linear"
-      ? 0.08 + (backT * 0.92)
-      : backgroundMode === "logarithmic"
-        ? 0.08 + (backFalloff * 0.92)
-        : 0.08 + (Number(layer.parallaxFactor ?? backFalloff) * 0.92);
-    const foregroundDepthSpeed = foregroundMode === "logarithmic"
-      ? 1 + (Math.log1p(frontT * 4) / Math.log1p(4)) * 0.55
-      : foregroundMode === "linear"
-        ? 1 + (frontT * 0.55)
-        : 1 + (frontT * 0.55);
-    const depthSpeed = proximity <= characterProximity
-      ? backgroundDepthSpeed
-      : foregroundDepthSpeed;
-    const baseline = Math.max(120, Number(runnerSettings.worldScrollSpeed ?? this.config.physics?.worldScrollSpeed ?? 420));
-    const levelSpeed = levelSpeedForViewport(runnerSettings, this.getViewportName());
-    const layerSpeed = Math.max(0.1, Number(config.speedMultiplier ?? layer.speedMultiplier ?? 1));
-    const contractSpeedBoost = layer.id === "scene" ? 1.75 : 1;
-    return Number((baseline * levelSpeed * depthSpeed * layerSpeed * contractSpeedBoost).toFixed(2));
+    const baseline = Number(plan?.sceneSpeed)
+      || (Math.max(120, Number(runnerSettings.worldScrollSpeed ?? this.config.physics?.worldScrollSpeed ?? 420))
+        * levelSpeedForViewport(runnerSettings, this.getViewportName()));
+    return Number((baseline * this.getLayerMotionFactor(layer, config)).toFixed(3));
   }
 
   getViewportPov(viewport = this.getViewportName()) {
@@ -1172,10 +1268,7 @@ export default class ArcadeRunner {
   }
 
   getLayerTranslateZ(layer = {}, config = {}, stageWidth = this.getStageWidth()) {
-    if (layer.id === "screen" || layer.id === "lens") {
-      return (Number(config.z || 0) / 100) * stageWidth;
-    }
-    return ((((1 - Number(layer.depth ?? 0.5)) * -65.63) + Number(config.z || 0)) / 100) * stageWidth;
+    return 0;
   }
 
   primeAssetSize(source = "") {
@@ -1236,21 +1329,118 @@ export default class ArcadeRunner {
     return this.assetSizeCache.get(resolvedSource) || this.primeAssetSize(source);
   }
 
-  getAssetLocalWidth(source = "", fallbackWidth = this.getStageWidth()) {
+  getAssetLocalSize(source = "", fallbackWidth = this.getStageWidth(), fallbackHeight = this.getStageHeight()) {
     const size = this.getAssetSize(source);
-    const stageHeight = Math.max(1, this.getStageHeight());
     if (size?.width && size?.height) {
-      return Math.max(1, (Number(size.width) / Math.max(1, Number(size.height))) * stageHeight);
+      return {
+        width: Math.max(1, Number(size.width)),
+        height: Math.max(1, Number(size.height))
+      };
     }
-    return Math.max(1, Number(fallbackWidth || 1));
+    return {
+      width: Math.max(1, Number(fallbackWidth || 1)),
+      height: Math.max(1, Number(fallbackHeight || 1))
+    };
+  }
+
+  getAssetLocalWidth(source = "", fallbackWidth = this.getStageWidth()) {
+    return this.getAssetLocalSize(source, fallbackWidth, this.getStageHeight()).width;
+  }
+
+  getLevelRendererMode(viewport = this.getViewportName()) {
+    const level = this.getActiveIrgLevel();
+    const sceneRenderer = this.config.location?.scene?.runner?.renderer || {};
+    const levelRenderer = level?.renderer || {};
+    return normalizeRunnerRenderer(levelRenderer[viewport] ?? sceneRenderer[viewport] ?? "windowed");
+  }
+
+  getLayerTrackOffset(layer = {}, runtimeSpeed = 0) {
+    if (!this.isWorldRenderingActive()) {
+      return 0;
+    }
+    const plan = this.getWorldPlan();
+    const sceneSpeed = Math.max(1, Number(plan?.sceneSpeed || this.config.physics?.worldScrollSpeed || 420));
+    const worldWidth = Math.max(0, Number(plan?.world?.worldWidthPx || 0));
+    const sceneDistance = worldWidth > 0
+      ? Math.min(Number(this.state.distancePx || 0), worldWidth)
+      : Math.max(0, Number(this.state.elapsed || 0) * sceneSpeed);
+    const coefficient = sceneSpeed > 0 ? Number(runtimeSpeed || 0) / sceneSpeed : 0;
+    return Number((sceneDistance * coefficient).toFixed(3));
+  }
+
+  getRuntimeTileIndexes({
+    layer = {},
+    renderer = "windowed",
+    repeatX = false,
+    tileStride = 1,
+    stageWidth = this.getStageWidth(),
+    assetRelativeX = 0,
+    runnerOffset = 0
+  } = {}) {
+    if (!repeatX && layer.id !== "scene") {
+      return [0];
+    }
+
+    const safeStride = Math.max(1, Number(tileStride || 1));
+    const windowMultiplier = layer.id === "scene" || renderer === "striped" ? 2 : 1;
+    const coverageWidth = (Math.max(1, Number(stageWidth || 1)) * windowMultiplier)
+      + Math.abs(Number(assetRelativeX || 0))
+      + (safeStride * 2);
+    const tileCount = clamp(
+      Math.ceil(coverageWidth / safeStride) + 3,
+      2,
+      RUNTIME_SEQUENCE_MAX_TILE_COUNT
+    );
+    const centerIndex = this.isWorldRenderingActive() ? Math.floor(Number(runnerOffset || 0) / safeStride) : 0;
+    const firstIndex = centerIndex - Math.floor(tileCount / 2);
+    return Array.from({ length: tileCount }, (_, index) => firstIndex + index);
+  }
+
+  getRetainedTileIndexes({
+    layer = {},
+    renderer = "windowed",
+    repeatX = false,
+    tileStride = 1,
+    stageWidth = this.getStageWidth(),
+    assetRelativeX = 0,
+    runtimeSpeed = 0
+  } = {}) {
+    if (!repeatX && layer.id !== "scene") {
+      return [0];
+    }
+
+    const safeStride = Math.max(1, Number(tileStride || 1));
+    const plan = this.getWorldPlan();
+    const sceneSpeed = Math.max(1, Number(plan?.sceneSpeed || this.config.physics?.worldScrollSpeed || 420));
+    const worldWidth = Math.max(0, Number(plan?.world?.worldWidthPx || 0));
+    const coefficient = sceneSpeed > 0 ? Math.max(0, Number(runtimeSpeed || 0) / sceneSpeed) : 0;
+    const travelWidth = layer.id === "scene"
+      ? worldWidth
+      : Math.max(worldWidth * coefficient, renderer === "striped" ? Number(stageWidth || 0) : 0);
+    const leftBuffer = Math.ceil((Math.max(1, Number(stageWidth || 1)) + Math.abs(Number(assetRelativeX || 0))) / safeStride) + 2;
+    const coverageWidth = Math.max(1, Number(stageWidth || 1))
+      + Math.abs(Number(assetRelativeX || 0)) * 2
+      + travelWidth
+      + (safeStride * 4);
+    const tileCount = clamp(
+      Math.ceil(coverageWidth / safeStride) + leftBuffer + 2,
+      2,
+      PREVIEW_SEQUENCE_MAX_TILE_COUNT
+    );
+    const firstIndex = -leftBuffer;
+    return Array.from({ length: tileCount }, (_, index) => firstIndex + index);
+  }
+
+  getRetainedSceneEntries() {
+    return (this.getWorldPlan()?.entries || [])
+      .filter((entry) => !this.isTextBonusEntry(entry))
+      .filter((entry) => entry.kind !== "hollow");
   }
 
   getLayerRuntimeMetrics(layerId = "scene") {
     const viewport = this.getViewportName();
     const stageWidth = this.getStageWidth();
     const stageHeight = this.getStageHeight();
-    const pov = this.getViewportPov(viewport);
-    const camera = pov.camera || {};
     const layer = this.getSceneLayers().find((entry) => entry.id === layerId);
     if (!layer) {
       return {
@@ -1265,14 +1455,11 @@ export default class ArcadeRunner {
     const source = config.src || config.assetRef || layer.src || layer.assetRef || "";
     const assetWidth = this.getAssetLocalWidth(source, stageWidth);
     const travel = clamp(Number(config.x ?? 50), 0, 100) / 100;
-    const cameraTranslateXPercent = Number(camera.x || 0) * Number(layer.parallaxFactor ?? 0);
-    const cameraTranslateYPercent = Number(camera.y || 0) * Number(layer.parallaxFactor ?? 0);
-    const cameraX = (cameraTranslateXPercent / 100) * stageWidth;
     const assetRelativeX = (0.5 - travel) * (stageWidth + assetWidth);
 
     return {
-      x: cameraX + assetRelativeX,
-      y: ((cameraTranslateYPercent + Number(config.y || 0)) / 100) * stageHeight,
+      x: assetRelativeX,
+      y: (Number(config.y || 0) / 100) * stageHeight,
       z: this.getLayerTranslateZ(layer, config, stageWidth),
       scale: Math.max(0.05, Number(config.scale ?? layer.scaleBase ?? 1)),
       assetWidth,
@@ -1285,7 +1472,7 @@ export default class ArcadeRunner {
     };
   }
 
-  renderPlayerMarkup() {
+  getPlayerRenderState() {
     const action = this.getAction(this.player.actionId);
     const src = action.src || "/assets/dummy/character/Idle.png";
     const resolvedSrc = this.resolveAssetSource(src);
@@ -1295,21 +1482,46 @@ export default class ArcadeRunner {
     const bottomFactor = Number((0.1 + (clamp(Number(transform.y || 0), -250, 250) / 100)).toFixed(6));
     const scale = this.getPlayerVisualScale();
     const translateZ = (Number(transform.z || 0) / 100) * this.getStageWidth();
+    const visualWidth = metrics.width * scale;
+    const centerX = this.state.status === "exiting"
+      ? `${Number((Number(this.player.x || 0) + (visualWidth / 2)).toFixed(2))}px`
+      : `calc(50% + ${Number(Number(transform.x || 0).toFixed(2))}px)`;
+    return {
+      actionId: this.player.actionId,
+      resolvedSrc,
+      metrics,
+      frame,
+      bottomFactor,
+      scale,
+      translateZ,
+      centerX
+    };
+  }
+
+  getPlayerStyle(renderState = this.getPlayerRenderState()) {
+    const { metrics, frame, bottomFactor, scale, translateZ, centerX, resolvedSrc } = renderState;
+    return [
+      `left:${centerX}`,
+      `bottom:calc(100% * ${bottomFactor})`,
+      "z-index:8",
+      `width:${Number(metrics.width.toFixed(2))}px`,
+      `height:${Number(metrics.height.toFixed(2))}px`,
+      `transform:translate3d(0, ${-Number(this.player.y.toFixed(2))}px, ${Number(translateZ.toFixed(2))}px) scale(${Number(scale.toFixed(4))}) translateX(-50%)`,
+      `background-image:url('${cssUrl(resolvedSrc)}')`,
+      `background-size:${Number((metrics.frameCount * metrics.width).toFixed(2))}px ${Number(metrics.height.toFixed(2))}px`,
+      `background-position:-${Number((frame * metrics.width).toFixed(2))}px 0`
+    ].join(";");
+  }
+
+  renderPlayerMarkup() {
+    const renderState = this.getPlayerRenderState();
 
     return `
       <div
         class="runner-player"
-        style="
-          left:calc(50% + ${Number(Number(transform.x || 0).toFixed(2))}px);
-          bottom:calc(100% * ${bottomFactor});
-          z-index:8;
-          width:${Number(metrics.width.toFixed(2))}px;
-          height:${Number(metrics.height.toFixed(2))}px;
-          transform:translate3d(0, ${-Number(this.player.y.toFixed(2))}px, ${Number(translateZ.toFixed(2))}px) scale(${Number(scale.toFixed(4))}) translateX(-50%);
-          background-image:url('${cssUrl(resolvedSrc)}');
-          background-size:${Number((metrics.frameCount * metrics.width).toFixed(2))}px ${Number(metrics.height.toFixed(2))}px;
-          background-position:-${Number((frame * metrics.width).toFixed(2))}px 0;
-        "
+        data-runner-player
+        data-runner-player-action="${escapeHtml(renderState.actionId)}"
+        style="${this.getPlayerStyle(renderState)}"
       ></div>
     `;
   }
@@ -1361,51 +1573,55 @@ export default class ArcadeRunner {
     const viewport = this.getViewportName();
     const stageWidth = this.getStageWidth();
     const stageHeight = this.getStageHeight();
-    const pov = this.getViewportPov(viewport);
-    const camera = pov.camera || {};
-    const worldWidth = Math.max(stageWidth, Number(this.getWorldPlan()?.world?.worldWidthPx || stageWidth));
     const hasRuntimeWorld = this.state.status !== "idle";
+    const renderer = this.getLevelRendererMode(viewport);
 
     return `
-      <div class="runner-world" aria-hidden="true">
+      <div class="runner-world" data-runner-world-renderer="${escapeHtml(renderer)}" aria-hidden="true">
         ${layers.map((layer, layerIndex) => {
           const config = resolveViewportConfig(layer, viewport);
           const source = config.src || config.assetRef || layer.src || layer.assetRef || "";
           const resolvedSource = this.resolveAssetSource(source);
           const pattern = normalizeLayerPattern(config.pattern || layer.pattern);
           const repeatX = pattern === "horizontal" || pattern === "both";
-          const assetWidth = this.getAssetLocalWidth(source, stageWidth);
+          const assetSize = this.getAssetLocalSize(source, stageWidth, stageHeight);
+          const assetWidth = assetSize.width;
+          const assetHeight = assetSize.height;
           const tileStride = Math.max(1, assetWidth - PREVIEW_TILE_OVERLAP_PX);
           const travel = clamp(Number(config.x ?? 50), 0, 100) / 100;
-          const cameraTranslateXPercent = Number(camera.x || 0) * Number(layer.parallaxFactor ?? 0);
-          const cameraTranslateYPercent = Number(camera.y || 0) * Number(layer.parallaxFactor ?? 0);
-          const cameraX = (cameraTranslateXPercent / 100) * stageWidth;
-          const translateY = ((cameraTranslateYPercent + Number(config.y || 0)) / 100) * stageHeight;
+          const translateY = (Number(config.y || 0) / 100) * stageHeight;
           const translateZ = this.getLayerTranslateZ(layer, config, stageWidth);
           const runtimeSpeed = this.getLayerRuntimeSpeed(layer, config);
-          const runnerOffset = Number(((hasRuntimeWorld ? this.state.elapsed : 0) * runtimeSpeed).toFixed(3));
           const scale = Math.max(0.05, Number(config.scale ?? layer.scaleBase ?? 1));
-          const zIndex = layerIndex + 1;
+          const zIndex = this.getLayerZIndex(layer, layerIndex + 1);
           const assetRelativeX = (0.5 - travel) * (stageWidth + assetWidth);
-          const defaultLayerX = cameraX + assetRelativeX;
-          const coverageWidth = hasRuntimeWorld ? worldWidth : stageWidth;
-          const tileCount = repeatX || layer.id === "scene"
-            ? getPreviewSequenceTileCount(stageWidth, tileStride, assetRelativeX, coverageWidth)
-            : 1;
+          const defaultLayerX = assetRelativeX;
           const tileIndexes = hasRuntimeWorld
-            ? getPreviewRunnerTileIndexes(tileCount)
-            : getPreviewTileIndexes(tileCount);
+            ? this.getRetainedTileIndexes({
+              layer,
+              renderer,
+              repeatX,
+              tileStride,
+              stageWidth,
+              assetRelativeX,
+              runtimeSpeed
+            })
+            : getPreviewTileIndexes(repeatX || layer.id === "scene" ? PREVIEW_SEQUENCE_MIN_TILE_COUNT : 1);
+          const sceneEntries = layer.id === "scene"
+            ? (hasRuntimeWorld ? this.getRetainedSceneEntries() : this.getVisibleEntries(stageWidth).filter((entry) => entry.kind !== "hollow"))
+            : [];
           return `
             <div
               class="runner-layer runner-layer--${escapeHtml(layer.id || "layer")}"
               data-runner-layer="${escapeHtml(layer.id || "layer")}"
+              data-runner-layer-renderer="${escapeHtml(renderer)}"
               style="
                 z-index:${zIndex};
                 --runner-layer-x:${Number(defaultLayerX.toFixed(3))}px;
                 --runner-layer-y:${Number(translateY.toFixed(3))}px;
                 --runner-layer-z:${Number(translateZ.toFixed(3))}px;
                 --runner-layer-scale:${Number(scale.toFixed(4))};
-                --runner-track-x:${Number((-runnerOffset).toFixed(3))}px;
+                --runner-track-x:${Number((-this.getLayerTrackOffset(layer, runtimeSpeed)).toFixed(3))}px;
               "
             >
               <div class="runner-layer-plane">
@@ -1413,12 +1629,10 @@ export default class ArcadeRunner {
                   <div class="runner-layer-track">
                     ${tileIndexes.map((tileIndex) => {
                       const tileLeft = (Number(tileIndex) * tileStride) - (assetWidth / 2);
-                      return `<img src="${escapeHtml(resolvedSource)}" alt="" style="width:${Number(assetWidth.toFixed(3))}px; transform:translate3d(${Number(tileLeft.toFixed(3))}px, 0, 0)">`;
+                      return `<img src="${escapeHtml(resolvedSource)}" alt="" style="width:${Number(assetWidth.toFixed(3))}px; height:${Number(assetHeight.toFixed(3))}px; transform:translate3d(${Number(tileLeft.toFixed(3))}px, 0, 0)">`;
                     }).join("")}
                     ${layer.id === "scene"
-                      ? (this.getWorldPlan()?.entries || []).filter((entry) => entry.kind !== "hollow")
-                        .map((entry) => this.renderSceneTrackSpawnEntry(entry, assetRelativeX, stageWidth))
-                        .join("")
+                      ? sceneEntries.map((entry) => this.renderSceneTrackSpawnEntry(entry, assetRelativeX, stageWidth)).join("")
                       : ""}
                   </div>
                   ${layer.id === "scene" ? this.renderPlayerMarkup() : ""}
@@ -1770,16 +1984,47 @@ export default class ArcadeRunner {
 
     const spawnRect = this.getSpawnRect(entry);
     const now = performance.now();
+    const overlayId = `${entry.id}-text-${now.toFixed(0)}`;
     this.textBonusOverlays = this.textBonusOverlays
-      .filter((overlay) => overlay.expiresAt > now)
       .concat({
-        id: `${entry.id}-text-${now.toFixed(0)}`,
+        id: overlayId,
         x: (spawnRect.left + spawnRect.right) / 2,
         y: Math.max(0, spawnRect.top - 18),
         word: this.getNextTextBonusOverlayWord(config),
-        config,
-        expiresAt: now + 1400
+        config
       });
+    if (typeof globalThis.setTimeout === "function") {
+      const timerId = globalThis.setTimeout(() => {
+        this.destroyTextBonusOverlay(overlayId);
+      }, TEXT_BONUS_OVERLAY_DURATION_MS);
+      this.textBonusOverlayTimers.set(overlayId, timerId);
+    }
+  }
+
+  destroyTextBonusOverlay(overlayId = "") {
+    if (!overlayId) {
+      return;
+    }
+    const timerId = this.textBonusOverlayTimers.get(overlayId);
+    if (timerId) {
+      globalThis.clearTimeout?.(timerId);
+      this.textBonusOverlayTimers.delete(overlayId);
+    }
+    const nextOverlays = this.textBonusOverlays.filter((overlay) => overlay.id !== overlayId);
+    if (nextOverlays.length === this.textBonusOverlays.length) {
+      return;
+    }
+    this.textBonusOverlays = nextOverlays;
+    if (this.isGameplayTicking()) {
+      this.render();
+    }
+  }
+
+  clearTextBonusOverlayTimers() {
+    this.textBonusOverlayTimers.forEach((timerId) => {
+      globalThis.clearTimeout?.(timerId);
+    });
+    this.textBonusOverlayTimers.clear();
   }
 
   getTextBonusVisible(entry = {}, collected = false) {
@@ -2103,6 +2348,19 @@ export default class ArcadeRunner {
     return character.characters?.[selectedId] || character;
   }
 
+  getCharacterPreviewValue(key, fallback = null, viewport = this.getViewportName()) {
+    const profile = this.getCharacterProfile();
+    const characterPreview = this.config.character?.preview || {};
+    const profilePreview = profile?.preview || {};
+    return profilePreview.viewports?.[viewport]?.[key]
+      ?? (viewport === "mobile" ? profilePreview.viewports?.desktop?.[key] : undefined)
+      ?? profilePreview[key]
+      ?? characterPreview.viewports?.[viewport]?.[key]
+      ?? (viewport === "mobile" ? characterPreview.viewports?.desktop?.[key] : undefined)
+      ?? characterPreview[key]
+      ?? fallback;
+  }
+
   getPlayerVisualScale() {
     const transform = this.getCharacterViewportTransform();
     const profile = this.getCharacterProfile();
@@ -2121,7 +2379,7 @@ export default class ArcadeRunner {
     const action = this.getAction("jump");
     const dimensions = this.getPlayerVisualDimensions(action);
     const elevation = clamp(
-      Number(this.getCharacterProfile()?.preview?.maxJumpElevation ?? this.config.character?.preview?.maxJumpElevation ?? DEFAULT_MAX_JUMP_ELEVATION),
+      Number(this.getCharacterPreviewValue("maxJumpElevation", DEFAULT_MAX_JUMP_ELEVATION)),
       0,
       5
     );
@@ -2231,8 +2489,7 @@ export default class ArcadeRunner {
     const trackLeft = Number(entry.worldX || 0)
       - Number(sceneMetrics.assetRelativeX || 0)
       - (stageWidth / 2);
-    const runnerOffset = (this.state.status === "running" ? Number(this.state.elapsed || 0) : 0)
-      * Number(sceneMetrics.runtimeSpeed ?? 0);
+    const runnerOffset = this.getLayerTrackOffset(sceneMetrics.layer || { id: "scene" }, Number(sceneMetrics.runtimeSpeed ?? 0));
     return Number(sceneMetrics.x || 0)
       + (stageWidth / 2)
       + ((trackLeft - runnerOffset) * sceneScale);
@@ -2297,6 +2554,9 @@ export default class ArcadeRunner {
   getVisibleEntries(buffer = 180) {
     const stageWidth = this.getStageWidth();
     return (this.getWorldPlan()?.entries || []).filter((entry) => {
+      if (this.isTextBonusEntry(entry)) {
+        return false;
+      }
       const width = this.getSpawnDimensions(entry).width;
       const x = this.getEntryScreenX(entry);
       return x > -width - buffer && x < stageWidth + width + buffer;
@@ -2304,14 +2564,11 @@ export default class ArcadeRunner {
   }
 
   renderTextBonusOverlays() {
-    const now = performance.now();
-    this.textBonusOverlays = this.textBonusOverlays.filter((overlay) => overlay.expiresAt > now);
     if (!this.textBonusOverlays.length) {
       return "";
     }
 
     return this.textBonusOverlays.map((overlay) => {
-      const opacity = clamp((overlay.expiresAt - now) / 240, 0, 1);
       return `
         <div
           class="runner-spawn runner-spawn--bonus runner-spawn--text-bonus runner-spawn--text-overlay"
@@ -2323,7 +2580,7 @@ export default class ArcadeRunner {
             width:${KIND_DIMENSIONS.textBonus.width}px;
             height:${KIND_DIMENSIONS.textBonus.height}px;
             z-index:4;
-            opacity:${Number(opacity.toFixed(3))};
+            opacity:1;
             overflow:visible;
             transform:translate(-50%, -50%);
             background-image:none;
@@ -2489,6 +2746,214 @@ export default class ArcadeRunner {
     `;
   }
 
+  resetRetainedRenderer() {
+    this.retainedStageKey = "";
+    this.retainedTextOverlaySignature = "";
+    this.retainedRunnerOverlaySignature = "";
+    this.retainedFallbackHudSignature = "";
+  }
+
+  getRetainedStageKey(viewport = this.getViewportName(), renderer = this.getLevelRendererMode(viewport)) {
+    return [
+      this.getCurrentLevelScreenId() || "runtime",
+      this.runSeed || this.worldPlan?.seed || "seed",
+      viewport,
+      renderer,
+      Math.round(this.getStageWidth())
+    ].join(":");
+  }
+
+  getFallbackHudMarkup(statusLabel = "Ready", progress = 0) {
+    if (this.hasRuntimeHud()) {
+      return "";
+    }
+    return `
+      <div class="runner-hud" data-runner-fallback-hud>
+        <span data-runner-fallback-score>Score ${Math.floor(this.state.score)}</span>
+        <span data-runner-fallback-lives>Lives ${Math.max(0, this.state.lives)}</span>
+        <span data-runner-fallback-status>${escapeHtml(statusLabel)}</span>
+        <span data-runner-fallback-progress>${Math.round(progress)}%</span>
+      </div>
+    `;
+  }
+
+  bindRunnerControls() {
+    this.mountNode?.querySelectorAll("[data-runner-control], [data-runner-start]").forEach((node) => {
+      node.removeEventListener("click", this.boundRunnerControlClick);
+      node.addEventListener("click", this.boundRunnerControlClick);
+    });
+  }
+
+  updateRetainedLayerNodes(stageNode) {
+    const viewport = this.getViewportName();
+    const stageWidth = this.getStageWidth();
+    const stageHeight = this.getStageHeight();
+    const nodes = new Map(
+      Array.from(stageNode.querySelectorAll("[data-runner-layer]"))
+        .map((node) => [node.dataset.runnerLayer, node])
+    );
+    this.getSceneLayers().forEach((layer, layerIndex) => {
+      const node = nodes.get(String(layer.id || "layer"));
+      if (!node) {
+        return;
+      }
+      const config = resolveViewportConfig(layer, viewport);
+      const source = config.src || config.assetRef || layer.src || layer.assetRef || "";
+      const assetSize = this.getAssetLocalSize(source, stageWidth, stageHeight);
+      const assetWidth = assetSize.width;
+      const travel = clamp(Number(config.x ?? 50), 0, 100) / 100;
+      const translateY = (Number(config.y || 0) / 100) * stageHeight;
+      const translateZ = this.getLayerTranslateZ(layer, config, stageWidth);
+      const runtimeSpeed = this.getLayerRuntimeSpeed(layer, config);
+      const runnerOffset = this.getLayerTrackOffset(layer, runtimeSpeed);
+      const scale = Math.max(0.05, Number(config.scale ?? layer.scaleBase ?? 1));
+      const zIndex = this.getLayerZIndex(layer, layerIndex + 1);
+      const assetRelativeX = (0.5 - travel) * (stageWidth + assetWidth);
+      node.style.zIndex = String(zIndex);
+      node.style.setProperty("--runner-layer-x", `${Number(assetRelativeX.toFixed(3))}px`);
+      node.style.setProperty("--runner-layer-y", `${Number(translateY.toFixed(3))}px`);
+      node.style.setProperty("--runner-layer-z", `${Number(translateZ.toFixed(3))}px`);
+      node.style.setProperty("--runner-layer-scale", Number(scale.toFixed(4)));
+      node.style.setProperty("--runner-track-x", `${Number((-runnerOffset).toFixed(3))}px`);
+    });
+  }
+
+  updateRetainedPlayerNode(stageNode) {
+    const node = stageNode.querySelector("[data-runner-player]");
+    if (!node) {
+      return;
+    }
+    const renderState = this.getPlayerRenderState();
+    const { metrics, frame, bottomFactor, scale, translateZ, centerX, resolvedSrc, actionId } = renderState;
+    const visualSignature = [
+      actionId,
+      resolvedSrc,
+      Number(metrics.width.toFixed(2)),
+      Number(metrics.height.toFixed(2)),
+      metrics.frameCount,
+      Number(scale.toFixed(4))
+    ].join("|");
+    if (node.dataset.runnerPlayerSignature !== visualSignature) {
+      node.dataset.runnerPlayerSignature = visualSignature;
+      node.dataset.runnerPlayerAction = actionId;
+      node.style.width = `${Number(metrics.width.toFixed(2))}px`;
+      node.style.height = `${Number(metrics.height.toFixed(2))}px`;
+      node.style.backgroundImage = `url('${cssUrl(resolvedSrc)}')`;
+      node.style.backgroundSize = `${Number((metrics.frameCount * metrics.width).toFixed(2))}px ${Number(metrics.height.toFixed(2))}px`;
+    }
+    node.style.left = centerX;
+    node.style.bottom = `calc(100% * ${bottomFactor})`;
+    node.style.transform = `translate3d(0, ${-Number(this.player.y.toFixed(2))}px, ${Number(translateZ.toFixed(2))}px) scale(${Number(scale.toFixed(4))}) translateX(-50%)`;
+    node.style.backgroundPosition = `-${Number((frame * metrics.width).toFixed(2))}px 0`;
+  }
+
+  updateRetainedSpawnNodes(stageNode) {
+    const nodes = new Map(
+      Array.from(stageNode.querySelectorAll("[data-runner-spawn]"))
+        .map((node) => [node.dataset.runnerSpawn, node])
+    );
+    this.getRetainedSceneEntries().forEach((entry) => {
+      const node = nodes.get(String(entry.id || ""));
+      if (!node) {
+        return;
+      }
+      const collected = this.collectedSpawnIds.has(entry.id);
+      const collectedValue = collected ? "true" : "false";
+      if (node.dataset.runnerSpawnCollected !== collectedValue) {
+        node.dataset.runnerSpawnCollected = collectedValue;
+        node.style.opacity = collected ? "0" : "1";
+      }
+      const metrics = this.getSpawnFrameMetrics(entry);
+      const sprite = entry.config?.spriteSheet || {};
+      const animation = entry.config?.animation || {};
+      const frameCount = Math.max(1, Number(sprite.frameCount || metrics.frameCount || 1));
+      if (frameCount <= 1) {
+        return;
+      }
+      const fps = Math.max(1, Number(animation.fps ?? sprite.fps ?? 12));
+      const loops = animation.loop ?? sprite.loop ?? true;
+      const frame = loops === false
+        ? Math.min(frameCount - 1, Math.floor(this.state.elapsed * fps))
+        : Math.floor(this.state.elapsed * fps) % frameCount;
+      const framePosition = `-${Number((frame * metrics.width).toFixed(2))}px 0`;
+      if (node.dataset.runnerSpawnFrame !== String(frame)) {
+        node.dataset.runnerSpawnFrame = String(frame);
+        node.style.backgroundPosition = framePosition;
+      }
+    });
+  }
+
+  updateRetainedTextOverlays(stageNode) {
+    const node = stageNode.querySelector("[data-runner-text-overlays]");
+    if (!node) {
+      return;
+    }
+    const signature = this.textBonusOverlays
+      .map((overlay) => `${overlay.id}:${Math.round(overlay.x)}:${Math.round(overlay.y)}:${overlay.word}`)
+      .join("|");
+    if (signature === this.retainedTextOverlaySignature) {
+      return;
+    }
+    this.retainedTextOverlaySignature = signature;
+    node.innerHTML = this.renderTextBonusOverlays();
+  }
+
+  updateRetainedRunnerOverlay(stageNode) {
+    const node = stageNode.querySelector("[data-runner-overlay]");
+    if (!node) {
+      return;
+    }
+    const markup = this.renderRunnerOverlay();
+    if (markup === this.retainedRunnerOverlaySignature) {
+      return;
+    }
+    this.retainedRunnerOverlaySignature = markup;
+    node.innerHTML = markup;
+    this.bindRunnerControls();
+  }
+
+  updateRetainedFallbackHud(stageNode, statusLabel = "Ready", progress = 0) {
+    const node = stageNode.querySelector("[data-runner-fallback-hud]");
+    if (!node) {
+      return;
+    }
+    const signature = [
+      Math.floor(this.state.score),
+      Math.max(0, this.state.lives),
+      statusLabel,
+      Math.round(progress)
+    ].join("|");
+    if (signature === this.retainedFallbackHudSignature) {
+      return;
+    }
+    this.retainedFallbackHudSignature = signature;
+    const scoreNode = node.querySelector("[data-runner-fallback-score]");
+    const livesNode = node.querySelector("[data-runner-fallback-lives]");
+    const statusNode = node.querySelector("[data-runner-fallback-status]");
+    const progressNode = node.querySelector("[data-runner-fallback-progress]");
+    if (scoreNode) scoreNode.textContent = `Score ${Math.floor(this.state.score)}`;
+    if (livesNode) livesNode.textContent = `Lives ${Math.max(0, this.state.lives)}`;
+    if (statusNode) statusNode.textContent = statusLabel;
+    if (progressNode) progressNode.textContent = `${Math.round(progress)}%`;
+  }
+
+  updateRetainedStage({ viewport, canvasSpec, effectivePerspective, statusLabel, progress }) {
+    const stageNode = this.mountNode?.querySelector("[data-runner-stage]");
+    if (!stageNode) {
+      return;
+    }
+    stageNode.dataset.runnerViewport = viewport;
+    stageNode.dataset.runnerOutcome = this.getRunnerOutcome();
+    stageNode.style.setProperty("--runner-canvas-aspect", canvasSpec.aspect);
+    stageNode.style.setProperty("--runner-perspective", `${effectivePerspective}px`);
+    this.updateRetainedLayerNodes(stageNode);
+    this.updateRetainedPlayerNode(stageNode);
+    this.updateRetainedSpawnNodes(stageNode);
+    this.updateRetainedTextOverlays(stageNode);
+    this.updateRetainedRunnerOverlay(stageNode);
+    this.updateRetainedFallbackHud(stageNode, statusLabel, progress);
+  }
+
   render() {
     if (!this.mountNode) {
       return;
@@ -2518,42 +2983,38 @@ export default class ArcadeRunner {
       if (previewCanvasMode) {
         screenNode.dataset.runnerRenderer = "preview-canvas";
       } else {
-        delete screenNode.dataset.runnerRenderer;
+        screenNode.dataset.runnerRenderer = this.getLevelRendererMode(viewport);
       }
     }
     if (previewCanvasMode) {
       return;
     }
-    const sceneLayers = this.renderSceneLayers();
-    const fallbackHud = this.hasRuntimeHud()
-      ? ""
-      : `
-        <div class="runner-hud">
-          <span>Score ${Math.floor(this.state.score)}</span>
-          <span>Lives ${Math.max(0, this.state.lives)}</span>
-          <span>${escapeHtml(statusLabel)}</span>
-          <span>${Math.round(progress)}%</span>
+    const renderer = this.getLevelRendererMode(viewport);
+    const retainedStageKey = this.getRetainedStageKey(viewport, renderer);
+    if (this.retainedStageKey !== retainedStageKey || !this.mountNode.querySelector("[data-runner-stage]")) {
+      const sceneLayers = this.renderSceneLayers();
+      this.retainedStageKey = retainedStageKey;
+      this.retainedTextOverlaySignature = "";
+      this.retainedRunnerOverlaySignature = "";
+      this.retainedFallbackHudSignature = "";
+      this.mountNode.innerHTML = `
+        <div
+          class="runner-stage runner-stage--${escapeHtml(viewport)}"
+          data-runner-stage
+          data-runner-viewport="${escapeHtml(viewport)}"
+          data-runner-outcome="${this.getRunnerOutcome()}"
+          style="--runner-canvas-aspect:${canvasSpec.aspect}; --runner-perspective:${effectivePerspective}px; ${this.renderStageBackgroundStyle()}"
+        >
+          ${sceneLayers || this.renderFallbackBackdrop()}
+          ${this.getFallbackHudMarkup(statusLabel, progress)}
+          <div data-runner-text-overlays style="position:absolute; inset:0; z-index:20; pointer-events:none;">${this.renderTextBonusOverlays()}</div>
+          <div data-runner-overlay>${this.renderRunnerOverlay()}</div>
         </div>
       `;
+      this.bindRunnerControls();
+    }
 
-    this.mountNode.innerHTML = `
-      <div
-        class="runner-stage runner-stage--${escapeHtml(viewport)}"
-        data-runner-stage
-        data-runner-viewport="${escapeHtml(viewport)}"
-        data-runner-outcome="${this.getRunnerOutcome()}"
-        style="--runner-canvas-aspect:${canvasSpec.aspect}; --runner-perspective:${effectivePerspective}px; ${this.renderStageBackgroundStyle()}"
-      >
-        ${sceneLayers || this.renderFallbackBackdrop()}
-        ${fallbackHud}
-        ${this.renderTextBonusOverlays()}
-        ${this.renderRunnerOverlay()}
-      </div>
-    `;
-
+    this.updateRetainedStage({ viewport, canvasSpec, effectivePerspective, statusLabel, progress });
     this.updateRuntimeHud({ updateTime: this.state.status !== "running" });
-    this.mountNode.querySelectorAll("[data-runner-control], [data-runner-start]").forEach((node) => {
-      node.addEventListener("click", this.boundRunnerControlClick);
-    });
   }
 }

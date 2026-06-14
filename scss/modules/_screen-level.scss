@@ -20,7 +20,7 @@
   }
 
   &:has(.screen[data-screen="level-1"]) {
-    $light: #3CB0E1;
+    $light: #ACE4FE;
     $dark: #0B174E;
     background: linear-gradient(to bottom, $light, $light 50%, $dark 50%, $dark);
     @include desktop {

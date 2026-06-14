@@ -3,6 +3,7 @@ export const moduleName = "ScreenRepository";
 const CHARACTER_CHOICE_SESSION_KEY = "jsmii:characterChoice";
 const GAMEPLAY_LIVES_STORAGE_KEY = "jsmii:gameplayLives";
 const HARD_NAVIGATION_BREAKPOINT = 992;
+const DEFAULT_MOBILE_FLOW_MODE = "paged";
 
 const SCREEN_THEME_FALLBACKS = {
   welcome: "intro",
@@ -19,6 +20,14 @@ const SCREEN_THEME_FALLBACKS = {
 const getDefaultScreenTheme = (screen = {}) => (
   screen?.role === "game-level" ? "gameplay" : "intro"
 );
+
+const getMobileFlowMode = () => {
+  if (typeof document === "undefined") {
+    return DEFAULT_MOBILE_FLOW_MODE;
+  }
+  const value = document.querySelector('meta[name="mobile-flow"]')?.getAttribute("content") || DEFAULT_MOBILE_FLOW_MODE;
+  return String(value).trim().toLowerCase() === "ajax" ? "ajax" : DEFAULT_MOBILE_FLOW_MODE;
+};
 
 const normalizeClassToken = (value = "") => String(value || "")
   .trim()
@@ -294,10 +303,20 @@ export default class ScreenRepository {
       || getDefaultScreenTheme(screen);
   }
 
+  getScreenThemeOptions(screenId) {
+    const screen = this.getDesignScreen(screenId);
+    const audio = screen?.audio && typeof screen.audio === "object" ? screen.audio : {};
+    const options = {};
+    if (audio.volume != null && audio.volume !== "") {
+      options.volume = audio.volume;
+    }
+    return options;
+  }
+
   playScreenTheme(screenId) {
     const themeId = this.getScreenThemeId(screenId);
     if (themeId) {
-      this.context.audio?.playTheme?.(themeId);
+      this.context.audio?.playTheme?.(themeId, this.getScreenThemeOptions(screenId));
     }
   }
 
@@ -527,9 +546,26 @@ export default class ScreenRepository {
     if (typeof window === "undefined") {
       return false;
     }
+    if (this.getRuntimeMobileFlowMode() !== "paged") {
+      return false;
+    }
 
     return window.matchMedia?.(`(max-width: ${HARD_NAVIGATION_BREAKPOINT - 0.02}px)`)?.matches
       ?? window.innerWidth < HARD_NAVIGATION_BREAKPOINT;
+  }
+
+  getRuntimeMobileFlowMode() {
+    const metaValue = typeof document === "undefined"
+      ? ""
+      : document.querySelector('meta[name="mobile-flow"]')?.getAttribute("content");
+    if (String(metaValue || "").trim()) {
+      return String(metaValue).trim().toLowerCase() === "ajax" ? "ajax" : "paged";
+    }
+    const runtimeValue = this.context.runtimeSettings?.flow?.mobileFlow;
+    if (String(runtimeValue || "").trim().toLowerCase() === "ajax") {
+      return "ajax";
+    }
+    return getMobileFlowMode();
   }
 
   syncHardScreenLinks(container = document) {
@@ -562,11 +598,26 @@ export default class ScreenRepository {
   }
 
   navigateHardToScreen(screenId = "") {
+    if (this.getRuntimeMobileFlowMode() !== "paged") {
+      return false;
+    }
     const url = this.getHardScreenUrl(screenId);
     if (!url) {
       return false;
     }
     window.location.assign(url);
+    return true;
+  }
+
+  replaceHardToScreen(screenId = "") {
+    if (this.getRuntimeMobileFlowMode() !== "paged") {
+      return false;
+    }
+    const url = this.getHardScreenUrl(screenId);
+    if (!url) {
+      return false;
+    }
+    window.location.replace(url);
     return true;
   }
 
@@ -584,7 +635,8 @@ export default class ScreenRepository {
       event.preventDefault();
       event.stopPropagation();
       const themeId = this.getScreenThemeId(this.currentPresentationId || this.currentScreenId || "");
-      this.context.audio?.toggleMuted?.({ themeId });
+      const themeOptions = this.getScreenThemeOptions(this.currentPresentationId || this.currentScreenId || "");
+      this.context.audio?.toggleMuted?.({ themeId, ...themeOptions });
       this.syncSoundControls(document);
       return;
     }
@@ -634,7 +686,7 @@ export default class ScreenRepository {
     const runnerControl = trigger.dataset.runnerControl || "";
     if (this.shouldReloadLifeLostRetry(trigger)) {
       event.stopImmediatePropagation();
-      window.location.reload();
+      this.replaceHardToScreen(screenId || this.getCurrentGameplayScreenId() || "level-1");
       return;
     }
     if (runnerControl && this.context.gameplay?.handleExternalRunnerControl?.(trigger)) {

@@ -490,12 +490,6 @@ textarea {
   height: 100%;
   min-height: min(72vh, 640px);
   place-items: center;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  user-select: none;
-  overscroll-behavior: contain;
 }
 
 .screen[data-runner-renderer=preview-canvas] .screen__game-header,
@@ -561,11 +555,6 @@ textarea {
   isolation: isolate;
   transform-style: preserve-3d;
   touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  user-select: none;
-  overscroll-behavior: contain;
 }
 
 .runner-stage--mobile {
@@ -638,7 +627,7 @@ textarea {
   bottom: 0;
   display: block;
   max-width: none;
-  height: 100%;
+  height: auto;
   margin: 0;
   object-fit: contain;
   image-rendering: pixelated;
@@ -716,13 +705,25 @@ textarea {
   bottom: 0;
   display: block;
   max-width: none;
-  height: 100%;
+  height: auto;
   margin: 0;
   object-fit: contain;
   transform: translate3d(0, 0, 0);
   image-rendering: pixelated;
   user-select: none;
   will-change: transform;
+}
+
+.runner-stage.tester-preview .tester-preview__spawn-plane {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: block;
+  width: 0;
+  height: 100%;
+  z-index: 9;
+  overflow: visible;
+  pointer-events: none;
 }
 
 .runner-stage.tester-preview {
@@ -1109,6 +1110,10 @@ textarea {
   transform-origin: 50% 100%;
   image-rendering: pixelated;
   pointer-events: none;
+}
+
+.runner-stage.tester-preview .tester-preview__spawn-object[data-spawn-sprite=true] {
+  overflow: hidden;
 }
 
 .runner-stage.tester-preview .tester-preview__spawn-object img,
@@ -1547,6 +1552,8 @@ textarea {
     padding: var(--jsmii-game-space-xl);
   }
 }
+
+/*# sourceMappingURL=main.css.map */
 
 /* jsmii runtime export overrides */
 .screen__hud-item--time::before {

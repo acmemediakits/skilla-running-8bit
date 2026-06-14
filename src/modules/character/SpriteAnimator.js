@@ -311,7 +311,10 @@ const normalizeAction = (id, action = {}) => {
 const normalizePreviewViewportTransform = (transform = {}) => ({
   x: Number(transform?.x ?? 0),
   y: Number(transform?.y ?? 0),
-  scale: Number(transform?.scale ?? 1)
+  scale: Number(transform?.scale ?? 1),
+  ...(transform?.maxJumpElevation !== undefined
+    ? { maxJumpElevation: clamp(Number(transform.maxJumpElevation), 0, 5) }
+    : {})
 });
 
 const normalizeCharacterProfile = (id = "hero", profile = {}) => {
@@ -616,6 +619,14 @@ export default class SpriteAnimator {
     }
   }
 
+  getPreviewValue(key, fallback = null) {
+    const viewport = this.context.db?.get?.("location.scene.viewport", "desktop") === "mobile" ? "mobile" : "desktop";
+    return this.config.preview?.viewports?.[viewport]?.[key]
+      ?? (viewport === "mobile" ? this.config.preview?.viewports?.desktop?.[key] : undefined)
+      ?? this.config.preview?.[key]
+      ?? fallback;
+  }
+
   getMotionPhysics(action, progress) {
     const weight = Number(this.context.physics?.getWeightValue?.(this.config.weightProfile) ?? 1);
     const gravity = Number(this.context.physics?.getGravityValue?.() ?? 1);
@@ -627,7 +638,7 @@ export default class SpriteAnimator {
     const speedFactor = Math.max(0.2, globalSpeed || 0.45) * Math.max(0.2, actionSpeed || 0.45);
     const weightFactor = 1 / Math.sqrt(Math.max(0.15, weight));
     const gravityFactor = 1 / Math.sqrt(Math.max(0.16, gravity));
-    const maxJumpElevation = clamp(Number(this.config.preview?.maxJumpElevation ?? DEFAULT_MAX_JUMP_ELEVATION), 0, 5);
+    const maxJumpElevation = clamp(Number(this.getPreviewValue("maxJumpElevation", DEFAULT_MAX_JUMP_ELEVATION)), 0, 5);
 
     return {
       progress,

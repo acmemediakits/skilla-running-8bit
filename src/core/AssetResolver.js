@@ -49,15 +49,28 @@ export class AssetResolver {
       return url.toString();
     }
 
+    const siteSourceMatch = value.match(/^project-sources\/[^/]+\/site\/assets\/source\/.+$/);
+    if (siteSourceMatch) {
+      return new URL(value, this.baseUrl).toString();
+    }
+
     const sourceMatch = value.match(/^project-sources\/([^/]+)\/assets\/source\/(.+)$/);
     if (!sourceMatch) {
       return "";
     }
 
     const [, projectId, assetPath] = sourceMatch;
-    const url = new URL(`/api/projects/${encodeURIComponent(projectId)}/assets/file`, window.location.origin);
+    const url = new URL(`/api/projects/${encodeURIComponent(this.normalizeProjectId(projectId))}/assets/file`, window.location.origin);
     url.searchParams.set("root", "source");
     url.searchParams.set("path", assetPath);
     return url.toString();
+  }
+
+  normalizeProjectId(value = "") {
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "foundation";
   }
 }
