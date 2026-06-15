@@ -724,7 +724,7 @@ aside#loading-overlay .loading-overlay__message {
   }
 }
 #screen-mount > .screen.screen--panel .screen__panel > * {
-  flex: 0 0 36%;
+  flex: 0 0 auto;
 }
 #screen-mount > .screen.screen--panel .screen__panel > p:empty, #screen-mount > .screen.screen--panel .screen__panel > h1:empty {
   display: none;
