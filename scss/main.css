@@ -1247,18 +1247,18 @@ aside#loading-overlay .loading-overlay__message {
     gap: 12px;
   }
 }
-#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas], #screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas], #screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] {
+#screen-mount:has(.screen[data-screen=level-1]) .screen--game-level[data-runner-renderer=preview-canvas], #screen-mount:has(.screen[data-screen=level-2]) .screen--game-level[data-runner-renderer=preview-canvas], #screen-mount:has(.screen[data-screen=level-3]) .screen--game-level[data-runner-renderer=preview-canvas] {
   /*.screen__game-header {
     display: none;
   }*/
 }
-#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-mount,
-#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export-set,
-#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export, #screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-mount,
-#screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export-set,
-#screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export, #screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-mount,
-#screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export-set,
-#screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export {
+#screen-mount:has(.screen[data-screen=level-1]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-mount,
+#screen-mount:has(.screen[data-screen=level-1]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-preview-export-set,
+#screen-mount:has(.screen[data-screen=level-1]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-preview-export, #screen-mount:has(.screen[data-screen=level-2]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-mount,
+#screen-mount:has(.screen[data-screen=level-2]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-preview-export-set,
+#screen-mount:has(.screen[data-screen=level-2]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-preview-export, #screen-mount:has(.screen[data-screen=level-3]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-mount,
+#screen-mount:has(.screen[data-screen=level-3]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-preview-export-set,
+#screen-mount:has(.screen[data-screen=level-3]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-preview-export {
   overflow: clip;
   overscroll-behavior: none;
   scrollbar-width: none;
@@ -1266,29 +1266,29 @@ aside#loading-overlay .loading-overlay__message {
   user-select: none;
   -webkit-user-select: none;
 }
-#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage,
-#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .tester-preview__stage, #screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage,
-#screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .tester-preview__stage, #screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage,
-#screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .tester-preview__stage {
+#screen-mount:has(.screen[data-screen=level-1]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-stage,
+#screen-mount:has(.screen[data-screen=level-1]) .screen--game-level[data-runner-renderer=preview-canvas] .tester-preview__stage, #screen-mount:has(.screen[data-screen=level-2]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-stage,
+#screen-mount:has(.screen[data-screen=level-2]) .screen--game-level[data-runner-renderer=preview-canvas] .tester-preview__stage, #screen-mount:has(.screen[data-screen=level-3]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-stage,
+#screen-mount:has(.screen[data-screen=level-3]) .screen--game-level[data-runner-renderer=preview-canvas] .tester-preview__stage {
   touch-action: none;
 }
-#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-mount::-webkit-scrollbar,
-#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export-set::-webkit-scrollbar,
-#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export::-webkit-scrollbar, #screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-mount::-webkit-scrollbar,
-#screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export-set::-webkit-scrollbar,
-#screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export::-webkit-scrollbar, #screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-mount::-webkit-scrollbar,
-#screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export-set::-webkit-scrollbar,
-#screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export::-webkit-scrollbar {
+#screen-mount:has(.screen[data-screen=level-1]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-mount::-webkit-scrollbar,
+#screen-mount:has(.screen[data-screen=level-1]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-preview-export-set::-webkit-scrollbar,
+#screen-mount:has(.screen[data-screen=level-1]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-preview-export::-webkit-scrollbar, #screen-mount:has(.screen[data-screen=level-2]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-mount::-webkit-scrollbar,
+#screen-mount:has(.screen[data-screen=level-2]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-preview-export-set::-webkit-scrollbar,
+#screen-mount:has(.screen[data-screen=level-2]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-preview-export::-webkit-scrollbar, #screen-mount:has(.screen[data-screen=level-3]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-mount::-webkit-scrollbar,
+#screen-mount:has(.screen[data-screen=level-3]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-preview-export-set::-webkit-scrollbar,
+#screen-mount:has(.screen[data-screen=level-3]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-preview-export::-webkit-scrollbar {
   display: none;
 }
-#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export--mobile,
-#screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage--mobile, #screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export--mobile,
-#screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage--mobile, #screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-preview-export--mobile,
-#screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage--mobile {
+#screen-mount:has(.screen[data-screen=level-1]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-preview-export--mobile,
+#screen-mount:has(.screen[data-screen=level-1]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-stage--mobile, #screen-mount:has(.screen[data-screen=level-2]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-preview-export--mobile,
+#screen-mount:has(.screen[data-screen=level-2]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-stage--mobile, #screen-mount:has(.screen[data-screen=level-3]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-preview-export--mobile,
+#screen-mount:has(.screen[data-screen=level-3]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-stage--mobile {
   width: min(100%, 390px);
 }
 @supports (width: 1svh) {
-  #screen-mount:has(.screen[data-screen=level-1]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage--mobile, #screen-mount:has(.screen[data-screen=level-2]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage--mobile, #screen-mount:has(.screen[data-screen=level-3]) .screen[data-screen=level-1][data-runner-renderer=preview-canvas] .runner-stage--mobile {
+  #screen-mount:has(.screen[data-screen=level-1]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-stage--mobile, #screen-mount:has(.screen[data-screen=level-2]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-stage--mobile, #screen-mount:has(.screen[data-screen=level-3]) .screen--game-level[data-runner-renderer=preview-canvas] .runner-stage--mobile {
     width: min(100%, 56.28svh, 390px);
   }
 }
