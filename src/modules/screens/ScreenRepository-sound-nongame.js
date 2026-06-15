@@ -307,6 +307,10 @@ export default class ScreenRepository {
     const screen = this.getDesignScreen(screenId);
     const audio = screen?.audio && typeof screen.audio === "object" ? screen.audio : {};
     const options = {};
+    if (screenId === "welcome") {
+      options.volume = 0;
+      return options;
+    }
     if (audio.volume != null && audio.volume !== "") {
       options.volume = audio.volume;
     }
