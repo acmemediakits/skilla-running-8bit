@@ -69,7 +69,11 @@ export const bootstrap = async () => {
     baseUrl: configuredBaseUrl
   };
 
-  const version = runtimeSettings?.build?.version || "dev";
+  const version = window.__JSMII_BUILD_ID__ || runtimeSettings?.build?.version || "dev";
+  runtimeSettings.build = {
+    ...(runtimeSettings.build || {}),
+    version
+  };
   const queryKey = runtimeSettings?.assets?.queryKey || "v";
 
   updateBootstrapMessage("Loading styles", 24);

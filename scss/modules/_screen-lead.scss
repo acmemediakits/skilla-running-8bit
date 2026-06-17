@@ -52,6 +52,24 @@ body:has(.screen--lead-generation) {
 
     //form settings
     #blockCta {
+      form.BlockCta {
+        & > div {
+          & > .emptyContainer > table {
+            min-height: 48px;
+            &:has(.submitButton),
+            &:has(.submitButton) table {
+              max-height: 48px;
+            }
+            th.columnContainer,
+            table {
+              min-height: 48px;
+              &.containerWrapper.tbContainer:has(.twoOptionFormFieldBlock) {
+                min-height: 160px;
+              }
+            }
+          }
+        }
+      }
       table {
         max-width: 80vw !important;
         @include desktop {
@@ -152,7 +170,7 @@ body:has(.screen--lead-generation) {
 
         div.submitButtonWrapper {
           display: flex;
-          justify-content: center;
+          justify-content: flex-start;
           button {
             @extend %jsmii-style-button-secondary;
             background-color: transparent !important;

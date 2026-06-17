@@ -1681,6 +1681,20 @@ body:has(.screen--lead-generation) .screen--lead-generation .screen__body {
     line-height: 1.2;
   }
 }
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta form.BlockCta > div > .emptyContainer > table {
+  min-height: 48px;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta form.BlockCta > div > .emptyContainer > table:has(.submitButton), body:has(.screen--lead-generation) .screen--lead-generation #blockCta form.BlockCta > div > .emptyContainer > table:has(.submitButton) table {
+  max-height: 48px;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta form.BlockCta > div > .emptyContainer > table th.columnContainer,
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta form.BlockCta > div > .emptyContainer > table table {
+  min-height: 48px;
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta form.BlockCta > div > .emptyContainer > table th.columnContainer.containerWrapper.tbContainer:has(.twoOptionFormFieldBlock),
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta form.BlockCta > div > .emptyContainer > table table.containerWrapper.tbContainer:has(.twoOptionFormFieldBlock) {
+  min-height: 160px;
+}
 body:has(.screen--lead-generation) .screen--lead-generation #blockCta table {
   max-width: 80vw !important;
 }
@@ -1790,7 +1804,7 @@ body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.cont
 }
 body:has(.screen--lead-generation) .screen--lead-generation #blockCta table div.submitButtonWrapper {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
 }
 body:has(.screen--lead-generation) .screen--lead-generation #blockCta table div.submitButtonWrapper button {
   background-color: transparent !important;
