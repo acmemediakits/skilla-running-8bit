@@ -7,11 +7,57 @@
   <meta name="mobile-flow" content="paged">
   <meta name="no-collision" content="false">
   <meta name="robots" content="noindex,nofollow">
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-K5JR45Q");</script>
+  <!-- End Google Tag Manager -->
   <title>SKILLA Game</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap">
   <link rel="stylesheet" href="./css/structure.css?v=1.1.3-20260615113534">
+  <script>
+    (() => {
+      const dynamicsFormLoaderSrc = "https://formui-usa1.mkt.dynamics.com/eur/FormLoader/FormLoader.bundle.js";
+      const dynamicsFormSelector = "[data-live-dynamics-form] [data-form-id]";
+      let dynamicsFormLoaderRequested = false;
+
+      const loadDynamicsFormLoader = () => {
+        if (dynamicsFormLoaderRequested) {
+          return;
+        }
+        dynamicsFormLoaderRequested = true;
+        const script = document.createElement("script");
+        script.src = dynamicsFormLoaderSrc;
+        script.async = true;
+        script.dataset.dynamicsFormLoader = "true";
+        document.head.appendChild(script);
+      };
+
+      const watchDynamicsForms = () => {
+        if (document.querySelector(dynamicsFormSelector)) {
+          loadDynamicsFormLoader();
+          return;
+        }
+        const observer = new MutationObserver(() => {
+          if (document.querySelector(dynamicsFormSelector)) {
+            observer.disconnect();
+            loadDynamicsFormLoader();
+          }
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+      };
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", watchDynamicsForms, { once: true });
+      } else {
+        watchDynamicsForms();
+      }
+    })();
+  </script>
   <script type="module">
     window.__JSMII_BASE_URL__ = "../";
     const SOUND_ENABLED_SESSION_KEY = "jsmii:soundEnabled";
@@ -48,6 +94,10 @@
   </script>
 </head>
 <body class="jsmii-shell is-booting">
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K5JR45Q"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
   <div id="app" class="app-shell">
     <main id="game-root" class="game-root" data-runtime="booting">
       <section id="screen-mount" class="screen-mount" aria-live="polite"></section>
