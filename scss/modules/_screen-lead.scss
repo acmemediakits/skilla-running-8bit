@@ -79,6 +79,9 @@ body:has(.screen--lead-generation) {
         th.inner {
           padding: 0 !important;
         }
+        th > div {
+          margin-top: 0!important;
+        }
 
         th:has(.containerWrapper h3),
         th:has(.columnContainer textarea) {
@@ -128,6 +131,9 @@ body:has(.screen--lead-generation) {
                 @include t.font(body);
                 border: none;
                 margin-top: 8px;
+              }
+              input[type="checkbox"] {
+                width: unset;
               }
 
 

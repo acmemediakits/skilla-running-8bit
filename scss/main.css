@@ -1706,6 +1706,9 @@ body:has(.screen--lead-generation) .screen--lead-generation #blockCta table {
 body:has(.screen--lead-generation) .screen--lead-generation #blockCta table th.inner {
   padding: 0 !important;
 }
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table th > div {
+  margin-top: 0 !important;
+}
 body:has(.screen--lead-generation) .screen--lead-generation #blockCta table th:has(.containerWrapper h3),
 body:has(.screen--lead-generation) .screen--lead-generation #blockCta table th:has(.columnContainer textarea) {
   padding: 0 !important;
@@ -1774,6 +1777,9 @@ body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.cont
     font-size: 16px;
     line-height: 1.2;
   }
+}
+body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer input[type=checkbox] {
+  width: unset;
 }
 body:has(.screen--lead-generation) .screen--lead-generation #blockCta table.containerWrapper tr th.columnContainer .twoOptionFormFieldBlock {
   text-align: left;
